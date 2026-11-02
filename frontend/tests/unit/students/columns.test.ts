@@ -13,6 +13,7 @@ const ROW: StudentRow = {
   decided_at: null,
   deactivated_at: null,
   performance_shared: true,
+  group_names: ['Class 11 A', 'Class 12 B'],
 }
 
 type Cell = (context: { row: { original: StudentRow } }) => unknown
@@ -30,7 +31,7 @@ describe('student table columns (T-14)', () => {
     ['DECLINED', 'Declined'],
     ['DEACTIVATED', 'Deactivated'],
   ] as const)('the %s tab shows the %s time', (tab, header) => {
-    expect(studentColumns(tab, NOW).map(column => column.header)).toEqual(['Name', 'Email', header, 'Performance'])
+    expect(studentColumns(tab, NOW).map(column => column.header)).toEqual(['Email', 'Groups', header, 'Performance'])
   })
 
   it('shows times relatively', () => {
@@ -44,5 +45,9 @@ describe('student table columns (T-14)', () => {
   it('marks shared performance', () => {
     expect(cellText('ACTIVE', 3)).toBe('📊 Shared')
     expect(cellText('ACTIVE', 3, { ...ROW, performance_shared: false })).toBe('')
+  })
+
+  it('lists the groups', () => {
+    expect(cellText('ACTIVE', 1)).toBe('Class 11 A, Class 12 B')
   })
 })

@@ -1,4 +1,5 @@
-// The columns of each T-14 tab. Times show exactly on hover and relatively in the cell.
+// The columns of each T-14 tab after the name (which StudentsTable links to the profile).
+// Times show exactly on hover and relatively in the cell.
 import type { TableColumn } from '@nuxt/ui'
 import { h } from 'vue'
 import type { ListedStatus, StudentRow } from '~/api/types'
@@ -16,8 +17,8 @@ const TIME_COLUMN: Record<ListedStatus, { field: TimeField, header: string }> = 
 export function studentColumns(tab: ListedStatus, nowMs: number): TableColumn<StudentRow>[] {
   const time = TIME_COLUMN[tab]
   return [
-    { accessorKey: 'name', header: 'Name' },
     { accessorKey: 'email', header: 'Email' },
+    { id: 'groups', header: 'Groups', cell: ({ row }) => row.original.group_names.join(', ') },
     {
       id: time.field,
       header: time.header,

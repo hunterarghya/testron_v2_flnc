@@ -86,3 +86,7 @@ def next_anonymized_number() -> int:
         cursor.execute("SELECT nextval('students_anonymized_seq')")
         number: int = cursor.fetchone()[0]
     return number
+
+
+def count_with_status(status: StudentStatus) -> int:
+    return Student.objects.filter(status=status).count()

@@ -10,6 +10,7 @@ export function fakeApi() {
     GET: vi.fn<(path: string, init?: unknown) => Promise<Answer>>(),
     POST: vi.fn<(path: string, init?: unknown) => Promise<Answer>>(),
     PATCH: vi.fn<(path: string, init?: unknown) => Promise<Answer>>(),
+    DELETE: vi.fn<(path: string, init?: unknown) => Promise<Answer>>(),
   }
 }
 

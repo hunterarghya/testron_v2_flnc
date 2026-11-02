@@ -18,6 +18,7 @@ function student(id: string, name: string, status: StudentRow['status'] = 'PENDI
   return {
     id, name, email: `${id}@x.in`, status, joined_at: '2026-11-01T10:00:00Z',
     requested_at: '2026-11-12T08:00:00Z', decided_at: null, deactivated_at: null, performance_shared: false,
+    group_names: ['Class 11 A'],
   }
 }
 
@@ -31,7 +32,13 @@ function queryOf(call: unknown[] | undefined): Record<string, unknown> {
 
 describe('StudentsTable (T-14)', () => {
   beforeEach(() => {
-    fake.GET.mockReset().mockImplementation((_path, init) => {
+    fake.GET.mockReset().mockImplementation((path, init) => {
+      if (path === '/api/v1/admin/groups') {
+        return ok([{ id: 'g1', name: 'Class 11 A' }])
+      }
+      if (path === '/api/v1/admin/badges') {
+        return ok({ pending_students: 2, results_to_publish: 0 })
+      }
       const query = (init as { params: { query: { status: string, page_size?: number } } }).params.query
       const rows = query.status === 'PENDING' ? [student('a', 'Aditi'), student('t', 'Tapas')] : []
       return ok(pageOf(query.page_size === 1 ? rows.slice(0, 1) : rows))
@@ -43,7 +50,7 @@ describe('StudentsTable (T-14)', () => {
     const wrapper = await mountSuspended(StudentsTable)
     await flushPromises()
 
-    const statuses = fake.GET.mock.calls.map(call => queryOf(call).status)
+    const statuses = fake.GET.mock.calls.filter(call => call[0] === '/api/v1/admin/students').map(call => queryOf(call).status)
     expect(new Set(statuses)).toEqual(new Set(['ACTIVE', 'PENDING', 'DECLINED', 'DEACTIVATED']))
     expect(wrapper.text()).toContain('No active students yet')
   })
@@ -57,6 +64,16 @@ describe('StudentsTable (T-14)', () => {
 
     expect(wrapper.text()).toContain('Aditi')
     expect(wrapper.text()).toContain('Tapas')
+  })
+
+  it('links each name to the profile and lists the groups', async () => {
+    const wrapper = await mountSuspended(StudentsTable)
+    await flushPromises()
+    await wrapper.findAll('button[role="tab"]').find(tab => tab.text().startsWith('Pending'))!.trigger('mousedown')
+    await flushPromises()
+
+    expect(wrapper.find('a[href="/admin/students/a"]').text()).toBe('Aditi')
+    expect(wrapper.text()).toContain('Class 11 A')
   })
 })
 

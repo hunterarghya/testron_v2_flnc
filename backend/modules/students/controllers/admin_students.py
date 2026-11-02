@@ -10,6 +10,7 @@ from modules.students.dto.students import (
     AnonymizeIn,
     ApproveIn,
     BulkResultOut,
+    StudentDetailOut,
     StudentFilterIn,
     StudentIdsIn,
     StudentRowOut,
@@ -19,6 +20,7 @@ from modules.students.services.commands import approve_students as approve
 from modules.students.services.commands import deactivate_students as deactivate
 from modules.students.services.commands import decline_students as decline
 from modules.students.services.commands import reactivate_students as reactivate
+from modules.students.services.queries import get_student as detail
 from modules.students.services.queries import list_students as listing
 
 
@@ -35,6 +37,12 @@ def list_students(
     )
     rows = [StudentRowOut.from_row(row) for row in result.rows]
     return Page[StudentRowOut].of(rows, page=page, total=result.total)
+
+
+def get_student(request: HttpRequest, student_id: UUID) -> StudentDetailOut:
+    return StudentDetailOut.from_detail(
+        detail.get_student(ctx_from(request), student_id=student_id)
+    )
 
 
 def approve_students(request: HttpRequest, payload: ApproveIn) -> BulkResultOut:

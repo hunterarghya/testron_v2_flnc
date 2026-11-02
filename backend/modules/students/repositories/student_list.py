@@ -1,5 +1,6 @@
 """The teacher's Students table (T-14): the page, the total, and the page's groups: 3 queries."""
 
+from collections.abc import Sequence
 from uuid import UUID
 
 from django.db.models import Exists, OuterRef, Q, QuerySet
@@ -14,14 +15,30 @@ def list_students(
     status: StudentStatus, *, search: str | None, group_id: UUID | None, offset: int, limit: int
 ) -> tuple[list[StudentRow], int]:
     students = _filtered(status, search, group_id)
-    page = (
-        students.select_related("user")
-        .annotate(shared=Exists(PerformanceShare.objects.filter(student_id=OuterRef("user_id"))))
-        .order_by(*_ordering(status))[offset : offset + limit]
-    )
+    page = _with_share(students.select_related("user")).order_by(*_ordering(status))[
+        offset : offset + limit
+    ]
     found = list(page)
     names = group_names_by_student([student.user_id for student in found])
     return [_row(student, names[student.user_id]) for student in found], students.count()
+
+
+def find_student_row(student_id: UUID, *, statuses: Sequence[StudentStatus]) -> StudentRow | None:
+    """One student as the table shows them, if their status is one of `statuses`."""
+    student = (
+        _with_share(Student.objects.filter(user_id=student_id, status__in=statuses))
+        .select_related("user")
+        .first()
+    )
+    if student is None:
+        return None
+    return _row(student, group_names_by_student([student_id])[student_id])
+
+
+def _with_share(students: QuerySet[Student]) -> QuerySet[Student]:
+    return students.annotate(
+        shared=Exists(PerformanceShare.objects.filter(student_id=OuterRef("user_id")))
+    )
 
 
 def _filtered(

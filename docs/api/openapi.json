@@ -544,6 +544,39 @@
         }
       }
     },
+    "/api/v1/admin/students/{student_id}": {
+      "get": {
+        "operationId": "get_student",
+        "summary": "One student's page: details, groups and sharing",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "student_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Student Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      }
+    },
     "/api/v1/admin/students/{student_id}/anonymize": {
       "post": {
         "operationId": "anonymize_student",
@@ -1289,6 +1322,28 @@
           "authoring"
         ]
       }
+    },
+    "/api/v1/admin/badges": {
+      "get": {
+        "operationId": "get_badges",
+        "summary": "The counts on the teacher's menu",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadgesOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
     }
   },
   "components": {
@@ -1878,6 +1933,48 @@
           "student_ids"
         ],
         "title": "StudentIdsIn",
+        "type": "object"
+      },
+      "GroupRefOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "GroupRefOut",
+        "type": "object"
+      },
+      "StudentDetailOut": {
+        "additionalProperties": false,
+        "description": "T-15's header. `groups` are the student's active groups, with ids to add or remove.",
+        "properties": {
+          "student": {
+            "$ref": "#/components/schemas/StudentRowOut"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/GroupRefOut"
+            },
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": [
+          "student",
+          "groups"
+        ],
+        "title": "StudentDetailOut",
         "type": "object"
       },
       "AnonymizeIn": {
@@ -2622,6 +2719,25 @@
           "removed_from_questions"
         ],
         "title": "TagDeleteOut",
+        "type": "object"
+      },
+      "BadgesOut": {
+        "additionalProperties": false,
+        "properties": {
+          "pending_students": {
+            "title": "Pending Students",
+            "type": "integer"
+          },
+          "results_to_publish": {
+            "title": "Results To Publish",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pending_students",
+          "results_to_publish"
+        ],
+        "title": "BadgesOut",
         "type": "object"
       }
     }

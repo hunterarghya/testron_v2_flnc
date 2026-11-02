@@ -1,10 +1,11 @@
-// T-14's data: one tab of students (searchable, paged), the count on each tab, and the
-// admission actions, which refresh both afterwards.
+// T-14's data: one tab of students (searchable, paged, by group), the count on each tab,
+// and the admission actions, which refresh both (and the menu badge) afterwards.
 import { onScopeDispose, ref, watch } from 'vue'
 import { api, unwrap } from '~/api/client'
 import type { BulkResult, ListedStatus, StudentPage } from '~/api/types'
 import type { StudentAction } from '~/features/students/utils/bulk-summary'
 import { useApiData } from '~/shared/composables/useApiData'
+import { useBadges } from '~/shared/composables/useBadges'
 
 export const TABS: ListedStatus[] = ['ACTIVE', 'PENDING', 'DECLINED', 'DEACTIVATED']
 export const PAGE_SIZE = 50
@@ -14,16 +15,21 @@ export function useStudents() {
   const tab = ref<ListedStatus>('ACTIVE')
   const search = ref('')
   const page = ref(1)
+  // Narrows every tab to one group; undefined means all students
+  const groupId = ref<string>()
+  const badges = useBadges()
 
   const list = useApiData<StudentPage>(() =>
     unwrap(api.GET('/api/v1/admin/students', {
-      params: { query: { status: tab.value, q: search.value.trim() || undefined, page: page.value, page_size: PAGE_SIZE } },
+      params: { query: { status: tab.value, q: search.value.trim() || undefined, group_id: groupId.value, page: page.value, page_size: PAGE_SIZE } },
     })),
   )
   const counts = useApiData<Record<ListedStatus, number>>(loadCounts)
+  const groups = useApiData(() => unwrap(api.GET('/api/v1/admin/groups', { params: { query: { archived: false } } })))
 
   async function refresh(): Promise<void> {
-    await Promise.all([list.refresh(), counts.refresh()])
+    // The badge is a nicety: if it fails to load, the table still refreshes
+    await Promise.all([list.refresh(), counts.refresh(), badges.refresh().catch(() => undefined)])
   }
 
   async function act(action: StudentAction, studentIds: string[]): Promise<BulkResult> {
@@ -41,6 +47,10 @@ export function useStudents() {
   }
 
   watch([tab, page], () => list.refresh())
+  watch(groupId, () => {
+    page.value = 1
+    void list.refresh()
+  })
   let searchTimer: ReturnType<typeof setTimeout> | undefined
   watch(search, () => {
     clearTimeout(searchTimer)
@@ -51,7 +61,7 @@ export function useStudents() {
   })
   onScopeDispose(() => clearTimeout(searchTimer))
 
-  return { tab, search, page, list, counts, refresh, act, anonymize }
+  return { tab, search, page, groupId, list, counts, groups, refresh, act, anonymize }
 }
 
 async function loadCounts(): Promise<Record<ListedStatus, number>> {

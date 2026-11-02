@@ -296,6 +296,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/students/{student_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One student's page: details, groups and sharing */
+        get: operations["get_student"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/students/{student_id}/anonymize": {
         parameters: {
             query?: never;
@@ -572,6 +589,23 @@ export interface paths {
         patch: operations["rename_tag"];
         trace?: never;
     };
+    "/api/v1/admin/badges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The counts on the teacher's menu */
+        get: operations["get_badges"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -796,6 +830,25 @@ export interface components {
         StudentIdsIn: {
             /** Student Ids */
             student_ids: string[];
+        };
+        /** GroupRefOut */
+        GroupRefOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * StudentDetailOut
+         * @description T-15's header. `groups` are the student's active groups, with ids to add or remove.
+         */
+        StudentDetailOut: {
+            student: components["schemas"]["StudentRowOut"];
+            /** Groups */
+            groups: components["schemas"]["GroupRefOut"][];
         };
         /** AnonymizeIn */
         AnonymizeIn: {
@@ -1058,6 +1111,13 @@ export interface components {
         TagDeleteOut: {
             /** Removed From Questions */
             removed_from_questions: number;
+        };
+        /** BadgesOut */
+        BadgesOut: {
+            /** Pending Students */
+            pending_students: number;
+            /** Results To Publish */
+            results_to_publish: number;
         };
     };
     responses: never;
@@ -1448,6 +1508,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    get_student: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentDetailOut"];
                 };
             };
         };
@@ -1915,6 +1997,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagRenameOut"];
+                };
+            };
+        };
+    };
+    get_badges: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BadgesOut"];
                 };
             };
         };

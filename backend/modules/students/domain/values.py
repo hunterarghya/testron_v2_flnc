@@ -53,3 +53,17 @@ class AudienceCandidate:
     name: str
     email: str
     group_names: list[str]
+
+
+@dataclass(frozen=True, slots=True)
+class GroupRef:
+    id: UUID
+    name: str
+
+
+@dataclass(frozen=True, slots=True)
+class StudentDetail:
+    """T-15's header: the student's row plus their active groups, with ids to act on."""
+
+    row: StudentRow
+    groups: list[GroupRef]

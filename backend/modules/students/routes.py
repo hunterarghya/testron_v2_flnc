@@ -7,7 +7,7 @@ from core.http.pagination import Page
 from modules.students.controllers import admin_groups, admin_students, auth
 from modules.students.dto.auth import SessionOut, SessionUserOut, SignUpAcceptedOut
 from modules.students.dto.groups import AudienceCandidateOut, GroupDetailOut, GroupOut
-from modules.students.dto.students import BulkResultOut, StudentRowOut
+from modules.students.dto.students import BulkResultOut, StudentDetailOut, StudentRowOut
 
 # Teacher area by default; the public admission routes (/auth/*) set auth=None (ADR-050)
 router = Router(tags=["students"], auth=TeacherArea())
@@ -93,6 +93,13 @@ router.add_api_operation(
     admin_students.reactivate_students,
     response={200: BulkResultOut},
     summary="Reactivate students",
+)
+router.add_api_operation(
+    "/admin/students/{student_id}",
+    ["GET"],
+    admin_students.get_student,
+    response={200: StudentDetailOut},
+    summary="One student's page: details, groups and sharing",
 )
 router.add_api_operation(
     "/admin/students/{student_id}/anonymize",

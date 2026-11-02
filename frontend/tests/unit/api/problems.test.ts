@@ -14,7 +14,8 @@ const CATALOG = [
   'password_incorrect', 'attempt_ended', 'attempt_taken_over', 'stage_closed',
   'question_not_in_stage', 'answer_invalid', 'stage_navigation_invalid',
   'results_not_published', 'performance_not_shared', 'database_unavailable',
-  'internal_error', 'network_error',
+  'internal_error', 'network_error', 'group_archived', 'upload_rejected',
+  'upload_failed', 'image_type', 'image_too_large',
 ]
 
 const problem = (code: string) => new ApiProblem({ status: 409, code, detail: 'x' })

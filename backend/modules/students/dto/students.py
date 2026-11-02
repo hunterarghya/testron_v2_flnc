@@ -6,7 +6,7 @@ from ninja import Schema
 from pydantic import ConfigDict, Field, model_validator
 
 from modules.students.domain.bulk import BulkOutcome
-from modules.students.domain.values import StudentRow
+from modules.students.domain.values import GroupRef, StudentDetail, StudentRow
 
 # The tabs of T-14; UNVERIFIED and ANONYMIZED accounts are never listed
 ListedStatus = Literal["ACTIVE", "PENDING", "DECLINED", "DEACTIVATED"]
@@ -86,6 +86,33 @@ class StudentRowOut(Schema):
             deactivated_at=row.deactivated_at,
             performance_shared=row.performance_shared,
             group_names=row.group_names,
+        )
+
+
+class GroupRefOut(Schema):
+    model_config = ConfigDict(extra="forbid")
+
+    id: UUID
+    name: str
+
+    @classmethod
+    def from_ref(cls, group: GroupRef) -> Self:
+        return cls(id=group.id, name=group.name)
+
+
+class StudentDetailOut(Schema):
+    """T-15's header. `groups` are the student's active groups, with ids to add or remove."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    student: StudentRowOut
+    groups: list[GroupRefOut]
+
+    @classmethod
+    def from_detail(cls, detail: StudentDetail) -> Self:
+        return cls(
+            student=StudentRowOut.from_row(detail.row),
+            groups=[GroupRefOut.from_ref(group) for group in detail.groups],
         )
 
 

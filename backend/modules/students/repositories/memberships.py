@@ -5,7 +5,7 @@ from uuid import UUID
 from django.db.models import F
 
 from core.context import StudentStatus
-from modules.students.domain.values import AudienceCandidate, GroupMember
+from modules.students.domain.values import AudienceCandidate, GroupMember, GroupRef
 from modules.students.models import GroupMembership, PerformanceShare, Student
 
 
@@ -72,6 +72,16 @@ def group_names_by_student(student_ids: Sequence[UUID]) -> dict[UUID, list[str]]
     for student_id, name in rows:
         names[student_id].append(name)
     return names
+
+
+def groups_of_student(student_id: UUID) -> list[GroupRef]:
+    """The student's active groups, by name."""
+    rows = (
+        GroupMembership.objects.filter(student_id=student_id, group__archived_at__isnull=True)
+        .order_by("group__name")
+        .values_list("group_id", "group__name")
+    )
+    return [GroupRef(id=group_id, name=name) for group_id, name in rows]
 
 
 def active_students_in_groups(group_ids: Sequence[UUID]) -> list[AudienceCandidate]:
