@@ -1,0 +1,4 @@
+# Dependency install scripts are blocked unless listed here (supply-chain safety).
+allowBuilds:
+  esbuild: true
+  vue-demi: true

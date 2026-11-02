@@ -1,0 +1,29 @@
+/* Self-hosted fonts (ADR-034): bundled into the build, never fetched from a CDN */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/noto-sans-bengali/400.css";
+@import "@fontsource/noto-sans-bengali/600.css";
+
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* Design tokens (frontend_spec.md §2). Components use these, never one-off values. */
+@theme static {
+  --font-sans: "Inter", "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  /* Question text puts Bengali first, so conjuncts always use the Bengali font */
+  --font-content: "Noto Sans Bengali", "Inter", sans-serif;
+
+  /* Exam palette: one colour per question state */
+  --color-answered: var(--color-green-600);
+  --color-not-answered: var(--color-red-500);
+  --color-not-visited: var(--color-slate-300);
+  --color-marked: var(--color-violet-600);
+}
+
+/* Rich content (questions, options, solutions): readable size and spacing */
+@utility content-text {
+  font-family: var(--font-content);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  max-width: 75ch;
+}
