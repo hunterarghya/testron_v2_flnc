@@ -5,8 +5,9 @@ import { api } from '~/api/client'
 import { ApiProblem } from '~/api/problems'
 import type { EditorQuestion, TestDocument, TestMutation } from '~/api/types'
 import TestEditor from '~/features/editor/components/TestEditor.vue'
-import { textToDoc } from '~/shared/utils/plain-doc'
+import { textToDoc } from '../docs'
 import { type FakeApi, ok } from '../fake-api'
+import { RichFieldStub } from '../rich-field-stub'
 
 vi.mock('~/api/client', async () => {
   const { fakeApi, fakeClientModule } = await import('../fake-api')
@@ -46,7 +47,7 @@ const saved = (revision: number): TestMutation & { question: EditorQuestion } =>
 })
 
 async function mountEditor() {
-  const wrapper = await mountSuspended(TestEditor, { props: { testId: 't1' } })
+  const wrapper = await mountSuspended(TestEditor, { props: { testId: 't1' }, global: { stubs: { RichField: RichFieldStub } } })
   await flushPromises()
   return wrapper
 }

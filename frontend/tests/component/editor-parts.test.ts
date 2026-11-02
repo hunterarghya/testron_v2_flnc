@@ -7,8 +7,8 @@ import OverridePopover from '~/features/editor/components/OverridePopover.vue'
 import NumericAnswer from '~/features/editor/components/NumericAnswer.vue'
 import OptionsEditor from '~/features/editor/components/OptionsEditor.vue'
 import TagPills from '~/shared/components/TagPills.vue'
-import RichField from '~/shared/components/RichField.vue'
-import { textToDoc } from '~/shared/utils/plain-doc'
+import { textToDoc } from '../docs'
+import { RichFieldStub } from '../rich-field-stub'
 
 const SETTINGS: TestSettings = {
   timing: { kind: 'PER_QUESTION', default_question_s: 45 }, shuffle_questions: false, shuffle_options: false,
@@ -63,7 +63,7 @@ describe('options and answers', () => {
   it('MSQ options toggle independently; options can be added and removed', async () => {
     // The editor's test is deeply reactive; so is this one
     const q = reactive(question())
-    const wrapper = await mountSuspended(OptionsEditor, { props: { question: q } })
+    const wrapper = await mountSuspended(OptionsEditor, { props: { question: q }, global: { stubs: { RichField: RichFieldStub } } })
 
     await wrapper.find('button[aria-label="Mark option B correct"]').trigger('click')
     await wrapper.findAll('button').find(b => b.text() === 'Add option')!.trigger('click')
@@ -87,14 +87,6 @@ describe('options and answers', () => {
 })
 
 describe('fields', () => {
-  it('a formatted field is shown, not flattened', async () => {
-    const formatted = { v: 1, type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'bold', marks: [{ type: 'bold' }] }] }] }
-    const wrapper = await mountSuspended(RichField, { props: { modelValue: formatted, label: 'Stem' } })
-
-    expect(wrapper.find('textarea').exists()).toBe(false)
-    expect(wrapper.text()).toContain('bold')
-  })
-
   it('tag pills add a new name once, ignoring case', async () => {
     const suggest = vi.fn(() => Promise.resolve(['Cell']))
     const wrapper = await mountSuspended(TagPills, { props: { modelValue: ['Cell'], label: 'Chapter', suggest } })

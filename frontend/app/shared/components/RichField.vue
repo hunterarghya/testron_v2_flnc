@@ -1,51 +1,34 @@
-<!-- One rich-content field (stem, option, solution, instructions). Interim version: plain text,
-     one paragraph per line (ADR-065). Step 3.8 replaces the inside with TipTap; the props and
-     events stay the same. Content with formatting is shown, not flattened. -->
+<!-- One rich-content field (stem, option, solution, instructions). The TipTap editor is loaded on
+     first use, so only the teacher's editor pages download it (frontend_spec.md §1). -->
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { defineAsyncComponent } from 'vue'
 import type { RichDoc } from '~/api/types'
-import { docToText, isPlainDoc, summaryText, textToDoc } from '~/shared/utils/plain-doc'
+import type { EditorCommand, PageInsert } from '~/shared/components/rich-content/menus'
 
-defineProps<{
+withDefaults(defineProps<{
   placeholder?: string
   // full: stem, solution, instructions · compact: an option (editor_content_spec.md §1)
   profile?: 'full' | 'compact'
   disabled?: boolean
   label?: string
-}>()
+  // Question or section inserts in the "/" menu (a stem only)
+  inserts?: PageInsert[]
+}>(), { profile: 'full', placeholder: undefined, label: undefined, inserts: () => [] })
 const model = defineModel<RichDoc | null>({ required: true })
-const emit = defineEmits<{ blur: [] }>()
+const emit = defineEmits<{ blur: [], command: [command: EditorCommand] }>()
 
-const text = ref(docToText(model.value))
-const editable = computed(() => isPlainDoc(model.value))
-
-watch(model, (doc) => {
-  // Outside changes (a reload, an import) replace the text; our own echo doesn't
-  if (docToText(doc) !== text.value) text.value = docToText(doc)
-})
-
-function onInput(value: string | number): void {
-  text.value = String(value)
-  model.value = textToDoc(text.value)
-}
+const RichContentEditor = defineAsyncComponent(() => import('~/shared/components/rich-content/RichContentEditor.vue'))
 </script>
 
 <template>
-  <UTextarea
-    v-if="editable"
-    :model-value="text"
+  <RichContentEditor
+    v-model="model"
+    :profile="profile"
     :placeholder="placeholder"
-    :rows="profile === 'compact' ? 1 : 2"
     :disabled="disabled"
-    :aria-label="label ?? placeholder"
-    autoresize
-    variant="ghost"
-    class="w-full"
-    @update:model-value="onInput"
+    :label="label"
+    :inserts="inserts"
     @blur="emit('blur')"
+    @command="(command: EditorCommand) => emit('command', command)"
   />
-  <p v-else class="rounded-md bg-elevated px-3 py-2 text-sm" :aria-label="label">
-    {{ summaryText(model) }}
-    <span class="block text-xs text-muted">Formatted content: editable with the rich editor.</span>
-  </p>
 </template>

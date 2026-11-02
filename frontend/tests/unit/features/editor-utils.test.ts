@@ -3,8 +3,8 @@ import type { EditorQuestion } from '~/api/types'
 import { moveInLayout } from '~/features/editor/composables/useEditorActions'
 import { adoptIds, isNewOption, newOption, optionLabel, questionBody, retyped } from '~/features/editor/utils/question-body'
 import { formatDecimal } from '~/shared/utils/decimals'
-import { docToText, EMPTY_DOC, isPlainDoc, summaryText, textToDoc } from '~/shared/utils/plain-doc'
 import { formatDuration } from '~/shared/utils/time'
+import { EMPTY_DOC, textToDoc } from '../../docs'
 
 function question(changes: Partial<EditorQuestion> = {}): EditorQuestion {
   return {
@@ -59,29 +59,6 @@ describe('question payloads', () => {
 
   it('labels options A, B, C…', () => {
     expect([0, 1, 9].map(optionLabel)).toEqual(['A', 'B', 'J'])
-  })
-})
-
-describe('plain documents (interim fields)', () => {
-  it('text becomes one paragraph per line and back', () => {
-    const doc = textToDoc('\nOne\n\nTwo\n')
-
-    expect(doc.content).toEqual([
-      { type: 'paragraph', content: [{ type: 'text', text: 'One' }] },
-      { type: 'paragraph' },
-      { type: 'paragraph', content: [{ type: 'text', text: 'Two' }] },
-    ])
-    expect(docToText(doc)).toBe('One\n\nTwo')
-    expect(textToDoc('')).toEqual(EMPTY_DOC)
-  })
-
-  it('formatted content is not plain, but its text can be shown', () => {
-    const formatted = { v: 1, type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'H' }, { type: 'text', text: '2', marks: [{ type: 'subscript' }] }] }] }
-
-    expect(isPlainDoc(formatted)).toBe(false)
-    expect(isPlainDoc(textToDoc('plain'))).toBe(true)
-    expect(summaryText(formatted)).toBe('H 2')
-    expect(docToText(null)).toBe('')
   })
 })
 

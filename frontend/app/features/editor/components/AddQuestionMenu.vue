@@ -1,10 +1,11 @@
 <!-- "+ Add question" (T-03): MCQ, MSQ or Numerical after the given question, and, in sectioned
-     tests, a new section. The slash menu inside text fields comes with the rich editor (3.8). -->
+     tests, a new section. Inside a question's text, "/" offers the same (T-03). -->
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed } from 'vue'
 import type { QuestionType } from '~/api/types'
 import { useEditorContext } from '~/features/editor/composables/editorContext'
+import { focusQuestion } from '~/features/editor/utils/focus'
 
 const props = defineProps<{ sectionId: string, afterId: string | null, sectioned: boolean }>()
 
@@ -13,7 +14,7 @@ const { editor, actions } = useEditorContext()
 async function add(type: QuestionType): Promise<void> {
   const id = await actions.addQuestion(type, props.sectionId, props.afterId)
   // Straight to typing the question
-  if (id) setTimeout(() => document.querySelector<HTMLElement>(`#question-${id} textarea`)?.focus())
+  if (id) focusQuestion(id)
 }
 
 const items = computed<DropdownMenuItem[][]>(() => [

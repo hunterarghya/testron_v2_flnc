@@ -30,6 +30,8 @@ const sameFeaturePolicy = {
   },
 }
 
+const NO_RAW_HTML = 'No raw HTML from data (CLAUDE.md rule 5); the one exception is renderMath.ts'
+
 export default withNuxt(
   {
     rules: {
@@ -42,7 +44,17 @@ export default withNuxt(
         { name: 'fetch', message: NO_FETCH },
         { name: '$fetch', message: NO_FETCH },
       ],
+      'no-restricted-properties': [
+        'error',
+        { property: 'innerHTML', message: NO_RAW_HTML },
+        { property: 'outerHTML', message: NO_RAW_HTML },
+      ],
     },
+  },
+  {
+    // KaTeX output (editor_content_spec.md §6) and reading back pasted HTML already cleaned
+    files: ['app/shared/components/rich-content/renderMath.ts', 'app/shared/components/rich-content/paste.ts'],
+    rules: { 'no-restricted-properties': 'off' },
   },
   {
     // The API client, and the browser export builders that load fonts and images (ADR-019)

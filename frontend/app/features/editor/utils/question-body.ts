@@ -1,7 +1,7 @@
 // What one question save sends, and what the editor takes back from the answer
 // (api_contract.md §2.5: the whole question; options replaced, kept ids stay; tags by name).
 import type { EditorOption, EditorQuestion, QuestionPatch, RichDoc, Tag } from '~/api/types'
-import { EMPTY_DOC } from '~/shared/utils/plain-doc'
+import { EMPTY_DOC } from '~/shared/components/rich-content/convert'
 
 export type QuestionBody = Omit<QuestionPatch, 'revision'>
 

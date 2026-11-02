@@ -25,6 +25,7 @@ export const PROBLEM_MESSAGES: Record<string, string> = {
   upload_failed: 'The image couldn\'t be uploaded. Try again.',
   image_type: 'Use a PNG, JPEG, WebP or GIF image.',
   image_too_large: 'Use an image of 5 MB or less.',
+  image_not_copied: 'Some pasted images couldn\'t be copied. Upload them instead.',
   confirmation_mismatch: 'The confirmation text doesn\'t match.',
   assignment_started: 'This can\'t be changed after the test has started.',
   assignment_cancelled: 'This test assignment was cancelled.',
