@@ -34,7 +34,7 @@ A private online test platform for a coaching center: **one teacher** writes and
 
 ## Quick start
 
-**Prerequisites:** Docker, uv, Node 22 (with corepack), just. On Windows, work inside **WSL2**.
+**Prerequisites:** Docker, uv, Node 22 (with corepack), just. On Windows, also Git for Windows (`just` runs its recipes in Git Bash); WSL is not needed.
 
 ```bash
 cp .env.example .env
