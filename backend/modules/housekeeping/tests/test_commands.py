@@ -34,6 +34,8 @@ def test_seed_creates_the_teacher_from_the_environment(monkeypatch: pytest.Monke
     first, second = run("seed"), run("seed")
 
     assert "Teacher created" in first
+    assert "App settings created" in first
+    assert "App settings already existed" in second
     assert "already existed" in second
     teacher_id = find_user_id_by_email("teacher@example.com")
     assert teacher_id is not None

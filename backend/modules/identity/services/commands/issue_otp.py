@@ -14,8 +14,6 @@ _TEMPLATES = {
     OtpPurpose.VERIFY_EMAIL: "identity/email/verify_email",
     OtpPurpose.RESET_PASSWORD: "identity/email/reset_password",
 }
-# Until the teacher's branding exists (Phase 2), emails use the product name (backlog O-11)
-PRODUCT_NAME = "Test Platform"
 
 
 def issue_otp(ctx: Ctx, *, user_id: UUID, purpose: OtpPurpose) -> None:
@@ -38,7 +36,6 @@ def issue_otp(ctx: Ctx, *, user_id: UUID, purpose: OtpPurpose) -> None:
     context = {
         "name": user.name,
         "code": code,
-        "coaching_name": PRODUCT_NAME,
         "expires_in_minutes": int(OTP_LIFETIME.total_seconds() // 60),
     }
     transaction.on_commit(lambda: mail.send(_TEMPLATES[purpose], to=user.email, context=context))

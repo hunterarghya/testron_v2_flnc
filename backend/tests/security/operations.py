@@ -20,6 +20,7 @@ class Area(StrEnum):
 # Routes outside the prefix areas, one by one
 ROUTE_AREAS: dict[str, Area] = {
     "GET /api/v1/healthz": Area.PUBLIC,
+    "GET /api/v1/app": Area.PUBLIC,
     "GET /api/v1/auth/csrf": Area.PUBLIC,
     "GET /api/v1/auth/session": Area.PUBLIC,
     "POST /api/v1/auth/sign-up": Area.PUBLIC,

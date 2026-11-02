@@ -995,6 +995,112 @@
         }
       }
     },
+    "/api/v1/admin/media/upload-signature": {
+      "post": {
+        "operationId": "sign_image_upload",
+        "summary": "Sign one image upload straight from the browser to storage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadSignatureOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "media"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadSignatureIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/app": {
+      "get": {
+        "operationId": "get_app_info",
+        "summary": "The coaching centre's name and logo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppInfoOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/settings": {
+      "get": {
+        "operationId": "get_app_settings",
+        "summary": "The teacher's defaults for new tests and the branding",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      },
+      "patch": {
+        "operationId": "update_app_settings",
+        "summary": "Change some of the defaults or the branding",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppSettingsPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/admin/tags/suggest": {
       "get": {
         "operationId": "suggest_tags",
@@ -2067,6 +2173,269 @@
           }
         },
         "title": "ShareIn",
+        "type": "object"
+      },
+      "UploadSignatureOut": {
+        "additionalProperties": false,
+        "properties": {
+          "token": {
+            "title": "Token",
+            "type": "string"
+          },
+          "expire": {
+            "title": "Expire",
+            "type": "integer"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          },
+          "public_key": {
+            "title": "Public Key",
+            "type": "string"
+          },
+          "url_endpoint": {
+            "title": "Url Endpoint",
+            "type": "string"
+          },
+          "folder": {
+            "title": "Folder",
+            "type": "string"
+          },
+          "upload_url": {
+            "title": "Upload Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "expire",
+          "signature",
+          "public_key",
+          "url_endpoint",
+          "folder",
+          "upload_url"
+        ],
+        "title": "UploadSignatureOut",
+        "type": "object"
+      },
+      "UploadSignatureIn": {
+        "additionalProperties": false,
+        "properties": {
+          "file_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "File Name",
+            "type": "string"
+          },
+          "mime": {
+            "maxLength": 100,
+            "title": "Mime",
+            "type": "string"
+          },
+          "size_bytes": {
+            "minimum": 1,
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "file_name",
+          "mime",
+          "size_bytes"
+        ],
+        "title": "UploadSignatureIn",
+        "type": "object"
+      },
+      "AppInfoOut": {
+        "additionalProperties": false,
+        "properties": {
+          "coaching_name": {
+            "title": "Coaching Name",
+            "type": "string"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          }
+        },
+        "required": [
+          "coaching_name",
+          "logo_url"
+        ],
+        "title": "AppInfoOut",
+        "type": "object"
+      },
+      "AppSettingsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "coaching_name": {
+            "title": "Coaching Name",
+            "type": "string"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "default_marks": {
+            "title": "Default Marks",
+            "type": "string"
+          },
+          "default_negative_marks": {
+            "title": "Default Negative Marks",
+            "type": "string"
+          },
+          "default_integrity_grace_s": {
+            "title": "Default Integrity Grace S",
+            "type": "integer"
+          },
+          "default_integrity_max_warnings": {
+            "title": "Default Integrity Max Warnings",
+            "type": "integer"
+          },
+          "default_integrity_action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
+            "title": "Default Integrity Action",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "coaching_name",
+          "logo_url",
+          "default_marks",
+          "default_negative_marks",
+          "default_integrity_grace_s",
+          "default_integrity_max_warnings",
+          "default_integrity_action",
+          "updated_at"
+        ],
+        "title": "AppSettingsOut",
+        "type": "object"
+      },
+      "AppSettingsPatchIn": {
+        "additionalProperties": false,
+        "description": "Any subset of the settings. Values are checked by the use case, reported per field.",
+        "properties": {
+          "coaching_name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coaching Name"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "default_marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Marks"
+          },
+          "default_negative_marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Negative Marks"
+          },
+          "default_integrity_grace_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Integrity Grace S"
+          },
+          "default_integrity_max_warnings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Integrity Max Warnings"
+          },
+          "default_integrity_action": {
+            "anyOf": [
+              {
+                "enum": [
+                  "AUTO_SUBMIT",
+                  "DISQUALIFY"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Integrity Action"
+          }
+        },
+        "title": "AppSettingsPatchIn",
         "type": "object"
       },
       "TagSuggestIn": {

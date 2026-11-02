@@ -40,6 +40,8 @@ export default defineNuxtConfig({
     // so cookies and CSRF behave as in production (dev_environment_and_deployment.md §1.3)
     devProxy: {
       '/api': { target: 'http://127.0.0.1:8000/api', changeOrigin: false },
+      // The local stand-in for ImageKit (MEDIA_BACKEND=local)
+      '/dev-media': { target: 'http://127.0.0.1:8000/dev-media', changeOrigin: false },
     },
   },
 })

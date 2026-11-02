@@ -61,5 +61,5 @@ def _answer_existing_owner(ctx: Ctx, user_id: UUID) -> None:
     mail.send(
         "students/email/account_exists",
         to=owner.email,
-        context={"name": owner.name, "coaching_name": identity.PRODUCT_NAME},
+        context={"name": owner.name},
     )

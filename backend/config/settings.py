@@ -58,6 +58,9 @@ WHITENOISE_INDEX_FILE = True
 # Nuxt puts a content hash in every file name under /_nuxt/, so browsers may keep them forever
 WHITENOISE_IMMUTABLE_FILE_TEST = r"/_nuxt/"
 
+# The local dev adapter keeps uploaded images here (MEDIA_BACKEND=local; gitignored)
+LOCAL_MEDIA_ROOT = BASE_DIR / ".media"
+
 # Order as in architecture.md §5.1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -95,6 +98,8 @@ SESSION_ENGINE = "modules.identity.sessions"
 # Turns a request into the Actor the area guards check (core.http.areas, ADR-044):
 # the login from identity plus the admission status from students
 ACTOR_RESOLVER = "modules.students.actors.resolve_actor"
+# The coaching centre's name in every email (core.mail, ADR-060): the teacher's branding
+MAIL_BRAND_NAME = "modules.authoring.public.get_coaching_name"
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"

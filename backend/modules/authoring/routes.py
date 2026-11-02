@@ -3,10 +3,37 @@
 from ninja import Router
 
 from core.http.areas import TeacherArea
-from modules.authoring.controllers import tags
+from modules.authoring.controllers import app_settings, tags
+from modules.authoring.dto.app_settings import AppInfoOut, AppSettingsOut
 from modules.authoring.dto.tags import TagDeleteOut, TagOut, TagRenameOut, TagUsageOut
 
 router = Router(tags=["authoring"], auth=TeacherArea())
+
+# Branding for every screen's header, logged in or not (api_contract.md §2.1)
+router.add_api_operation(
+    "/app",
+    ["GET"],
+    app_settings.get_app_info,
+    response={200: AppInfoOut},
+    auth=None,
+    summary="The coaching centre's name and logo",
+)
+
+# The teacher's settings page, T-19
+router.add_api_operation(
+    "/admin/settings",
+    ["GET"],
+    app_settings.get_app_settings,
+    response={200: AppSettingsOut},
+    summary="The teacher's defaults for new tests and the branding",
+)
+router.add_api_operation(
+    "/admin/settings",
+    ["PATCH"],
+    app_settings.update_app_settings,
+    response={200: AppSettingsOut},
+    summary="Change some of the defaults or the branding",
+)
 
 # Tags (T-18, T-03 pills). Served here because they also touch question references (ADR-059).
 router.add_api_operation(

@@ -13,7 +13,7 @@ from modules.identity.services.commands.authenticate_password import authenticat
 from modules.identity.services.commands.consume_otp import consume_otp
 from modules.identity.services.commands.create_student_user import create_student_user
 from modules.identity.services.commands.end_sessions import end_sessions
-from modules.identity.services.commands.issue_otp import PRODUCT_NAME, issue_otp
+from modules.identity.services.commands.issue_otp import issue_otp
 from modules.identity.services.commands.mark_email_verified import mark_email_verified
 from modules.identity.services.commands.scrub_account import scrub_account
 from modules.identity.services.commands.seed_teacher import SeedTeacherResult, seed_teacher
@@ -24,7 +24,6 @@ from modules.identity.services.password_policy import ensure_password_strong
 from modules.identity.services.queries.get_user_summary import UserSummary, get_user_summary
 
 __all__ = [
-    "PRODUCT_NAME",
     "EmailTaken",
     "OtpInvalid",
     "OtpPurpose",

@@ -468,6 +468,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/media/upload-signature": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign one image upload straight from the browser to storage */
+        post: operations["sign_image_upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/app": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The coaching centre's name and logo */
+        get: operations["get_app_info"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The teacher's defaults for new tests and the branding */
+        get: operations["get_app_settings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change some of the defaults or the branding */
+        patch: operations["update_app_settings"];
+        trace?: never;
+    };
     "/api/v1/admin/tags/suggest": {
         parameters: {
             query?: never;
@@ -856,6 +908,81 @@ export interface components {
             student_ids?: string[] | null;
             /** Group Id */
             group_id?: string | null;
+        };
+        /** UploadSignatureOut */
+        UploadSignatureOut: {
+            /** Token */
+            token: string;
+            /** Expire */
+            expire: number;
+            /** Signature */
+            signature: string;
+            /** Public Key */
+            public_key: string;
+            /** Url Endpoint */
+            url_endpoint: string;
+            /** Folder */
+            folder: string;
+            /** Upload Url */
+            upload_url: string;
+        };
+        /** UploadSignatureIn */
+        UploadSignatureIn: {
+            /** File Name */
+            file_name: string;
+            /** Mime */
+            mime: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
+        /** AppInfoOut */
+        AppInfoOut: {
+            /** Coaching Name */
+            coaching_name: string;
+            /** Logo Url */
+            logo_url: string | null;
+        };
+        /** AppSettingsOut */
+        AppSettingsOut: {
+            /** Coaching Name */
+            coaching_name: string;
+            /** Logo Url */
+            logo_url: string | null;
+            /** Default Marks */
+            default_marks: string;
+            /** Default Negative Marks */
+            default_negative_marks: string;
+            /** Default Integrity Grace S */
+            default_integrity_grace_s: number;
+            /** Default Integrity Max Warnings */
+            default_integrity_max_warnings: number;
+            /**
+             * Default Integrity Action
+             * @enum {string}
+             */
+            default_integrity_action: "AUTO_SUBMIT" | "DISQUALIFY";
+            /** Updated At */
+            updated_at: string | null;
+        };
+        /**
+         * AppSettingsPatchIn
+         * @description Any subset of the settings. Values are checked by the use case, reported per field.
+         */
+        AppSettingsPatchIn: {
+            /** Coaching Name */
+            coaching_name?: string | null;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Default Marks */
+            default_marks?: number | string | null;
+            /** Default Negative Marks */
+            default_negative_marks?: number | string | null;
+            /** Default Integrity Grace S */
+            default_integrity_grace_s?: number | null;
+            /** Default Integrity Max Warnings */
+            default_integrity_max_warnings?: number | null;
+            /** Default Integrity Action */
+            default_integrity_action?: ("AUTO_SUBMIT" | "DISQUALIFY") | null;
         };
         /** TagSuggestIn */
         TagSuggestIn: {
@@ -1606,6 +1733,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    sign_image_upload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadSignatureIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadSignatureOut"];
+                };
+            };
+        };
+    };
+    get_app_info: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppInfoOut"];
+                };
+            };
+        };
+    };
+    get_app_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppSettingsOut"];
+                };
+            };
+        };
+    };
+    update_app_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppSettingsPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppSettingsOut"];
                 };
             };
         };

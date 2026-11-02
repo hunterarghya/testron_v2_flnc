@@ -3,15 +3,25 @@ from smtplib import SMTPException
 import pytest
 from django.core import mail
 from django.core.mail import EmailMultiAlternatives
+from pytest_django.fixtures import Settings as DjangoSettings
 
 from core.mail import send
 
 CONTEXT = {
     "name": "Rina & Co",
     "code": "482913",
-    "coaching_name": "Bio Classes",
     "expires_in_minutes": 10,
 }
+
+
+def brand_name() -> str:
+    return "Bio Classes"
+
+
+@pytest.fixture(autouse=True)
+def branding(settings: DjangoSettings) -> None:
+    # The real hook reads the database; these tests don't need one
+    settings.MAIL_BRAND_NAME = "core.tests.test_mail.brand_name"
 
 
 def test_mail_is_sent_with_text_and_html() -> None:
