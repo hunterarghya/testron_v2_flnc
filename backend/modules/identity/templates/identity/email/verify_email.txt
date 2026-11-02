@@ -1,0 +1,8 @@
+{% autoescape off %}Hello {{ name }},
+
+Your verification code is: {{ code }}
+
+Enter it on the sign-up page to confirm your email. The code works for {{ expires_in_minutes }} minutes.
+
+If you didn't sign up for {{ coaching_name }}, you can ignore this email.
+{% endautoescape %}

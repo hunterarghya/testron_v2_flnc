@@ -120,6 +120,12 @@ disallow_any_explicit = true
 module = ["factory", "factory.*"]
 ignore_missing_imports = true
 
+# factory_boy is untyped; factories stay declarative and tests use the typed make_* builders
+[[tool.mypy.overrides]]
+module = ["tests.factories.*"]
+disallow_untyped_calls = false
+disable_error_code = ["attr-defined"]
+
 # --- Boundaries (project_structure.md §4.1) ---
 [tool.importlinter]
 root_packages = ["core", "modules", "config"]

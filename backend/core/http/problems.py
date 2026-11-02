@@ -69,7 +69,7 @@ def api_not_found(request: HttpRequest) -> HttpResponse:
 
 def _domain_error(request: HttpRequest, error: DomainError) -> HttpResponse:
     extra = {"context": error.context} if error.context else None
-    return problem_response(
+    response = problem_response(
         request,
         status=error.status,
         code=error.code,
@@ -77,6 +77,9 @@ def _domain_error(request: HttpRequest, error: DomainError) -> HttpResponse:
         detail=error.detail,
         extra=extra,
     )
+    for name, value in error.response_headers().items():
+        response[name] = value
+    return response
 
 
 def _validation_error(request: HttpRequest, error: ValidationError) -> HttpResponse:

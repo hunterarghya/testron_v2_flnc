@@ -19,9 +19,9 @@ DEBUG = env.debug
 ALLOWED_HOSTS = [*env.allowed_hosts, "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = env.csrf_trusted_origins
 
-# Auth, sessions and the back office come with the identity module. Django needs our
-# custom user model before the very first migration, so they are not installed yet.
 INSTALLED_APPS = [
+    "django.contrib.contenttypes",
+    "django.contrib.auth",
     "django.contrib.staticfiles",
     "ninja",  # templates + static files for the dev-only API docs
     "modules.identity",
@@ -62,7 +62,14 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "core.http.middleware.request_id.RequestIdMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
 ]
+
+AUTH_USER_MODEL = "identity.User"
+# Database sessions that also record the user, so all of a user's sessions can be ended
+SESSION_ENGINE = "modules.identity.sessions"
 
 # Turns a request into the Actor the area guards check (core.http.areas).
 # Nobody can log in until the identity module provides the real one.

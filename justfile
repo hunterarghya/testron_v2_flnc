@@ -63,15 +63,17 @@ fmt:
     cd backend && uv run ruff check --fix . ../scripts
     cd frontend && {{pnpm}} lint:fix
 
-# All backend and frontend tests, with the coverage gates (needs `just infra`)
+# All backend and frontend tests, with the coverage gates (needs `just infra`).
+# The test database is rebuilt every time, so new migrations are always applied.
 test:
-    cd backend && uv run pytest --reuse-db -q --cov --cov-report=term --cov-report=json:coverage.json
+    cd backend && uv run pytest -q --cov --cov-report=term --cov-report=json:coverage.json
     cd backend && uv run python ../scripts/check_coverage.py coverage.json
     cd frontend && {{pnpm}} exec vitest run --coverage
 
 # Domain tests of every module + one module's service tests: just test-fast delivery
-test-fast module:
-    cd backend && uv run pytest --reuse-db -q modules/*/tests/domain modules/{{module}}/tests/services
+# Reuses the test database; add --create-db after a migration change.
+test-fast module *pytest_args:
+    cd backend && uv run pytest --reuse-db -q modules/*/tests/domain modules/{{module}}/tests/services {{pytest_args}}
 
 # Export the API contract and regenerate the TypeScript client (ADR-020)
 openapi:

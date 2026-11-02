@@ -19,6 +19,10 @@ class DomainError(Exception):
         self.detail = detail
         self.context = dict(context or {})
 
+    def response_headers(self) -> dict[str, str]:
+        """Extra HTTP headers the problem response carries (most errors have none)."""
+        return {}
+
 
 class NotAuthenticated(DomainError):
     code = "not_authenticated"
@@ -55,6 +59,19 @@ class Conflict(DomainError):
     code = "conflict"
     status = 409
     title = "This conflicts with the current state"
+
+
+class RateLimited(DomainError):
+    code = "rate_limited"
+    status = 429
+    title = "Too many tries"
+
+    def __init__(self, *, retry_after_s: int) -> None:
+        super().__init__(context={"retry_after_s": retry_after_s})
+        self.retry_after_s = retry_after_s
+
+    def response_headers(self) -> dict[str, str]:
+        return {"Retry-After": str(self.retry_after_s)}
 
 
 class Invalid(DomainError):
