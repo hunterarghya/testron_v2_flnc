@@ -33,3 +33,13 @@ export function relativeTime(isoUtc: string, nowMs: number): string {
   }
   return 'just now'
 }
+
+/** "1 h 20 min", "50 min", "45 s": a length of time for people. */
+export function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds} s`
+  const minutes = Math.round(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  if (!hours) return `${minutes} min`
+  return rest ? `${hours} h ${rest} min` : `${hours} h`
+}
