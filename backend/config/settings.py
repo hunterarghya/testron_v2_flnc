@@ -27,6 +27,10 @@ MIDDLEWARE = [
     "core.http.middleware.request_id.RequestIdMiddleware",
 ]
 
+# Turns a request into the Actor the area guards check (core.http.areas).
+# Nobody can log in until the identity module provides the real one.
+ACTOR_RESOLVER = "core.http.areas.anonymous_actor"
+
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 

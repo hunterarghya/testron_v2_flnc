@@ -1,12 +1,11 @@
 """Give every request an id, send it back in a header, and tag its log lines with it."""
 
 import re
-import uuid
 from collections.abc import Callable
 
 from django.http import HttpRequest, HttpResponse
 
-from core.request_id import bind_request_id, unbind_request_id
+from core.request_id import bind_request_id, new_request_id, unbind_request_id
 
 HEADER = "X-Request-ID"
 # An id from the proxy (Caddy, Render) is kept, so one request can be followed across
@@ -19,7 +18,7 @@ class RequestIdMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
-        request_id = _incoming_id(request) or uuid.uuid4().hex
+        request_id = _incoming_id(request) or new_request_id()
         token = bind_request_id(request_id)
         try:
             response = self.get_response(request)
