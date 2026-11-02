@@ -9,7 +9,11 @@ class StageClosed(Conflict):
 def test_subclass_declares_code_status_and_title_once() -> None:
     error = StageClosed(context={"stage_index": 1})
 
-    assert (error.code, error.status, error.title) == ("stage_closed", 409, "This section has closed")
+    assert (error.code, error.status, error.title) == (
+        "stage_closed",
+        409,
+        "This section has closed",
+    )
     assert error.context == {"stage_index": 1}
 
 

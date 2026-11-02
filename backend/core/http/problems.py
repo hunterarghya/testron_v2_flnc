@@ -4,7 +4,7 @@ Registered once on the NinjaAPI. Controllers never catch errors; they arrive her
 """
 
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -25,11 +25,18 @@ logger = logging.getLogger(__name__)
 
 
 def register_problem_handlers(api: NinjaAPI) -> None:
-    api.add_exception_handler(DomainError, _domain_error)
-    api.add_exception_handler(ValidationError, _validation_error)
-    api.add_exception_handler(HttpError, _http_error)
-    api.add_exception_handler(Http404, _not_found)
-    api.add_exception_handler(Exception, _unexpected_error)
+    _register(api, DomainError, _domain_error)
+    _register(api, ValidationError, _validation_error)
+    _register(api, HttpError, _http_error)
+    _register(api, Http404, _not_found)
+    _register(api, Exception, _unexpected_error)
+
+
+def _register[E: Exception](
+    api: NinjaAPI, error_type: type[E], handler: Callable[[HttpRequest, E], HttpResponse]
+) -> None:
+    # Ninja's type hint says a handler may receive the error class itself; it never does
+    api.add_exception_handler(error_type, handler)  # type: ignore[arg-type]
 
 
 def problem_response(

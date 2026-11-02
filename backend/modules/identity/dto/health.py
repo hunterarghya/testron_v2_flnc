@@ -17,4 +17,6 @@ class HealthOut(Schema):
 
     @classmethod
     def from_view(cls, view: HealthView) -> "HealthOut":
-        return cls(status="ok", server_now=view.server_now, version=view.version, commit=view.commit)
+        return cls(
+            status="ok", server_now=view.server_now, version=view.version, commit=view.commit
+        )

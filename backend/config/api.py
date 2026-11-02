@@ -16,7 +16,15 @@ from modules.tagging.routes import router as tagging
 
 # Each path belongs to exactly one module; the routers carry full paths (project_structure §6)
 ROUTERS: tuple[Router, ...] = (
-    identity, students, tagging, media, authoring, assignments, delivery, grading, results,
+    identity,
+    students,
+    tagging,
+    media,
+    authoring,
+    assignments,
+    delivery,
+    grading,
+    results,
 )
 
 api = NinjaAPI(

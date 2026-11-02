@@ -1,19 +1,17 @@
-from datetime import UTC, datetime
-
 import pytest
 from django.db import OperationalError
 from django.test import Client
 
-from core.clock import FrozenClock, use_clock
+from core.clock import FrozenClock
 from modules.identity.repositories import health
 
 URL = "/api/v1/healthz"
-NOON = datetime(2026, 11, 12, 4, 30, tzinfo=UTC)
 
 
-def test_health_is_public_and_returns_server_time(client: Client) -> None:
-    with use_clock(FrozenClock(NOON)):
-        response = client.get(URL)
+def test_health_is_public_and_returns_server_time(
+    client: Client, frozen_clock: FrozenClock
+) -> None:
+    response = client.get(URL)
 
     assert response.status_code == 200
     assert response.json() == {

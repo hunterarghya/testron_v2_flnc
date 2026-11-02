@@ -5,6 +5,7 @@ from decimal import Decimal
 import pytest
 from django.http import Http404, HttpRequest
 from ninja import NinjaAPI, Schema
+from ninja.errors import HttpError
 from ninja.testing import TestClient
 from pydantic import ConfigDict
 
@@ -57,6 +58,11 @@ def crash(request: HttpRequest) -> None:
 @api.get("/admin-only", auth=TeacherArea())
 def admin_only(request: HttpRequest) -> None:
     return None
+
+
+@api.get("/ninja-error/{status}")
+def ninja_error(request: HttpRequest, status: int) -> None:
+    raise HttpError(status, "Ninja said no")
 
 
 @api.post("/login")
@@ -122,6 +128,15 @@ def test_area_guard_failure_becomes_problem_json() -> None:
 
     assert status == 401
     assert body["code"] == "not_authenticated"
+
+
+@pytest.mark.parametrize(
+    ("status", "code"), [(401, "not_authenticated"), (403, "forbidden"), (418, "http_error")]
+)
+def test_ninja_http_errors_get_a_stable_code(status: int, code: str) -> None:
+    response_status, body = problem(f"/ninja-error/{status}")
+
+    assert (response_status, body["code"]) == (status, code)
 
 
 def test_unknown_field_is_a_validation_error() -> None:

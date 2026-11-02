@@ -9,5 +9,9 @@ from modules.identity.dto.health import HealthOut
 router = Router(tags=["auth"])
 
 router.add_api_operation(
-    "/healthz", ["GET"], health.get_health, response={200: HealthOut}, summary="Liveness and server time"
+    "/healthz",
+    ["GET"],
+    health.get_health,
+    response={200: HealthOut},
+    summary="Liveness and server time",
 )

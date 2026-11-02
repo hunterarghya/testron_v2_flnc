@@ -41,7 +41,7 @@ def test_frozen_clock_converts_to_utc() -> None:
 
 def test_v1_f34_naive_time_is_rejected() -> None:
     with pytest.raises(ValueError, match="timezone-aware"):
-        FrozenClock(datetime(2026, 11, 12, 4, 30))
+        FrozenClock(datetime(2026, 11, 12, 4, 30))  # noqa: DTZ001  # naive on purpose
 
 
 def test_use_clock_swaps_and_restores() -> None:

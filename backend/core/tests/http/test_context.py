@@ -1,16 +1,12 @@
-from datetime import UTC, datetime
-
 import pytest
 from django.test import RequestFactory
 from pytest_django.fixtures import Settings as DjangoSettings
 
-from core.clock import FrozenClock, use_clock
+from core.clock import FrozenClock
 from core.context import ANONYMOUS
 from core.http.context import ctx_from
 from core.request_id import bind_request_id, unbind_request_id
 from core.tests.http.actors import ACTIVE_STUDENT, RESOLVER, TEACHER, as_actor
-
-NOON = datetime(2026, 11, 12, 4, 30, tzinfo=UTC)
 
 
 @pytest.fixture(autouse=True)
@@ -35,9 +31,10 @@ def test_ctx_is_anonymous_without_a_session() -> None:
     assert ctx_from(RequestFactory().get("/")).actor == ANONYMOUS
 
 
-def test_ctx_reads_now_from_the_active_clock() -> None:
-    with use_clock(FrozenClock(NOON)):
-        assert ctx_from(RequestFactory().get("/")).now == NOON
+def test_ctx_reads_now_from_the_active_clock(frozen_clock: FrozenClock) -> None:
+    frozen_clock.advance(minutes=5)
+
+    assert ctx_from(RequestFactory().get("/")).now == frozen_clock.now()
 
 
 def test_ctx_carries_the_request_id() -> None:

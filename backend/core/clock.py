@@ -36,27 +36,27 @@ class FrozenClock:
         self._now = _require_aware(at)
 
 
-_current: Clock = SystemClock()
+class _Active:
+    clock: Clock = SystemClock()
 
 
 def get_clock() -> Clock:
-    return _current
+    return _Active.clock
 
 
 def now() -> datetime:
     """The current instant from the active clock (also the model field default)."""
-    return _current.now()
+    return _Active.clock.now()
 
 
 @contextmanager
 def use_clock(clock: Clock) -> Iterator[Clock]:
     """Swap the process clock for the duration of a block (tests, E2E time control)."""
-    global _current
-    previous, _current = _current, clock
+    previous, _Active.clock = _Active.clock, clock
     try:
         yield clock
     finally:
-        _current = previous
+        _Active.clock = previous
 
 
 def _require_aware(at: datetime) -> datetime:
