@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -73,3 +73,8 @@ def list_tags(kind: TagKind | None, *, search: str | None) -> list[TagRef]:
     if search:
         tags = tags.filter(normalized_name__contains=search)
     return [_ref(tag) for tag in tags.order_by("kind", "normalized_name")]
+
+
+def tags_by_ids(tag_ids: Collection[UUID]) -> dict[UUID, TagRef]:
+    """Many tags at once (one query), e.g. every tag on a test's questions."""
+    return {tag.id: _ref(tag) for tag in Tag.objects.filter(pk__in=tag_ids)}

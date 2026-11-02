@@ -38,6 +38,9 @@ addopts = "--strict-markers --strict-config"
 # The CI check scripts in ../scripts are tested here too
 pythonpath = [".", "../scripts"]
 testpaths = ["core", "config", "modules", "tests"]
+# Tests are plain functions. Collecting classes would pick up domain names such as Test,
+# TestDraft or TestChangedElsewhere (a test, in this app, is an exam).
+python_classes = ["PytestTestClass"]
 filterwarnings = [
     # Collected static files exist only inside the image (collectstatic at build time)
     "ignore:No directory at:UserWarning",

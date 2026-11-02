@@ -589,6 +589,145 @@ export interface paths {
         patch: operations["rename_tag"];
         trace?: never;
     };
+    "/api/v1/admin/tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** A new untitled draft with the teacher's defaults */
+        post: operations["create_test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The whole test for the editor, with problems and totals */
+        get: operations["get_test_document"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change the title, instructions or settings */
+        patch: operations["update_test"];
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/structure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reorder sections and questions */
+        put: operations["restructure_test"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/sections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a section after another (sectioned tests) */
+        post: operations["add_section"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an empty question after another */
+        post: operations["add_question"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/sections/{section_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a section, moving or deleting its questions */
+        delete: operations["delete_section"];
+        options?: never;
+        head?: never;
+        /** Change a section's title, instructions or duration */
+        patch: operations["update_section"];
+        trace?: never;
+    };
+    "/api/v1/admin/questions/{question_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a question */
+        delete: operations["delete_question"];
+        options?: never;
+        head?: never;
+        /** Save one question as a whole (autosave) */
+        patch: operations["update_question"];
+        trace?: never;
+    };
+    "/api/v1/admin/questions/{question_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy a question right after itself */
+        post: operations["duplicate_question"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -1111,6 +1250,409 @@ export interface components {
         TagDeleteOut: {
             /** Removed From Questions */
             removed_from_questions: number;
+        };
+        /** EditorQuestionOut */
+        EditorQuestionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Section Id
+             * Format: uuid
+             */
+            section_id: string;
+            /** Position */
+            position: number;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "MCQ" | "MSQ" | "NUMERICAL";
+            /** Stem */
+            stem: {
+                [key: string]: unknown;
+            };
+            /** Solution */
+            solution: {
+                [key: string]: unknown;
+            } | null;
+            /** Marks Override */
+            marks_override: string | null;
+            /** Negative Marks Override */
+            negative_marks_override: string | null;
+            /** Time Override S */
+            time_override_s: number | null;
+            /** Options */
+            options: components["schemas"]["OptionOut"][];
+            /** Numeric Answer */
+            numeric_answer: string | null;
+            /** Numeric Tolerance */
+            numeric_tolerance: string;
+            /** Chapter Tags */
+            chapter_tags: components["schemas"]["TagOut"][];
+            /** Topic Tags */
+            topic_tags: components["schemas"]["TagOut"][];
+        };
+        /** Integrity */
+        Integrity: {
+            /** Grace S */
+            grace_s: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "AUTO_SUBMIT" | "DISQUALIFY";
+        };
+        /** Marking */
+        Marking: {
+            /** Marks */
+            marks: string;
+            /** Negative Marks */
+            negative_marks: string;
+        };
+        /** OptionOut */
+        OptionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+            /** Is Correct */
+            is_correct: boolean;
+        };
+        /** PerQuestionTiming */
+        PerQuestionTiming: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "PER_QUESTION";
+            /** Default Question S */
+            default_question_s: number;
+        };
+        /** ProblemOut */
+        ProblemOut: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /** Section Id */
+            section_id: string | null;
+            /** Question Id */
+            question_id: string | null;
+        };
+        /** SectionOut */
+        SectionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+            /** Title */
+            title: string;
+            /** Instructions */
+            instructions: {
+                [key: string]: unknown;
+            } | null;
+            /** Duration S */
+            duration_s: number | null;
+            /** Questions */
+            questions: components["schemas"]["EditorQuestionOut"][];
+        };
+        /** SectionedTiming */
+        SectionedTiming: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "SECTIONED";
+            /** Allow Return */
+            allow_return: boolean;
+        };
+        /** TestDocumentOut */
+        TestDocumentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Instructions */
+            instructions: {
+                [key: string]: unknown;
+            } | null;
+            settings: components["schemas"]["TestSettingsOut"];
+            /** Revision */
+            revision: number;
+            /** Archived At */
+            archived_at: string | null;
+            /** Last Assigned At */
+            last_assigned_at: string | null;
+            totals: components["schemas"]["TotalsOut"];
+            /** Sections */
+            sections: components["schemas"]["SectionOut"][];
+            /** Problems */
+            problems: components["schemas"]["ProblemOut"][];
+        };
+        /** TestSettingsOut */
+        TestSettingsOut: {
+            /** Timing */
+            timing: components["schemas"]["TotalTiming"] | components["schemas"]["PerQuestionTiming"] | components["schemas"]["SectionedTiming"];
+            /** Shuffle Questions */
+            shuffle_questions: boolean;
+            /** Shuffle Options */
+            shuffle_options: boolean;
+            marking: components["schemas"]["Marking"];
+            integrity: components["schemas"]["Integrity"];
+        };
+        /** TotalTiming */
+        TotalTiming: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "TOTAL";
+            /** Duration S */
+            duration_s: number;
+        };
+        /** TotalsOut */
+        TotalsOut: {
+            /** Questions */
+            questions: number;
+            /** Marks */
+            marks: string;
+            /** Duration S */
+            duration_s: number | null;
+        };
+        /** TestMutationOut */
+        TestMutationOut: {
+            /** Revision */
+            revision: number;
+            /** Problems */
+            problems: components["schemas"]["ProblemOut"][];
+            totals: components["schemas"]["TotalsOut"];
+        };
+        /** IntegrityIn */
+        IntegrityIn: {
+            /** Grace S */
+            grace_s: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "AUTO_SUBMIT" | "DISQUALIFY";
+        };
+        /** MarkingIn */
+        MarkingIn: {
+            /** Marks */
+            marks: number | string;
+            /** Negative Marks */
+            negative_marks: number | string;
+        };
+        /** PerQuestionTimingIn */
+        PerQuestionTimingIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "PER_QUESTION";
+            /** Default Question S */
+            default_question_s?: number | null;
+        };
+        /** SectionedTimingIn */
+        SectionedTimingIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "SECTIONED";
+            /** Allow Return */
+            allow_return?: boolean | null;
+        };
+        /** TestPatchIn */
+        TestPatchIn: {
+            /** Revision */
+            revision: number;
+            /** Title */
+            title?: string | null;
+            /** Instructions */
+            instructions?: {
+                [key: string]: unknown;
+            } | null;
+            settings?: components["schemas"]["TestSettingsPatchIn"] | null;
+        };
+        /** TestSettingsPatchIn */
+        TestSettingsPatchIn: {
+            /** Timing */
+            timing?: (components["schemas"]["TotalTimingIn"] | components["schemas"]["PerQuestionTimingIn"] | components["schemas"]["SectionedTimingIn"]) | null;
+            /** Shuffle Questions */
+            shuffle_questions?: boolean | null;
+            /** Shuffle Options */
+            shuffle_options?: boolean | null;
+            marking?: components["schemas"]["MarkingIn"] | null;
+            integrity?: components["schemas"]["IntegrityIn"] | null;
+        };
+        /** TotalTimingIn */
+        TotalTimingIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "TOTAL";
+            /** Duration S */
+            duration_s?: number | null;
+        };
+        /** SectionLayoutIn */
+        SectionLayoutIn: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Question Ids */
+            question_ids: string[];
+        };
+        /** StructureIn */
+        StructureIn: {
+            /** Revision */
+            revision: number;
+            /** Sections */
+            sections: components["schemas"]["SectionLayoutIn"][];
+        };
+        /** SectionMutationOut */
+        SectionMutationOut: {
+            /** Revision */
+            revision: number;
+            /** Problems */
+            problems: components["schemas"]["ProblemOut"][];
+            totals: components["schemas"]["TotalsOut"];
+            section: components["schemas"]["SectionOut"];
+        };
+        /** SectionIn */
+        SectionIn: {
+            /** Revision */
+            revision: number;
+            /** After Section Id */
+            after_section_id?: string | null;
+            /**
+             * Title
+             * @default
+             */
+            title: string;
+            /** Duration S */
+            duration_s?: number | null;
+        };
+        /** QuestionMutationOut */
+        QuestionMutationOut: {
+            /** Revision */
+            revision: number;
+            /** Problems */
+            problems: components["schemas"]["ProblemOut"][];
+            totals: components["schemas"]["TotalsOut"];
+            question: components["schemas"]["EditorQuestionOut"];
+        };
+        /** QuestionIn */
+        QuestionIn: {
+            /** Revision */
+            revision: number;
+            /**
+             * Section Id
+             * Format: uuid
+             */
+            section_id: string;
+            /** After Question Id */
+            after_question_id?: string | null;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "MCQ" | "MSQ" | "NUMERICAL";
+        };
+        /** SectionPatchIn */
+        SectionPatchIn: {
+            /** Revision */
+            revision: number;
+            /** Title */
+            title?: string | null;
+            /** Instructions */
+            instructions?: {
+                [key: string]: unknown;
+            } | null;
+            /** Duration S */
+            duration_s?: number | null;
+        };
+        /** SectionDeleteIn */
+        SectionDeleteIn: {
+            /** Revision */
+            revision: number;
+            /** Questions */
+            questions?: ("move_to_previous" | "delete") | null;
+        };
+        /** OptionIn */
+        OptionIn: {
+            /** Id */
+            id?: string | null;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+            /**
+             * Is Correct
+             * @default false
+             */
+            is_correct: boolean;
+        };
+        /**
+         * QuestionPatchIn
+         * @description The whole question as the editor holds it; any field left out stays as it is.
+         */
+        QuestionPatchIn: {
+            /** Revision */
+            revision: number;
+            /** Type */
+            type?: ("MCQ" | "MSQ" | "NUMERICAL") | null;
+            /** Stem */
+            stem?: {
+                [key: string]: unknown;
+            } | null;
+            /** Solution */
+            solution?: {
+                [key: string]: unknown;
+            } | null;
+            /** Marks Override */
+            marks_override?: number | string | null;
+            /** Negative Marks Override */
+            negative_marks_override?: number | string | null;
+            /** Time Override S */
+            time_override_s?: number | null;
+            /** Numeric Answer */
+            numeric_answer?: number | string | null;
+            /** Numeric Tolerance */
+            numeric_tolerance?: number | string | null;
+            /** Options */
+            options?: components["schemas"]["OptionIn"][] | null;
+            /** Chapter Tags */
+            chapter_tags?: string[] | null;
+            /** Topic Tags */
+            topic_tags?: string[] | null;
+        };
+        /** RevisionIn */
+        RevisionIn: {
+            /** Revision */
+            revision: number;
         };
         /** BadgesOut */
         BadgesOut: {
@@ -1997,6 +2539,279 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagRenameOut"];
+                };
+            };
+        };
+    };
+    create_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestDocumentOut"];
+                };
+            };
+        };
+    };
+    get_test_document: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestDocumentOut"];
+                };
+            };
+        };
+    };
+    update_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMutationOut"];
+                };
+            };
+        };
+    };
+    restructure_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StructureIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMutationOut"];
+                };
+            };
+        };
+    };
+    add_section: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SectionIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectionMutationOut"];
+                };
+            };
+        };
+    };
+    add_question: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionMutationOut"];
+                };
+            };
+        };
+    };
+    delete_section: {
+        parameters: {
+            query: {
+                revision: number;
+                questions?: ("move_to_previous" | "delete") | null;
+            };
+            header?: never;
+            path: {
+                section_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMutationOut"];
+                };
+            };
+        };
+    };
+    update_section: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                section_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SectionPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMutationOut"];
+                };
+            };
+        };
+    };
+    delete_question: {
+        parameters: {
+            query: {
+                revision: number;
+            };
+            header?: never;
+            path: {
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMutationOut"];
+                };
+            };
+        };
+    };
+    update_question: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionMutationOut"];
+                };
+            };
+        };
+    };
+    duplicate_question: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevisionIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionMutationOut"];
                 };
             };
         };

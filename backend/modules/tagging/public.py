@@ -19,6 +19,7 @@ from modules.tagging.repositories.tags import (
     list_tags,
     lock_tags,
     rename,
+    tags_by_ids,
 )
 from modules.tagging.services.commands.ensure_tags_by_name import ensure_tags_by_name
 
@@ -36,4 +37,5 @@ __all__ = [
     "normalize_tag_name",
     "rank_suggestions",
     "rename",
+    "tags_by_ids",
 ]

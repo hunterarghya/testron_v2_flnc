@@ -10,11 +10,11 @@ from django.db.models.functions import Length
 from django.db.models.lookups import LessThanOrEqual
 
 from core.db.base_model import TimestampedModel, UUIDModel
+from modules.authoring.domain.section_rules import MAX_SECTION_TITLE_LENGTH
 from modules.authoring.domain.values import QuestionType
 from modules.authoring.models.test import Test
 
 _TYPES = [kind.value for kind in QuestionType]
-MAX_SECTION_TITLE_LENGTH = 120
 
 
 def _position_unique(parent: str, name: str) -> models.UniqueConstraint:

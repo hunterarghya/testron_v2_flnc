@@ -6,3 +6,17 @@ class TagExists(Conflict):
 
     code = "tag_exists"
     title = "A tag with this name already exists"
+
+
+class TestChangedElsewhere(Conflict):
+    """The save was based on an older revision: another tab changed the test (E-34)."""
+
+    code = "test_changed_elsewhere"
+    title = "This test was changed elsewhere"
+
+
+class SectionNotEmpty(Conflict):
+    """Deleting a section that still has questions needs a choice: move them or delete them."""
+
+    code = "section_not_empty"
+    title = "This section still has questions"

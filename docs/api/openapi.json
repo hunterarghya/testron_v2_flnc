@@ -1323,6 +1323,460 @@
         ]
       }
     },
+    "/api/v1/admin/tests": {
+      "post": {
+        "operationId": "create_test",
+        "summary": "A new untitled draft with the teacher's defaults",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestDocumentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tests/{test_id}": {
+      "get": {
+        "operationId": "get_test_document",
+        "summary": "The whole test for the editor, with problems and totals",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestDocumentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      },
+      "patch": {
+        "operationId": "update_test",
+        "summary": "Change the title, instructions or settings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/structure": {
+      "put": {
+        "operationId": "restructure_test",
+        "summary": "Reorder sections and questions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StructureIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/sections": {
+      "post": {
+        "operationId": "add_section",
+        "summary": "Add a section after another (sectioned tests)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SectionIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/questions": {
+      "post": {
+        "operationId": "add_question",
+        "summary": "Add an empty question after another",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/sections/{section_id}": {
+      "patch": {
+        "operationId": "update_section",
+        "summary": "Change a section's title, instructions or duration",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "section_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Section Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SectionPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "operationId": "delete_section",
+        "summary": "Remove a section, moving or deleting its questions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "section_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Section Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "schema": {
+              "title": "Revision",
+              "type": "integer"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "questions",
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "move_to_previous",
+                    "delete"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Questions"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/questions/{question_id}": {
+      "patch": {
+        "operationId": "update_question",
+        "summary": "Save one question as a whole (autosave)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "operationId": "delete_question",
+        "summary": "Remove a question",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "schema": {
+              "title": "Revision",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/questions/{question_id}/duplicate": {
+      "post": {
+        "operationId": "duplicate_question",
+        "summary": "Copy a question right after itself",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "question_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionMutationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/admin/badges": {
       "get": {
         "operationId": "get_badges",
@@ -2719,6 +3173,1319 @@
           "removed_from_questions"
         ],
         "title": "TagDeleteOut",
+        "type": "object"
+      },
+      "EditorQuestionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "section_id": {
+            "format": "uuid",
+            "title": "Section Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "MCQ",
+              "MSQ",
+              "NUMERICAL"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "stem": {
+            "additionalProperties": true,
+            "title": "Stem",
+            "type": "object"
+          },
+          "solution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solution"
+          },
+          "marks_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Override"
+          },
+          "negative_marks_override": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Marks Override"
+          },
+          "time_override_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Override S"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "numeric_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Answer"
+          },
+          "numeric_tolerance": {
+            "title": "Numeric Tolerance",
+            "type": "string"
+          },
+          "chapter_tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagOut"
+            },
+            "title": "Chapter Tags",
+            "type": "array"
+          },
+          "topic_tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagOut"
+            },
+            "title": "Topic Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "section_id",
+          "position",
+          "type",
+          "stem",
+          "solution",
+          "marks_override",
+          "negative_marks_override",
+          "time_override_s",
+          "options",
+          "numeric_answer",
+          "numeric_tolerance",
+          "chapter_tags",
+          "topic_tags"
+        ],
+        "title": "EditorQuestionOut",
+        "type": "object"
+      },
+      "Integrity": {
+        "additionalProperties": false,
+        "properties": {
+          "grace_s": {
+            "title": "Grace S",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grace_s",
+          "max_warnings",
+          "action"
+        ],
+        "title": "Integrity",
+        "type": "object"
+      },
+      "Marking": {
+        "additionalProperties": false,
+        "properties": {
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "negative_marks": {
+            "title": "Negative Marks",
+            "type": "string"
+          }
+        },
+        "required": [
+          "marks",
+          "negative_marks"
+        ],
+        "title": "Marking",
+        "type": "object"
+      },
+      "OptionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          },
+          "is_correct": {
+            "title": "Is Correct",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "is_correct"
+        ],
+        "title": "OptionOut",
+        "type": "object"
+      },
+      "PerQuestionTiming": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "PER_QUESTION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "default_question_s": {
+            "title": "Default Question S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "default_question_s"
+        ],
+        "title": "PerQuestionTiming",
+        "type": "object"
+      },
+      "ProblemOut": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "section_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Id"
+          },
+          "question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Id"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "section_id",
+          "question_id"
+        ],
+        "title": "ProblemOut",
+        "type": "object"
+      },
+      "SectionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/EditorQuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "title",
+          "instructions",
+          "duration_s",
+          "questions"
+        ],
+        "title": "SectionOut",
+        "type": "object"
+      },
+      "SectionedTiming": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "SECTIONED",
+            "title": "Kind",
+            "type": "string"
+          },
+          "allow_return": {
+            "title": "Allow Return",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "allow_return"
+        ],
+        "title": "SectionedTiming",
+        "type": "object"
+      },
+      "TestDocumentOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/TestSettingsOut"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "last_assigned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Assigned At"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionOut"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "title": "Problems",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "instructions",
+          "settings",
+          "revision",
+          "archived_at",
+          "last_assigned_at",
+          "totals",
+          "sections",
+          "problems"
+        ],
+        "title": "TestDocumentOut",
+        "type": "object"
+      },
+      "TestSettingsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "timing": {
+            "discriminator": {
+              "mapping": {
+                "PER_QUESTION": "#/components/schemas/PerQuestionTiming",
+                "SECTIONED": "#/components/schemas/SectionedTiming",
+                "TOTAL": "#/components/schemas/TotalTiming"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TotalTiming"
+              },
+              {
+                "$ref": "#/components/schemas/PerQuestionTiming"
+              },
+              {
+                "$ref": "#/components/schemas/SectionedTiming"
+              }
+            ],
+            "title": "Timing"
+          },
+          "shuffle_questions": {
+            "title": "Shuffle Questions",
+            "type": "boolean"
+          },
+          "shuffle_options": {
+            "title": "Shuffle Options",
+            "type": "boolean"
+          },
+          "marking": {
+            "$ref": "#/components/schemas/Marking"
+          },
+          "integrity": {
+            "$ref": "#/components/schemas/Integrity"
+          }
+        },
+        "required": [
+          "timing",
+          "shuffle_questions",
+          "shuffle_options",
+          "marking",
+          "integrity"
+        ],
+        "title": "TestSettingsOut",
+        "type": "object"
+      },
+      "TotalTiming": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "TOTAL",
+            "title": "Kind",
+            "type": "string"
+          },
+          "duration_s": {
+            "title": "Duration S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "duration_s"
+        ],
+        "title": "TotalTiming",
+        "type": "object"
+      },
+      "TotalsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          }
+        },
+        "required": [
+          "questions",
+          "marks",
+          "duration_s"
+        ],
+        "title": "TotalsOut",
+        "type": "object"
+      },
+      "TestMutationOut": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          }
+        },
+        "required": [
+          "revision",
+          "problems",
+          "totals"
+        ],
+        "title": "TestMutationOut",
+        "type": "object"
+      },
+      "IntegrityIn": {
+        "additionalProperties": false,
+        "properties": {
+          "grace_s": {
+            "title": "Grace S",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grace_s",
+          "max_warnings",
+          "action"
+        ],
+        "title": "IntegrityIn",
+        "type": "object"
+      },
+      "MarkingIn": {
+        "additionalProperties": false,
+        "properties": {
+          "marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Marks"
+          },
+          "negative_marks": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Negative Marks"
+          }
+        },
+        "required": [
+          "marks",
+          "negative_marks"
+        ],
+        "title": "MarkingIn",
+        "type": "object"
+      },
+      "PerQuestionTimingIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "PER_QUESTION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "default_question_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Question S"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "PerQuestionTimingIn",
+        "type": "object"
+      },
+      "SectionedTimingIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "SECTIONED",
+            "title": "Kind",
+            "type": "string"
+          },
+          "allow_return": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allow Return"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "SectionedTimingIn",
+        "type": "object"
+      },
+      "TestPatchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TestSettingsPatchIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "TestPatchIn",
+        "type": "object"
+      },
+      "TestSettingsPatchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "timing": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "PER_QUESTION": "#/components/schemas/PerQuestionTimingIn",
+                    "SECTIONED": "#/components/schemas/SectionedTimingIn",
+                    "TOTAL": "#/components/schemas/TotalTimingIn"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TotalTimingIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PerQuestionTimingIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SectionedTimingIn"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timing"
+          },
+          "shuffle_questions": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shuffle Questions"
+          },
+          "shuffle_options": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shuffle Options"
+          },
+          "marking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarkingIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "integrity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IntegrityIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "TestSettingsPatchIn",
+        "type": "object"
+      },
+      "TotalTimingIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "TOTAL",
+            "title": "Kind",
+            "type": "string"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "TotalTimingIn",
+        "type": "object"
+      },
+      "SectionLayoutIn": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Question Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "question_ids"
+        ],
+        "title": "SectionLayoutIn",
+        "type": "object"
+      },
+      "StructureIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionLayoutIn"
+            },
+            "maxItems": 100,
+            "title": "Sections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "revision",
+          "sections"
+        ],
+        "title": "StructureIn",
+        "type": "object"
+      },
+      "SectionMutationOut": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "section": {
+            "$ref": "#/components/schemas/SectionOut"
+          }
+        },
+        "required": [
+          "revision",
+          "problems",
+          "totals",
+          "section"
+        ],
+        "title": "SectionMutationOut",
+        "type": "object"
+      },
+      "SectionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "after_section_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After Section Id"
+          },
+          "title": {
+            "default": "",
+            "maxLength": 400,
+            "title": "Title",
+            "type": "string"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "SectionIn",
+        "type": "object"
+      },
+      "QuestionMutationOut": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "question": {
+            "$ref": "#/components/schemas/EditorQuestionOut"
+          }
+        },
+        "required": [
+          "revision",
+          "problems",
+          "totals",
+          "question"
+        ],
+        "title": "QuestionMutationOut",
+        "type": "object"
+      },
+      "QuestionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "section_id": {
+            "format": "uuid",
+            "title": "Section Id",
+            "type": "string"
+          },
+          "after_question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After Question Id"
+          },
+          "type": {
+            "enum": [
+              "MCQ",
+              "MSQ",
+              "NUMERICAL"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "section_id",
+          "type"
+        ],
+        "title": "QuestionIn",
+        "type": "object"
+      },
+      "SectionPatchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "SectionPatchIn",
+        "type": "object"
+      },
+      "SectionDeleteIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "questions": {
+            "anyOf": [
+              {
+                "enum": [
+                  "move_to_previous",
+                  "delete"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Questions"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "SectionDeleteIn",
+        "type": "object"
+      },
+      "OptionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          },
+          "is_correct": {
+            "default": false,
+            "title": "Is Correct",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "title": "OptionIn",
+        "type": "object"
+      },
+      "QuestionPatchIn": {
+        "additionalProperties": false,
+        "description": "The whole question as the editor holds it; any field left out stays as it is.",
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "MCQ",
+                  "MSQ",
+                  "NUMERICAL"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          },
+          "solution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solution"
+          },
+          "marks_override": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Override"
+          },
+          "negative_marks_override": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Marks Override"
+          },
+          "time_override_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Override S"
+          },
+          "numeric_answer": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Answer"
+          },
+          "numeric_tolerance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Tolerance"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/OptionIn"
+                },
+                "maxItems": 10,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "chapter_tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 160,
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chapter Tags"
+          },
+          "topic_tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 160,
+                  "type": "string"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Tags"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "QuestionPatchIn",
+        "type": "object"
+      },
+      "RevisionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "RevisionIn",
         "type": "object"
       },
       "BadgesOut": {
