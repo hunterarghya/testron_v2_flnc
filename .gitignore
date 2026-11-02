@@ -1,0 +1,50 @@
+# Secrets: real env files never leave this machine (security.md §6, V1 F-14)
+.env
+.env.*
+!.env.example
+
+# Design docs stay local. Only the generated API contract is committed,
+# because CI, the Dockerfile and the TS client generator read it (ADR-020).
+docs/*
+!docs/api/
+export/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.import_linter_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+backend/.media/
+backend/staticfiles/
+backend/spa_build/
+
+# Frontend
+node_modules/
+.nuxt/
+.output/
+.data/
+.cache/
+dist/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# Editors and OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

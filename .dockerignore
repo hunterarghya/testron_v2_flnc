@@ -1,0 +1,35 @@
+# Secrets never go into the image (security.md §6, V1 F-14)
+.env
+.env.*
+
+# VCS, local tooling and build output
+.git
+.gitignore
+.gitattributes
+.editorconfig
+.github
+.idea
+.vscode
+**/node_modules
+**/.venv
+**/__pycache__
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+**/.hypothesis
+**/.nuxt
+**/.output
+**/coverage
+**/test-results
+**/playwright-report
+backend/.media
+backend/staticfiles
+
+# Tests are not shipped
+**/tests
+
+# Docs: only the API contract is needed (the SPA build generates its client from it)
+export
+docs/*
+!docs/api/openapi.json
+*.md

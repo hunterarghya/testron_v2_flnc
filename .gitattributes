@@ -1,0 +1,8 @@
+# Store and check out text files with LF, even on Windows.
+# Shell scripts and the justfile break inside Docker/WSL with CRLF.
+* text=auto eol=lf
+
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.ico binary
