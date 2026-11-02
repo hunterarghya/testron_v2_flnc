@@ -123,6 +123,7 @@ watch(open, (isOpen) => {
             <UFormField label="Wrong (−)"><UInput v-model="form.negative" inputmode="decimal" @update:model-value="changed" /></UFormField>
           </div>
           <p class="text-sm text-muted">Any question can override these in the document.</p>
+          <p class="text-sm text-muted">MSQ: partial marks. Some of the correct options and no wrong one earns that share of the marks (2 of 3 correct at +4 = 2.67); any wrong option takes the full penalty.</p>
         </section>
         <section class="space-y-2">
           <h3 class="text-sm font-semibold uppercase text-muted">Integrity (tests always run fullscreen)</h3>

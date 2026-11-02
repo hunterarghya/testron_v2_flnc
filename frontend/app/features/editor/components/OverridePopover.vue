@@ -76,7 +76,8 @@ function reset(): void {
             <UInput v-model="negative" inputmode="decimal" class="w-full" />
           </UFormField>
         </template>
-        <UFormField v-else label="Seconds for this question">
+        <p v-if="kind === 'marks' && question.type === 'MSQ'" class="text-xs text-muted">MSQ: partial marks. Some of the correct options and no wrong one earns that share of the marks (2 of 3 correct at +4 = 2.67); any wrong option takes the full penalty.</p>
+        <UFormField v-else-if="kind === 'time'" label="Seconds for this question">
           <UInputNumber v-model="seconds" :min="5" :max="3600" class="w-full" />
         </UFormField>
         <div class="flex justify-between gap-2">

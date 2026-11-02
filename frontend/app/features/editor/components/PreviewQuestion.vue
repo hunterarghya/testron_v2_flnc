@@ -18,7 +18,7 @@ const marks = computed(() => `+${formatDecimal(props.question.marks)} / −${for
   <article class="space-y-3 rounded-lg border border-default p-4">
     <header class="flex items-center gap-2 text-sm text-muted">
       <span class="font-semibold text-default">Question {{ question.number }}</span>
-      <span>{{ question.type === 'MSQ' ? 'One or more correct' : question.type === 'MCQ' ? 'One correct' : 'Type a number' }}</span>
+      <span>{{ question.type === 'MSQ' ? 'One or more correct (partial marks; a wrong pick costs the penalty)' : question.type === 'MCQ' ? 'One correct' : 'Type a number' }}</span>
       <span class="ms-auto">{{ marks }}</span>
       <span v-if="question.time_s">· {{ question.time_s }} s</span>
     </header>
