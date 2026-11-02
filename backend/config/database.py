@@ -2,6 +2,8 @@
 
 from urllib.parse import parse_qsl, unquote, urlsplit
 
+_CONNECT_TIMEOUT_SECONDS = 5
+
 
 def database_settings(url: str, *, direct_url: str | None) -> dict[str, dict[str, object]]:
     """`default` goes through Neon's pooler; `direct` is the same database without it.
@@ -29,6 +31,11 @@ def _connection(url: str) -> dict[str, object]:
         "DISABLE_SERVER_SIDE_CURSORS": True,
         # Each use case opens its own transaction (architecture.md §5.7)
         "ATOMIC_REQUESTS": False,
-        # Query options such as sslmode=require are passed through to the driver
-        "OPTIONS": {"prepare_threshold": None, **dict(parse_qsl(parts.query))},
+        # Query options such as sslmode=require are passed through to the driver.
+        # A short connect timeout makes a down database fail fast (health checks, requests).
+        "OPTIONS": {
+            "prepare_threshold": None,
+            "connect_timeout": _CONNECT_TIMEOUT_SECONDS,
+            **dict(parse_qsl(parts.query)),
+        },
     }

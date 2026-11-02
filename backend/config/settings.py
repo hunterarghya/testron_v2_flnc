@@ -20,7 +20,30 @@ CSRF_TRUSTED_ORIGINS = env.csrf_trusted_origins
 
 # Auth, sessions and the back office come with the identity module. Django needs our
 # custom user model before the very first migration, so they are not installed yet.
-INSTALLED_APPS: list[str] = []
+INSTALLED_APPS = [
+    "django.contrib.staticfiles",
+    "ninja",  # templates + static files for the dev-only API docs
+    "modules.identity",
+    "modules.students",
+    "modules.tagging",
+    "modules.media",
+    "modules.authoring",
+    "modules.assignments",
+    "modules.delivery",
+    "modules.grading",
+    "modules.results",
+    "modules.audit",
+    "modules.housekeeping",
+]
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+    },
+]
+
+STATIC_URL = "static/"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

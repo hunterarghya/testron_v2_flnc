@@ -31,6 +31,7 @@ def test_pooler_safe_options_are_set() -> None:
     assert default["ATOMIC_REQUESTS"] is False
     assert default["OPTIONS"] == {
         "prepare_threshold": None,
+        "connect_timeout": 5,
         "sslmode": "require",
         "channel_binding": "require",
     }
