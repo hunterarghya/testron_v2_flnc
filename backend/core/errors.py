@@ -5,8 +5,18 @@ handler in `core.http.problems` turns any of them into problem+json, so no other
 layer knows about HTTP. Plain Python only: domain code may import this.
 """
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import ClassVar
+
+
+@dataclass(frozen=True, slots=True)
+class FieldError:
+    """One invalid field, shaped like a request-validation error (api_contract.md §1)."""
+
+    field: str
+    code: str
+    message: str
 
 
 class DomainError(Exception):
@@ -22,6 +32,10 @@ class DomainError(Exception):
     def response_headers(self) -> dict[str, str]:
         """Extra HTTP headers the problem response carries (most errors have none)."""
         return {}
+
+    def field_errors(self) -> Sequence[FieldError]:
+        """Per-field problems, listed as `errors[]` like a request-validation error."""
+        return ()
 
 
 class NotAuthenticated(DomainError):
@@ -78,3 +92,17 @@ class Invalid(DomainError):
     code = "invalid"
     status = 422
     title = "The request is not valid"
+
+
+class FieldsInvalid(Invalid):
+    """A rule about specific fields that only the server can check (e.g. a name already taken)."""
+
+    code = "validation_error"
+    title = "Some fields are not valid"
+
+    def __init__(self, *errors: FieldError) -> None:
+        super().__init__()
+        self._errors = errors
+
+    def field_errors(self) -> Sequence[FieldError]:
+        return self._errors

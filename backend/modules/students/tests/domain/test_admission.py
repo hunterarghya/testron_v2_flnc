@@ -4,14 +4,13 @@ import pytest
 
 from core.context import StudentStatus as S
 from modules.students.domain.admission import (
-    NOT_FOUND,
     AdmissionAction,
-    Skip,
     can_apply,
     plan_bulk,
     status_after,
     status_after_email_verified,
 )
+from modules.students.domain.bulk import NOT_FOUND, Skip
 from modules.students.domain.errors import AdmissionStepNotAllowed
 
 A = AdmissionAction

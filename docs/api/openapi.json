@@ -360,6 +360,23 @@
           },
           {
             "in": "query",
+            "name": "group_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
             "name": "page",
             "schema": {
               "default": 1,
@@ -423,7 +440,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StudentIdsIn"
+                "$ref": "#/components/schemas/ApproveIn"
               }
             }
           },
@@ -561,6 +578,610 @@
           },
           "required": true
         }
+      }
+    },
+    "/api/v1/admin/groups": {
+      "get": {
+        "operationId": "list_groups",
+        "summary": "Groups (active by default)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "archived",
+            "schema": {
+              "default": false,
+              "title": "Archived",
+              "type": "boolean"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GroupOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      },
+      "post": {
+        "operationId": "create_group",
+        "summary": "Create a group",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/groups/{group_id}": {
+      "get": {
+        "operationId": "get_group",
+        "summary": "One group with its members",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      },
+      "patch": {
+        "operationId": "update_group",
+        "summary": "Rename a group or change its description",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GroupPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/archive": {
+      "post": {
+        "operationId": "archive_group",
+        "summary": "Archive a group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/restore": {
+      "post": {
+        "operationId": "restore_group",
+        "summary": "Restore an archived group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/members": {
+      "post": {
+        "operationId": "add_group_members",
+        "summary": "Add students to a group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/members/remove": {
+      "post": {
+        "operationId": "remove_group_members",
+        "summary": "Remove students from a group",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/audience-preview": {
+      "get": {
+        "operationId": "preview_audience",
+        "summary": "Active students in the chosen groups",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "group_ids",
+            "schema": {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "maxItems": 50,
+              "title": "Group Ids",
+              "type": "array"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AudienceCandidateOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/v1/admin/performance-shares": {
+      "post": {
+        "operationId": "share_performance",
+        "summary": "Share performance with students or a group",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/performance-shares/remove": {
+      "post": {
+        "operationId": "unshare_performance",
+        "summary": "Stop sharing performance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/tags/suggest": {
+      "get": {
+        "operationId": "suggest_tags",
+        "summary": "Tags matching what is typed (at most 8)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "enum": [
+                "CHAPTER",
+                "TOPIC"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "default": "",
+              "maxLength": 160,
+              "title": "Q",
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TagOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tags": {
+      "get": {
+        "operationId": "list_tags_with_usage",
+        "summary": "Every tag with its question and test counts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "CHAPTER",
+                    "TOPIC"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 160,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TagUsageOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tags/{tag_id}": {
+      "patch": {
+        "operationId": "rename_tag",
+        "summary": "Rename a tag (merging into an existing one when confirmed)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Tag Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagRenameOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TagRenameIn"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "delete": {
+        "operationId": "delete_tag",
+        "summary": "Remove a tag from every question, then delete it",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tag_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Tag Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagDeleteOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring"
+        ]
       }
     }
   },
@@ -915,6 +1536,18 @@
               }
             ],
             "title": "Q"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
           }
         },
         "title": "StudentFilterIn",
@@ -1021,6 +1654,13 @@
           "performance_shared": {
             "title": "Performance Shared",
             "type": "boolean"
+          },
+          "group_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Group Names",
+            "type": "array"
           }
         },
         "required": [
@@ -1032,7 +1672,8 @@
           "requested_at",
           "decided_at",
           "deactivated_at",
-          "performance_shared"
+          "performance_shared",
+          "group_names"
         ],
         "title": "StudentRowOut",
         "type": "object"
@@ -1084,6 +1725,35 @@
         "title": "SkippedOut",
         "type": "object"
       },
+      "ApproveIn": {
+        "additionalProperties": false,
+        "properties": {
+          "student_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Student Ids",
+            "type": "array"
+          },
+          "group_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Group Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "student_ids"
+        ],
+        "title": "ApproveIn",
+        "type": "object"
+      },
       "StudentIdsIn": {
         "additionalProperties": false,
         "properties": {
@@ -1117,6 +1787,472 @@
           "confirm_name"
         ],
         "title": "AnonymizeIn",
+        "type": "object"
+      },
+      "GroupFilterIn": {
+        "additionalProperties": false,
+        "properties": {
+          "archived": {
+            "default": false,
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          }
+        },
+        "title": "GroupFilterIn",
+        "type": "object"
+      },
+      "GroupOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "member_count": {
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "archived_at",
+          "member_count",
+          "created_at"
+        ],
+        "title": "GroupOut",
+        "type": "object"
+      },
+      "GroupIn": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 160,
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Description",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "GroupIn",
+        "type": "object"
+      },
+      "GroupDetailOut": {
+        "additionalProperties": false,
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/GroupOut"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/GroupMemberOut"
+            },
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "group",
+          "members"
+        ],
+        "title": "GroupDetailOut",
+        "type": "object"
+      },
+      "GroupMemberOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "DEACTIVATED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "added_at": {
+            "format": "date-time",
+            "title": "Added At",
+            "type": "string"
+          },
+          "performance_shared": {
+            "title": "Performance Shared",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "added_at",
+          "performance_shared"
+        ],
+        "title": "GroupMemberOut",
+        "type": "object"
+      },
+      "GroupPatchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "title": "GroupPatchIn",
+        "type": "object"
+      },
+      "AudiencePreviewIn": {
+        "additionalProperties": false,
+        "properties": {
+          "group_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Group Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "group_ids"
+        ],
+        "title": "AudiencePreviewIn",
+        "type": "object"
+      },
+      "AudienceCandidateOut": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "group_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Group Names",
+            "type": "array"
+          }
+        },
+        "required": [
+          "student_id",
+          "name",
+          "email",
+          "group_names"
+        ],
+        "title": "AudienceCandidateOut",
+        "type": "object"
+      },
+      "ShareIn": {
+        "additionalProperties": false,
+        "description": "Exactly one: the ticked students, or every current member of one group (D-06).",
+        "properties": {
+          "student_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "maxItems": 500,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Student Ids"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          }
+        },
+        "title": "ShareIn",
+        "type": "object"
+      },
+      "TagSuggestIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "CHAPTER",
+              "TOPIC"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "q": {
+            "default": "",
+            "maxLength": 160,
+            "title": "Q",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "TagSuggestIn",
+        "type": "object"
+      },
+      "TagOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "CHAPTER",
+              "TOPIC"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "name"
+        ],
+        "title": "TagOut",
+        "type": "object"
+      },
+      "TagFilterIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "CHAPTER",
+                  "TOPIC"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          }
+        },
+        "title": "TagFilterIn",
+        "type": "object"
+      },
+      "TagUsageOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "CHAPTER",
+              "TOPIC"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          },
+          "test_count": {
+            "title": "Test Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "name",
+          "question_count",
+          "test_count"
+        ],
+        "title": "TagUsageOut",
+        "type": "object"
+      },
+      "TagRenameOut": {
+        "additionalProperties": false,
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/TagOut"
+          },
+          "merged_from": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merged From"
+          }
+        },
+        "required": [
+          "tag",
+          "merged_from"
+        ],
+        "title": "TagRenameOut",
+        "type": "object"
+      },
+      "TagRenameIn": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 160,
+            "title": "Name",
+            "type": "string"
+          },
+          "merge": {
+            "default": false,
+            "title": "Merge",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "TagRenameIn",
+        "type": "object"
+      },
+      "TagDeleteOut": {
+        "additionalProperties": false,
+        "properties": {
+          "removed_from_questions": {
+            "title": "Removed From Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "removed_from_questions"
+        ],
+        "title": "TagDeleteOut",
         "type": "object"
       }
     }

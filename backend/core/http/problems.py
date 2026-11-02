@@ -68,7 +68,12 @@ def api_not_found(request: HttpRequest) -> HttpResponse:
 
 
 def _domain_error(request: HttpRequest, error: DomainError) -> HttpResponse:
-    extra = {"context": error.context} if error.context else None
+    extra: dict[str, object] = {"context": error.context} if error.context else {}
+    if error.field_errors():
+        extra["errors"] = [
+            {"field": item.field, "code": item.code, "message": item.message}
+            for item in error.field_errors()
+        ]
     response = problem_response(
         request,
         status=error.status,

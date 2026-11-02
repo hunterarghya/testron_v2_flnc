@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Self
 from uuid import UUID
 
 from ninja import Schema
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
-from modules.students.domain.admission import BulkOutcome
+from modules.students.domain.bulk import BulkOutcome
 from modules.students.domain.values import StudentRow
 
 # The tabs of T-14; UNVERIFIED and ANONYMIZED accounts are never listed
@@ -21,12 +21,36 @@ class StudentFilterIn(Schema):
 
     status: ListedStatus = "ACTIVE"
     q: str | None = Field(default=None, max_length=100)
+    group_id: UUID | None = None
 
 
 class StudentIdsIn(Schema):
     model_config = ConfigDict(extra="forbid")
 
     student_ids: list[UUID] = Field(min_length=1, max_length=MAX_BULK)
+
+
+class ApproveIn(Schema):
+    model_config = ConfigDict(extra="forbid")
+
+    student_ids: list[UUID] = Field(min_length=1, max_length=MAX_BULK)
+    # Approved students join these groups too (T-14 Pending, "Add to group")
+    group_ids: list[UUID] = Field(default_factory=list, max_length=20)
+
+
+class ShareIn(Schema):
+    """Exactly one: the ticked students, or every current member of one group (D-06)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    student_ids: list[UUID] | None = Field(default=None, min_length=1, max_length=MAX_BULK)
+    group_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def _exactly_one(self) -> Self:
+        if (self.student_ids is None) == (self.group_id is None):
+            raise ValueError("Give either student_ids or group_id")
+        return self
 
 
 class AnonymizeIn(Schema):
@@ -47,6 +71,7 @@ class StudentRowOut(Schema):
     decided_at: datetime | None
     deactivated_at: datetime | None
     performance_shared: bool
+    group_names: list[str]
 
     @classmethod
     def from_row(cls, row: StudentRow) -> "StudentRowOut":
@@ -60,6 +85,7 @@ class StudentRowOut(Schema):
             decided_at=row.decided_at,
             deactivated_at=row.deactivated_at,
             performance_shared=row.performance_shared,
+            group_names=row.group_names,
         )
 
 

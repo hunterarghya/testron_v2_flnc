@@ -18,3 +18,38 @@ class StudentRow:
     decided_at: datetime | None
     deactivated_at: datetime | None
     performance_shared: bool
+    group_names: list[str]
+
+
+@dataclass(frozen=True, slots=True)
+class GroupSummary:
+    """A group as T-16 lists it."""
+
+    id: UUID
+    name: str
+    description: str
+    archived_at: datetime | None
+    member_count: int
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class GroupMember:
+    """One student on T-17's Students tab."""
+
+    id: UUID
+    name: str
+    email: str
+    status: StudentStatus
+    added_at: datetime
+    performance_shared: bool
+
+
+@dataclass(frozen=True, slots=True)
+class AudienceCandidate:
+    """An ACTIVE student the assignment wizard would add for the chosen groups (T-07)."""
+
+    student_id: UUID
+    name: str
+    email: str
+    group_names: list[str]

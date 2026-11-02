@@ -12,7 +12,8 @@ from django.db import transaction
 
 from core.context import Ctx
 from modules.identity import public as identity
-from modules.students.domain.admission import AdmissionAction, BulkOutcome, plan_bulk
+from modules.students.domain.admission import AdmissionAction, plan_bulk
+from modules.students.domain.bulk import BulkOutcome
 from modules.students.policies import ensure_teacher
 from modules.students.repositories import students
 

@@ -2,7 +2,8 @@ from collections.abc import Sequence
 from uuid import UUID
 
 from core.context import Ctx
-from modules.students.domain.admission import AdmissionAction, BulkOutcome
+from modules.students.domain.admission import AdmissionAction
+from modules.students.domain.bulk import BulkOutcome
 from modules.students.services.admission_changes import change_admission
 
 

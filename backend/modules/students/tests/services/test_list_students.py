@@ -90,7 +90,7 @@ def test_query_count_does_not_grow_with_students(
     for number in range(30):
         make_student(name=f"Student {number}")
 
-    with django_assert_max_num_queries(2):
+    with django_assert_max_num_queries(3):
         listed(teacher_ctx)
 
 

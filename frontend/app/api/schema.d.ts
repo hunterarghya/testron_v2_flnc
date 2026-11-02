@@ -313,6 +313,213 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Groups (active by default) */
+        get: operations["list_groups"];
+        put?: never;
+        /** Create a group */
+        post: operations["create_group"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One group with its members */
+        get: operations["get_group"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename a group or change its description */
+        patch: operations["update_group"];
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive a group */
+        post: operations["archive_group"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore an archived group */
+        post: operations["restore_group"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add students to a group */
+        post: operations["add_group_members"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/members/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove students from a group */
+        post: operations["remove_group_members"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audience-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active students in the chosen groups */
+        get: operations["preview_audience"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/performance-shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Share performance with students or a group */
+        post: operations["share_performance"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/performance-shares/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stop sharing performance */
+        post: operations["unshare_performance"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tags/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tags matching what is typed (at most 8) */
+        get: operations["suggest_tags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every tag with its question and test counts */
+        get: operations["list_tags_with_usage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tags/{tag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a tag from every question, then delete it */
+        delete: operations["delete_tag"];
+        options?: never;
+        head?: never;
+        /** Rename a tag (merging into an existing one when confirmed) */
+        patch: operations["rename_tag"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -460,6 +667,8 @@ export interface components {
             status: "ACTIVE" | "PENDING" | "DECLINED" | "DEACTIVATED";
             /** Q */
             q?: string | null;
+            /** Group Id */
+            group_id?: string | null;
         };
         /** Page[StudentRowOut] */
         Page_StudentRowOut_: {
@@ -501,6 +710,8 @@ export interface components {
             deactivated_at: string | null;
             /** Performance Shared */
             performance_shared: boolean;
+            /** Group Names */
+            group_names: string[];
         };
         /**
          * BulkResultOut
@@ -522,6 +733,13 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** ApproveIn */
+        ApproveIn: {
+            /** Student Ids */
+            student_ids: string[];
+            /** Group Ids */
+            group_ids?: string[];
+        };
         /** StudentIdsIn */
         StudentIdsIn: {
             /** Student Ids */
@@ -531,6 +749,188 @@ export interface components {
         AnonymizeIn: {
             /** Confirm Name */
             confirm_name: string;
+        };
+        /** GroupFilterIn */
+        GroupFilterIn: {
+            /**
+             * Archived
+             * @default false
+             */
+            archived: boolean;
+            /** Q */
+            q?: string | null;
+        };
+        /** GroupOut */
+        GroupOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Archived At */
+            archived_at: string | null;
+            /** Member Count */
+            member_count: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** GroupIn */
+        GroupIn: {
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+        };
+        /** GroupDetailOut */
+        GroupDetailOut: {
+            group: components["schemas"]["GroupOut"];
+            /** Members */
+            members: components["schemas"]["GroupMemberOut"][];
+        };
+        /** GroupMemberOut */
+        GroupMemberOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ACTIVE" | "DEACTIVATED";
+            /**
+             * Added At
+             * Format: date-time
+             */
+            added_at: string;
+            /** Performance Shared */
+            performance_shared: boolean;
+        };
+        /** GroupPatchIn */
+        GroupPatchIn: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /** AudiencePreviewIn */
+        AudiencePreviewIn: {
+            /** Group Ids */
+            group_ids: string[];
+        };
+        /** AudienceCandidateOut */
+        AudienceCandidateOut: {
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /** Group Names */
+            group_names: string[];
+        };
+        /**
+         * ShareIn
+         * @description Exactly one: the ticked students, or every current member of one group (D-06).
+         */
+        ShareIn: {
+            /** Student Ids */
+            student_ids?: string[] | null;
+            /** Group Id */
+            group_id?: string | null;
+        };
+        /** TagSuggestIn */
+        TagSuggestIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "CHAPTER" | "TOPIC";
+            /**
+             * Q
+             * @default
+             */
+            q: string;
+        };
+        /** TagOut */
+        TagOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "CHAPTER" | "TOPIC";
+            /** Name */
+            name: string;
+        };
+        /** TagFilterIn */
+        TagFilterIn: {
+            /** Kind */
+            kind?: ("CHAPTER" | "TOPIC") | null;
+            /** Q */
+            q?: string | null;
+        };
+        /** TagUsageOut */
+        TagUsageOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "CHAPTER" | "TOPIC";
+            /** Name */
+            name: string;
+            /** Question Count */
+            question_count: number;
+            /** Test Count */
+            test_count: number;
+        };
+        /** TagRenameOut */
+        TagRenameOut: {
+            tag: components["schemas"]["TagOut"];
+            /** Merged From */
+            merged_from: string | null;
+        };
+        /** TagRenameIn */
+        TagRenameIn: {
+            /** Name */
+            name: string;
+            /**
+             * Merge
+             * @default false
+             */
+            merge: boolean;
+        };
+        /** TagDeleteOut */
+        TagDeleteOut: {
+            /** Removed From Questions */
+            removed_from_questions: number;
         };
     };
     responses: never;
@@ -808,6 +1208,7 @@ export interface operations {
             query?: {
                 status?: "ACTIVE" | "PENDING" | "DECLINED" | "DEACTIVATED";
                 q?: string | null;
+                group_id?: string | null;
                 page?: number;
                 page_size?: number;
             };
@@ -837,7 +1238,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StudentIdsIn"];
+                "application/json": components["schemas"]["ApproveIn"];
             };
         };
         responses: {
@@ -945,6 +1346,361 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    list_groups: {
+        parameters: {
+            query?: {
+                archived?: boolean;
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupOut"][];
+                };
+            };
+        };
+    };
+    create_group: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupOut"];
+                };
+            };
+        };
+    };
+    get_group: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupDetailOut"];
+                };
+            };
+        };
+    };
+    update_group: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupOut"];
+                };
+            };
+        };
+    };
+    archive_group: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupOut"];
+                };
+            };
+        };
+    };
+    restore_group: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupOut"];
+                };
+            };
+        };
+    };
+    add_group_members: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    remove_group_members: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    preview_audience: {
+        parameters: {
+            query: {
+                group_ids: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AudienceCandidateOut"][];
+                };
+            };
+        };
+    };
+    share_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    unshare_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    suggest_tags: {
+        parameters: {
+            query: {
+                kind: "CHAPTER" | "TOPIC";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagOut"][];
+                };
+            };
+        };
+    };
+    list_tags_with_usage: {
+        parameters: {
+            query?: {
+                kind?: ("CHAPTER" | "TOPIC") | null;
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagUsageOut"][];
+                };
+            };
+        };
+    };
+    delete_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagDeleteOut"];
+                };
+            };
+        };
+    };
+    rename_tag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tag_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TagRenameIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagRenameOut"];
+                };
             };
         };
     };

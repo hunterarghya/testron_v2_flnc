@@ -13,14 +13,14 @@ from modules.students.domain.anonymization import (
 )
 from modules.students.domain.errors import AdmissionStepNotAllowed
 from modules.students.policies import ensure_teacher
-from modules.students.repositories import students
+from modules.students.repositories import memberships, students
 
 
 def anonymize_student(ctx: Ctx, *, student_id: UUID, confirm_name: str) -> None:
     """Delete a student permanently: "Deleted student #n" (domain_model.md §3.2 #3, T-14).
 
     The teacher types the student's exact name first (security.md T-08). The name, email,
-    password, Google link, sessions and performance sharing go; attempts, responses and
+    password, Google link, sessions, groups and performance sharing go; attempts, responses and
     grades stay, so gradebooks and statistics remain intact. Only ACTIVE or DEACTIVATED
     students can be deleted. It can't be undone.
     """
@@ -37,3 +37,4 @@ def anonymize_student(ctx: Ctx, *, student_id: UUID, confirm_name: str) -> None:
             ctx, user_id=student_id, name=anonymized_name(number), email=anonymized_email(number)
         )
         students.mark_anonymized(student_id, number=number, now=ctx.now)
+        memberships.remove_from_all_groups(student_id)

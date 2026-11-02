@@ -9,7 +9,7 @@ from ninja.errors import HttpError
 from ninja.testing import TestClient
 from pydantic import ConfigDict
 
-from core.errors import Conflict, NotFound
+from core.errors import Conflict, FieldError, FieldsInvalid, NotFound
 from core.http.areas import TeacherArea
 from core.http.problems import CONTENT_TYPE, register_problem_handlers
 
@@ -171,3 +171,17 @@ def test_unexpected_error_hides_internals(caplog: pytest.LogCaptureFixture) -> N
     assert body["code"] == "internal_error"
     assert "hunter2" not in json.dumps(body)
     assert "hunter2" in caplog.text  # the details are in the log, for us
+
+
+@api.get("/name-taken")
+def name_taken(request: HttpRequest) -> None:
+    raise FieldsInvalid(FieldError("name", "taken", "A group with this name already exists"))
+
+
+def test_server_side_field_errors_look_like_validation_errors() -> None:
+    status, body = problem("/name-taken")
+
+    assert (status, body["code"]) == (422, "validation_error")
+    assert body["errors"] == [
+        {"field": "name", "code": "taken", "message": "A group with this name already exists"}
+    ]

@@ -8,6 +8,7 @@ from core.http.context import ctx_from
 from core.http.pagination import Page, PageIn
 from modules.students.dto.students import (
     AnonymizeIn,
+    ApproveIn,
     BulkResultOut,
     StudentFilterIn,
     StudentIdsIn,
@@ -28,6 +29,7 @@ def list_students(
         ctx_from(request),
         status=StudentStatus(filters.status),
         search=filters.q,
+        group_id=filters.group_id,
         offset=page.offset,
         limit=page.limit,
     )
@@ -35,8 +37,10 @@ def list_students(
     return Page[StudentRowOut].of(rows, page=page, total=result.total)
 
 
-def approve_students(request: HttpRequest, payload: StudentIdsIn) -> BulkResultOut:
-    outcome = approve.approve_students(ctx_from(request), student_ids=payload.student_ids)
+def approve_students(request: HttpRequest, payload: ApproveIn) -> BulkResultOut:
+    outcome = approve.approve_students(
+        ctx_from(request), student_ids=payload.student_ids, group_ids=payload.group_ids
+    )
     return BulkResultOut.from_outcome(outcome)
 
 
