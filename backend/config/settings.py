@@ -58,12 +58,16 @@ WHITENOISE_INDEX_FILE = True
 # Nuxt puts a content hash in every file name under /_nuxt/, so browsers may keep them forever
 WHITENOISE_IMMUTABLE_FILE_TEST = r"/_nuxt/"
 
+# Order as in architecture.md §5.1
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "core.http.middleware.security_headers.SecurityHeadersMiddleware",
     "core.http.middleware.request_id.RequestIdMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    # Ninja's views are CSRF-exempt; this checks every unsafe /api/ request itself
+    "core.http.middleware.api_csrf.ApiCsrfMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
 ]
 

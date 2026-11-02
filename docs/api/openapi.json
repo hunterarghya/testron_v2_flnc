@@ -319,6 +319,249 @@
           "required": true
         }
       }
+    },
+    "/api/v1/admin/students": {
+      "get": {
+        "operationId": "list_students",
+        "summary": "One tab of the Students table",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "default": "ACTIVE",
+              "enum": [
+                "ACTIVE",
+                "PENDING",
+                "DECLINED",
+                "DEACTIVATED"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_StudentRowOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/api/v1/admin/students/approve": {
+      "post": {
+        "operationId": "approve_students",
+        "summary": "Approve join requests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/students/decline": {
+      "post": {
+        "operationId": "decline_students",
+        "summary": "Decline join requests (final)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/students/deactivate": {
+      "post": {
+        "operationId": "deactivate_students",
+        "summary": "Deactivate students (ends their sessions)",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/students/reactivate": {
+      "post": {
+        "operationId": "reactivate_students",
+        "summary": "Reactivate students",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentIdsIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/students/{student_id}/anonymize": {
+      "post": {
+        "operationId": "anonymize_student",
+        "summary": "Delete a student permanently (keeps their results)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "student_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Student Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "students"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymizeIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
     }
   },
   "components": {
@@ -623,6 +866,257 @@
           "name"
         ],
         "title": "ProfileIn",
+        "type": "object"
+      },
+      "PageIn": {
+        "additionalProperties": false,
+        "description": "`?page=1&page_size=50`, taken by list controllers with `Query[PageIn]`.",
+        "properties": {
+          "page": {
+            "default": 1,
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "default": 50,
+            "maximum": 200,
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          }
+        },
+        "title": "PageIn",
+        "type": "object"
+      },
+      "StudentFilterIn": {
+        "additionalProperties": false,
+        "description": "`?status=PENDING&q=rina`, next to the page parameters.",
+        "properties": {
+          "status": {
+            "default": "ACTIVE",
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "DECLINED",
+              "DEACTIVATED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          }
+        },
+        "title": "StudentFilterIn",
+        "type": "object"
+      },
+      "Page_StudentRowOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StudentRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[StudentRowOut]",
+        "type": "object"
+      },
+      "StudentRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "PENDING",
+              "DECLINED",
+              "DEACTIVATED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "joined_at": {
+            "format": "date-time",
+            "title": "Joined At",
+            "type": "string"
+          },
+          "requested_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested At"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "deactivated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deactivated At"
+          },
+          "performance_shared": {
+            "title": "Performance Shared",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "joined_at",
+          "requested_at",
+          "decided_at",
+          "deactivated_at",
+          "performance_shared"
+        ],
+        "title": "StudentRowOut",
+        "type": "object"
+      },
+      "BulkResultOut": {
+        "additionalProperties": false,
+        "description": "`{succeeded, skipped}`: a student in the wrong status is skipped, not an error.",
+        "properties": {
+          "succeeded": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Succeeded",
+            "type": "array"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/SkippedOut"
+            },
+            "title": "Skipped",
+            "type": "array"
+          }
+        },
+        "required": [
+          "succeeded",
+          "skipped"
+        ],
+        "title": "BulkResultOut",
+        "type": "object"
+      },
+      "SkippedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reason"
+        ],
+        "title": "SkippedOut",
+        "type": "object"
+      },
+      "StudentIdsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "student_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Student Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "student_ids"
+        ],
+        "title": "StudentIdsIn",
+        "type": "object"
+      },
+      "AnonymizeIn": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm_name": {
+            "maxLength": 240,
+            "title": "Confirm Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirm_name"
+        ],
+        "title": "AnonymizeIn",
         "type": "object"
       }
     }

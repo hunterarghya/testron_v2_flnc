@@ -29,10 +29,12 @@ describe('ErrorState', () => {
   })
 })
 
+const rows = [{ id: 'r', name: 'Rina' }, { id: 'a', name: 'Arjun' }]
+
 describe('DataTable', () => {
   it('shows the rows', async () => {
     const wrapper = await mountSuspended(DataTable, {
-      props: { rows: [{ name: 'Rina' }, { name: 'Arjun' }], columns, emptyTitle: 'No students' },
+      props: { rows: [{ id: 'r', name: 'Rina' }, { id: 'a', name: 'Arjun' }], columns, emptyTitle: 'No students' },
     })
 
     expect(wrapper.text()).toContain('Rina')
@@ -54,5 +56,36 @@ describe('DataTable', () => {
 
     expect(wrapper.find('table').exists()).toBe(false)
     expect(wrapper.text()).toContain('ref-4bf92f35')
+  })
+})
+
+describe('DataTable selection', () => {
+  it('shows the bulk bar with the count once rows are ticked', async () => {
+    const wrapper = await mountSuspended(DataTable, {
+      props: { rows, columns, emptyTitle: 'x', selectable: true, selected: ['r'] },
+      slots: { bulk: () => 'Approve' },
+    })
+
+    expect(wrapper.text()).toContain('Selected 1:')
+    expect(wrapper.text()).toContain('Approve')
+  })
+
+  it('ticking the header box selects every row on the page', async () => {
+    const wrapper = await mountSuspended(DataTable, {
+      props: { rows, columns, emptyTitle: 'x', selectable: true, selected: [] },
+    })
+
+    await wrapper.findAll('button[role="checkbox"]')[0]!.trigger('click')
+
+    expect(wrapper.emitted('update:selected')?.at(-1)).toEqual([['r', 'a']])
+  })
+
+  it('has no bar and no checkboxes when not selectable', async () => {
+    const wrapper = await mountSuspended(DataTable, {
+      props: { rows, columns, emptyTitle: 'x', selected: ['r'] },
+    })
+
+    expect(wrapper.findAll('button[role="checkbox"]')).toHaveLength(0)
+    expect(wrapper.text()).not.toContain('Selected')
   })
 })

@@ -15,3 +15,21 @@ const dateTimeFormat = new Intl.DateTimeFormat('en-IN', {
 export function formatDateTime(isoUtc: string): string {
   return dateTimeFormat.format(new Date(isoUtc))
 }
+
+const relativeFormat = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
+const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ['day', 86_400_000],
+  ['hour', 3_600_000],
+  ['minute', 60_000],
+]
+
+/** "2 hours ago", "yesterday", "in 5 minutes": a hint next to an exact time. */
+export function relativeTime(isoUtc: string, nowMs: number): string {
+  const difference = new Date(isoUtc).getTime() - nowMs
+  for (const [unit, size] of UNITS) {
+    if (Math.abs(difference) >= size) {
+      return relativeFormat.format(Math.round(difference / size), unit)
+    }
+  }
+  return 'just now'
+}

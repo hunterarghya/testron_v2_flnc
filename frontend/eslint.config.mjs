@@ -11,7 +11,8 @@ const layerPolicies = [
   { from: 'pages', allow: ['feature', 'shared'] },
   { from: 'layouts', allow: ['shared'] },
   { from: 'app', allow: ['shared', 'api'] },
-  { from: 'shared', allow: ['shared', 'api'] },
+  // The keyboards and keypad components draw keys; engine/keyboards.ts decides what they do
+  { from: 'shared', allow: ['shared', 'api', 'engine'] },
   { from: 'engine', allow: ['engine'] },
   { from: 'stores', allow: ['engine', 'api'] },
   { from: 'api', allow: ['api'] },

@@ -1,6 +1,8 @@
+from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
+from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError, transaction
 
 from core.context import Role
@@ -80,3 +82,19 @@ def insert_teacher(*, email: str, name: str, password_hash: str, now: datetime) 
 
 def update_teacher_details(user_id: UUID, *, email: str, name: str, now: datetime) -> None:
     User.objects.filter(pk=user_id).update(email=email, name=name, updated_at=now)
+
+
+def set_active(user_ids: Sequence[UUID], *, active: bool, now: datetime) -> None:
+    User.objects.filter(pk__in=user_ids).update(is_active=active, updated_at=now)
+
+
+def scrub(user_id: UUID, *, name: str, email: str, now: datetime) -> None:
+    """Remove everything that identifies the person and every way to log in."""
+    User.objects.filter(pk=user_id).update(
+        name=name,
+        email=email,
+        password=make_password(None),
+        google_sub=None,
+        is_active=False,
+        updated_at=now,
+    )

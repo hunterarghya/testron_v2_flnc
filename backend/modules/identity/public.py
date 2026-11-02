@@ -12,9 +12,12 @@ from modules.identity.repositories.users import find_user_id_by_email
 from modules.identity.services.commands.authenticate_password import authenticate_password
 from modules.identity.services.commands.consume_otp import consume_otp
 from modules.identity.services.commands.create_student_user import create_student_user
+from modules.identity.services.commands.end_sessions import end_sessions
 from modules.identity.services.commands.issue_otp import PRODUCT_NAME, issue_otp
 from modules.identity.services.commands.mark_email_verified import mark_email_verified
+from modules.identity.services.commands.scrub_account import scrub_account
 from modules.identity.services.commands.seed_teacher import SeedTeacherResult, seed_teacher
+from modules.identity.services.commands.set_accounts_active import set_accounts_active
 from modules.identity.services.commands.update_profile_name import update_profile_name
 from modules.identity.services.otp_sending import ensure_can_send_code
 from modules.identity.services.password_policy import ensure_password_strong
@@ -32,6 +35,7 @@ __all__ = [
     "authenticate_password",
     "consume_otp",
     "create_student_user",
+    "end_sessions",
     "ensure_can_send_code",
     "ensure_password_strong",
     "find_user_id_by_email",
@@ -39,8 +43,10 @@ __all__ = [
     "issue_otp",
     "mark_email_verified",
     "renew_session",
+    "scrub_account",
     "seed_teacher",
     "session_account",
+    "set_accounts_active",
     "start_session",
     "update_profile_name",
 ]

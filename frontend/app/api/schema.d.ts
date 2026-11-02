@@ -211,6 +211,108 @@ export interface paths {
         patch: operations["update_profile_name"];
         trace?: never;
     };
+    "/api/v1/admin/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One tab of the Students table */
+        get: operations["list_students"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve join requests */
+        post: operations["approve_students"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decline join requests (final) */
+        post: operations["decline_students"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivate students (ends their sessions) */
+        post: operations["deactivate_students"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reactivate students */
+        post: operations["reactivate_students"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/students/{student_id}/anonymize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Delete a student permanently (keeps their results) */
+        post: operations["anonymize_student"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -328,6 +430,107 @@ export interface components {
         ProfileIn: {
             /** Name */
             name: string;
+        };
+        /**
+         * PageIn
+         * @description `?page=1&page_size=50`, taken by list controllers with `Query[PageIn]`.
+         */
+        PageIn: {
+            /**
+             * Page
+             * @default 1
+             */
+            page: number;
+            /**
+             * Page Size
+             * @default 50
+             */
+            page_size: number;
+        };
+        /**
+         * StudentFilterIn
+         * @description `?status=PENDING&q=rina`, next to the page parameters.
+         */
+        StudentFilterIn: {
+            /**
+             * Status
+             * @default ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "PENDING" | "DECLINED" | "DEACTIVATED";
+            /** Q */
+            q?: string | null;
+        };
+        /** Page[StudentRowOut] */
+        Page_StudentRowOut_: {
+            /** Items */
+            items: components["schemas"]["StudentRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** StudentRowOut */
+        StudentRowOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ACTIVE" | "PENDING" | "DECLINED" | "DEACTIVATED";
+            /**
+             * Joined At
+             * Format: date-time
+             */
+            joined_at: string;
+            /** Requested At */
+            requested_at: string | null;
+            /** Decided At */
+            decided_at: string | null;
+            /** Deactivated At */
+            deactivated_at: string | null;
+            /** Performance Shared */
+            performance_shared: boolean;
+        };
+        /**
+         * BulkResultOut
+         * @description `{succeeded, skipped}`: a student in the wrong status is skipped, not an error.
+         */
+        BulkResultOut: {
+            /** Succeeded */
+            succeeded: string[];
+            /** Skipped */
+            skipped: components["schemas"]["SkippedOut"][];
+        };
+        /** SkippedOut */
+        SkippedOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reason */
+            reason: string;
+        };
+        /** StudentIdsIn */
+        StudentIdsIn: {
+            /** Student Ids */
+            student_ids: string[];
+        };
+        /** AnonymizeIn */
+        AnonymizeIn: {
+            /** Confirm Name */
+            confirm_name: string;
         };
     };
     responses: never;
@@ -597,6 +800,151 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SessionUserOut"];
                 };
+            };
+        };
+    };
+    list_students: {
+        parameters: {
+            query?: {
+                status?: "ACTIVE" | "PENDING" | "DECLINED" | "DEACTIVATED";
+                q?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_StudentRowOut_"];
+                };
+            };
+        };
+    };
+    approve_students: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    decline_students: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    deactivate_students: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    reactivate_students: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIdsIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    anonymize_student: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnonymizeIn"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

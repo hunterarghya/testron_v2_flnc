@@ -4,6 +4,7 @@ import createClient, { type Client, type Middleware } from 'openapi-fetch'
 import { withCsrf } from '~/api/csrf'
 import { problemFromResponse } from '~/api/problems'
 import { createRetryingFetch, type FetchFn } from '~/api/retry'
+import { notifySessionExpired } from '~/api/session-events'
 import type { paths } from '~/api/schema'
 
 export type ApiClient = Client<paths>
@@ -18,7 +19,11 @@ export interface ApiClientOptions {
 const errorsAsProblems: Middleware = {
   async onResponse({ response }) {
     if (!response.ok) {
-      throw await problemFromResponse(response)
+      const problem = await problemFromResponse(response)
+      if (problem.code === 'not_authenticated') {
+        notifySessionExpired()
+      }
+      throw problem
     }
     return response
   },

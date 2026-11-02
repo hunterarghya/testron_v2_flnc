@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import LoginForm from '~/features/auth/components/LoginForm.vue'
+
 definePageMeta({ layout: 'public' })
 </script>
 
 <template>
-  <UCard>
-    <h1 class="text-xl font-semibold">Log in</h1>
-    <p class="text-muted">Placeholder: the login screen is built in Phase 1.</p>
-  </UCard>
+  <LoginForm />
 </template>
