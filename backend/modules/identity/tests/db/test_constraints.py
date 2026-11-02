@@ -96,3 +96,10 @@ def test_new_code_allowed_once_the_old_one_is_superseded(frozen_clock: FrozenClo
 def test_failed_tries_stop_at_five(frozen_clock: FrozenClock) -> None:
     with pytest.raises(IntegrityError), transaction.atomic():
         new_otp(make_user(), frozen_clock, failed_tries=6)
+
+
+def test_v1_f20_email_is_the_only_login_name() -> None:
+    field_names = {field.name for field in User._meta.get_fields()}
+
+    assert User.USERNAME_FIELD == "email"
+    assert "username" not in field_names

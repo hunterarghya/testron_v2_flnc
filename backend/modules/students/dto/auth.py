@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, cast
 from uuid import UUID
 
@@ -6,6 +7,7 @@ from pydantic import ConfigDict, Field
 
 from core.http.fields import EmailField, NameField, PasswordField
 from modules.students.services.commands.sign_up_with_password import SignUpResult
+from modules.students.services.queries.get_session import SessionView
 from modules.students.services.session_user import SessionUserView
 
 StatusOut = Literal["UNVERIFIED", "PENDING", "ACTIVE", "DECLINED", "DEACTIVATED"]
@@ -60,3 +62,28 @@ class SessionUserOut(Schema):
             has_password=view.has_password,
             performance_shared=view.performance_shared,
         )
+
+
+class LoginIn(Schema):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailField
+    password: PasswordField
+
+
+class SessionOut(Schema):
+    model_config = ConfigDict(extra="forbid")
+
+    user: SessionUserOut | None
+    server_now: datetime
+
+    @classmethod
+    def from_view(cls, view: SessionView) -> "SessionOut":
+        user = SessionUserOut.from_view(view.user) if view.user else None
+        return cls(user=user, server_now=view.server_now)
+
+
+class ProfileIn(Schema):
+    model_config = ConfigDict(extra="forbid")
+
+    name: NameField

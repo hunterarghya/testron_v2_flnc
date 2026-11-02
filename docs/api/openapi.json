@@ -39,6 +39,22 @@
         ]
       }
     },
+    "/api/v1/auth/csrf": {
+      "get": {
+        "operationId": "get_csrf_cookie",
+        "summary": "Set the CSRF cookie",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "description": "Sets the `csrftoken` cookie the SPA echoes on every unsafe request (SPA boot).",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/auth/email-verification/resend": {
       "post": {
         "operationId": "resend_verification",
@@ -57,6 +73,96 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ResendVerificationIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "log_out",
+        "summary": "Log out of this device",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/password-reset": {
+      "post": {
+        "operationId": "request_password_reset",
+        "summary": "Email a password reset code",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "confirm_password_reset",
+        "summary": "Set a new password with the code (ends every session)",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetConfirmIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/password": {
+      "post": {
+        "operationId": "change_password",
+        "summary": "Change your own password",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordIn"
               }
             }
           },
@@ -127,6 +233,92 @@
           "required": true
         }
       }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "log_in_with_password",
+        "summary": "Log in with email and password",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUserOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "operationId": "get_session",
+        "summary": "Who is logged in (or null) and the server time",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/profile": {
+      "patch": {
+        "operationId": "update_profile_name",
+        "summary": "Change your own name",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUserOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
     }
   },
   "components": {
@@ -175,6 +367,75 @@
           "email"
         ],
         "title": "ResendVerificationIn",
+        "type": "object"
+      },
+      "PasswordResetIn": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "PasswordResetIn",
+        "type": "object"
+      },
+      "PasswordResetConfirmIn": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          },
+          "code": {
+            "default": "",
+            "maxLength": 12,
+            "title": "Code",
+            "type": "string"
+          },
+          "new_password": {
+            "maxLength": 128,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "new_password"
+        ],
+        "title": "PasswordResetConfirmIn",
+        "type": "object"
+      },
+      "ChangePasswordIn": {
+        "additionalProperties": false,
+        "properties": {
+          "current_password": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Password"
+          },
+          "new_password": {
+            "maxLength": 128,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "new_password"
+        ],
+        "title": "ChangePasswordIn",
         "type": "object"
       },
       "SignUpAcceptedOut": {
@@ -300,6 +561,68 @@
           "email"
         ],
         "title": "VerifyEmailIn",
+        "type": "object"
+      },
+      "LoginIn": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn",
+        "type": "object"
+      },
+      "SessionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionUserOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "server_now"
+        ],
+        "title": "SessionOut",
+        "type": "object"
+      },
+      "ProfileIn": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 240,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "ProfileIn",
         "type": "object"
       }
     }

@@ -88,9 +88,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Database sessions that also record the user, so all of a user's sessions can be ended
 SESSION_ENGINE = "modules.identity.sessions"
 
-# Turns a request into the Actor the area guards check (core.http.areas).
-# Nobody can log in until the identity module provides the real one.
-ACTOR_RESOLVER = "core.http.areas.anonymous_actor"
+# Turns a request into the Actor the area guards check (core.http.areas, ADR-044):
+# the login from identity plus the admission status from students
+ACTOR_RESOLVER = "modules.students.actors.resolve_actor"
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"

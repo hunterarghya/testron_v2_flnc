@@ -41,7 +41,22 @@ web:
 migrate:
     cd backend && uv run python manage.py migrate
 
-# Create migrations after a model change: just makemigrations name=add_users
+# Create or update the teacher account from .env (safe to repeat)
+seed:
+    cd backend && uv run python manage.py seed
+
+# Check .env and print the effective settings (secrets hidden)
+check-config:
+    cd backend && uv run python manage.py check_config
+
+# Wipe the local database, then migrate and seed it again
+[confirm("This deletes ALL data in the local database. Continue?")]
+db-reset:
+    docker compose --profile infra exec -T postgres psql -U app -d postgres -c "DROP DATABASE IF EXISTS app WITH (FORCE)" -c "CREATE DATABASE app OWNER app"
+    just migrate
+    just seed
+
+# Create migrations after a model change: just makemigrations add_users
 makemigrations name:
     cd backend && uv run python manage.py makemigrations --name {{name}}
 

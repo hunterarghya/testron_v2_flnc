@@ -9,8 +9,9 @@ from modules.students.domain.admission import status_after_email_verified
 from modules.students.repositories import students
 from modules.students.services.session_user import SessionUserView, build_session_user
 
-# Codes already die after 5 wrong tries each; this stops one address guessing across many
-_PER_IP = RateLimit(limit=30, window=timedelta(minutes=10))
+# Codes already die after 5 wrong tries each. This is only a ceiling against one address
+# guessing across many accounts, high enough for a whole class verifying at once (ADR-052)
+PER_IP = RateLimit(limit=300, window=timedelta(minutes=10))
 
 
 def verify_email(ctx: Ctx, *, email: str, code: str, client_ip: str) -> SessionUserView:
@@ -20,7 +21,7 @@ def verify_email(ctx: Ctx, *, email: str, code: str, client_ip: str) -> SessionU
     in its own transaction first (a wrong try must stay counted), then the email and the
     admission status change together. The controller then logs the student in.
     """
-    ensure_within(f"verify-email:ip:{client_ip}", _PER_IP, now=ctx.now)
+    ensure_within(f"verify-email:ip:{client_ip}", PER_IP, now=ctx.now)
     user_id = identity.find_user_id_by_email(email)
     if user_id is None:
         raise identity.OtpInvalid()

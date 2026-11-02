@@ -65,6 +65,9 @@ class Settings(BaseSettings):
 
     sentry_dsn: str | None = None
     e2e_test_hooks: bool = False
+    # How many proxies in front of the app add to X-Forwarded-For (Caddy or Render: 1).
+    # 0 trusts none of it, so a client can't fake its IP when there is no proxy.
+    trusted_proxy_hops: int = Field(default=0, ge=0, le=3)
 
     # Stamped into the image at build time; shown by /healthz and the Settings page
     app_version: str = "dev"

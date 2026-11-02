@@ -1,12 +1,16 @@
+from datetime import timedelta
+
 import pytest
 from django.core import mail
 
 from conftest import AfterCommit, MakeCtx
 from core.context import Role, StudentStatus
 from core.errors import RateLimited
+from core.rate_limit import RateLimit
 from modules.identity import public as identity_public
 from modules.identity.public import PasswordTooWeak, find_user_id_by_email, get_user_summary
 from modules.students.models import Student
+from modules.students.services.commands import sign_up_with_password as sign_up_module
 from modules.students.services.commands.sign_up_with_password import (
     SignUpResult,
     sign_up_with_password,
@@ -88,10 +92,11 @@ def test_weak_password_is_refused_even_for_a_registered_email(
     assert mail.outbox == []
 
 
-def test_ten_sign_ups_per_hour_from_one_address(
-    make_ctx: MakeCtx, after_commit: AfterCommit
+def test_sign_ups_from_one_ip_have_a_ceiling(
+    make_ctx: MakeCtx, after_commit: AfterCommit, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    for number in range(10):
+    monkeypatch.setattr(sign_up_module, "PER_IP", RateLimit(limit=2, window=timedelta(hours=1)))
+    for number in range(2):
         sign_up(make_ctx, after_commit, email=f"s{number}@example.com")
 
     with pytest.raises(RateLimited):

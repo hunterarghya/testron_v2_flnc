@@ -1,4 +1,4 @@
-from core.errors import DomainError, Invalid
+from core.errors import Conflict, DomainError, Invalid
 
 
 class DatabaseUnavailable(DomainError):
@@ -27,3 +27,32 @@ class EmailTaken(DomainError):
     code = "email_taken"
     status = 409
     title = "This email is already registered"
+
+
+class InvalidCredentials(DomainError):
+    """One answer for every failed login: unknown email, wrong password, no password set."""
+
+    code = "invalid_credentials"
+    status = 401
+    title = "Email or password is incorrect"
+
+
+class EmailNotVerified(DomainError):
+    """Given only after the password matched, so it reveals nothing to a stranger."""
+
+    code = "email_not_verified"
+    status = 403
+    title = "Please verify your email first"
+
+
+class CurrentPasswordIncorrect(DomainError):
+    code = "current_password_incorrect"
+    status = 403
+    title = "Your current password is not correct"
+
+
+class TeacherEmailTaken(Conflict):
+    """TEACHER_EMAIL already belongs to a student, so it can't become the teacher."""
+
+    code = "teacher_email_taken"
+    title = "This email already belongs to a student account"

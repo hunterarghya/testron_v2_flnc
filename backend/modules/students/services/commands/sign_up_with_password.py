@@ -11,7 +11,9 @@ from core.rate_limit import RateLimit, ensure_within
 from modules.identity import public as identity
 from modules.students.repositories import students
 
-_PER_IP = RateLimit(limit=10, window=timedelta(hours=1))
+# A whole class may sign up at once from the centre's one Wi-Fi address, so this is only
+# a ceiling against floods; the per-address send limit protects inboxes (ADR-052)
+PER_IP = RateLimit(limit=200, window=timedelta(hours=1))
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,7 +31,7 @@ def sign_up_with_password(
     gets a fresh code if they never verified (they probably lost the first one), and a
     "someone tried to register" email otherwise. `email` is already normalized.
     """
-    ensure_within(f"sign-up:ip:{client_ip}", _PER_IP, now=ctx.now)
+    ensure_within(f"sign-up:ip:{client_ip}", PER_IP, now=ctx.now)
     identity.ensure_can_send_code(email, identity.OtpPurpose.VERIFY_EMAIL, now=ctx.now)
     identity.ensure_password_strong(password)
     existing = identity.find_user_id_by_email(email)

@@ -5,6 +5,9 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
+from core import clock
+from core.request_id import new_request_id
+
 
 class Role(StrEnum):
     TEACHER = "TEACHER"
@@ -53,3 +56,8 @@ class Ctx:
     actor: Actor
     now: datetime
     request_id: str
+
+
+def system_ctx() -> Ctx:
+    """The context for work no person asked for: management commands, housekeeping."""
+    return Ctx(actor=ANONYMOUS, now=clock.now(), request_id=new_request_id())

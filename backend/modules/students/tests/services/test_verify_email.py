@@ -1,11 +1,15 @@
+from datetime import timedelta
+
 import pytest
 
 from conftest import AfterCommit, MakeCtx, last_emailed_code
 from core.clock import FrozenClock
 from core.context import Role, StudentStatus
 from core.errors import RateLimited
+from core.rate_limit import RateLimit
 from modules.identity.public import OtpInvalid, find_user_id_by_email, get_user_summary
 from modules.students.models import Student
+from modules.students.services.commands import verify_email as verify_module
 from modules.students.services.commands.sign_up_with_password import sign_up_with_password
 from modules.students.services.commands.verify_email import verify_email
 from modules.students.services.session_user import SessionUserView
@@ -74,8 +78,11 @@ def test_a_code_works_once(make_ctx: MakeCtx, code: str) -> None:
         verify(make_ctx, code)
 
 
-def test_guessing_across_accounts_from_one_address_is_limited(make_ctx: MakeCtx) -> None:
-    for _ in range(30):
+def test_guessing_across_accounts_from_one_ip_has_a_ceiling(
+    make_ctx: MakeCtx, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(verify_module, "PER_IP", RateLimit(limit=2, window=timedelta(minutes=10)))
+    for _ in range(2):
         with pytest.raises(OtpInvalid):
             verify(make_ctx, "123456", email="nobody@example.com")
 

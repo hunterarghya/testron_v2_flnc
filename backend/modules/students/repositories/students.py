@@ -32,3 +32,9 @@ def mark_pending(user_id: UUID, *, now: datetime) -> None:
 
 def is_performance_shared(user_id: UUID) -> bool:
     return PerformanceShare.objects.filter(student_id=user_id).exists()
+
+
+def find_status(user_id: UUID) -> StudentStatus | None:
+    """The student's admission status, or None for an account that isn't a student."""
+    status = Student.objects.filter(user_id=user_id).values_list("status", flat=True).first()
+    return StudentStatus(status) if status is not None else None

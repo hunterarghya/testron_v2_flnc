@@ -45,3 +45,38 @@ def mark_email_verified(user_id: UUID, *, now: datetime) -> None:
     User.objects.filter(pk=user_id, email_verified_at__isnull=True).update(
         email_verified_at=now, updated_at=now
     )
+
+
+def find_user_by_email(email: str) -> User | None:
+    """The account with this (normalized) email, or None when there is none."""
+    return User.objects.filter(email=email).first()
+
+
+def set_password_hash(user_id: UUID, password_hash: str, *, now: datetime) -> None:
+    User.objects.filter(pk=user_id).update(password=password_hash, updated_at=now)
+
+
+def set_name(user_id: UUID, name: str, *, now: datetime) -> None:
+    User.objects.filter(pk=user_id).update(name=name, updated_at=now)
+
+
+def find_teacher() -> User | None:
+    return User.objects.filter(role=Role.TEACHER).first()
+
+
+def insert_teacher(*, email: str, name: str, password_hash: str, now: datetime) -> UUID:
+    teacher = User.objects.create(
+        email=email,
+        name=name,
+        role=Role.TEACHER,
+        password=password_hash,
+        is_active=True,
+        email_verified_at=now,
+        created_at=now,
+        updated_at=now,
+    )
+    return teacher.id
+
+
+def update_teacher_details(user_id: UUID, *, email: str, name: str, now: datetime) -> None:
+    User.objects.filter(pk=user_id).update(email=email, name=name, updated_at=now)
