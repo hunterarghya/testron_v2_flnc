@@ -4,9 +4,8 @@ from django.db.models.functions import Lower
 
 from core.context import Role
 from core.db.base_model import TimestampedModel
-
-MAX_EMAIL_LENGTH = 254
-MAX_NAME_LENGTH = 120
+from core.emails import MAX_EMAIL_LENGTH
+from core.text import MAX_NAME_LENGTH
 
 
 class UserManager(BaseUserManager["User"]):

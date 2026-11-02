@@ -38,6 +38,95 @@
           "auth"
         ]
       }
+    },
+    "/api/v1/auth/email-verification/resend": {
+      "post": {
+        "operationId": "resend_verification",
+        "summary": "Email a new verification code",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/sign-up": {
+      "post": {
+        "operationId": "sign_up_with_password",
+        "summary": "Create a student account (unverified)",
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignUpAcceptedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/auth/email-verification": {
+      "post": {
+        "operationId": "verify_email",
+        "summary": "Verify the email with its code and log in",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUserOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
     }
   },
   "components": {
@@ -71,6 +160,146 @@
           "commit"
         ],
         "title": "HealthOut",
+        "type": "object"
+      },
+      "ResendVerificationIn": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "ResendVerificationIn",
+        "type": "object"
+      },
+      "SignUpAcceptedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "email_masked": {
+            "title": "Email Masked",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email_masked"
+        ],
+        "title": "SignUpAcceptedOut",
+        "type": "object"
+      },
+      "SignUpIn": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 240,
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 128,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "title": "SignUpIn",
+        "type": "object"
+      },
+      "SessionUserOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "TEACHER",
+              "STUDENT"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "UNVERIFIED",
+                  "PENDING",
+                  "ACTIVE",
+                  "DECLINED",
+                  "DEACTIVATED"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "has_password": {
+            "title": "Has Password",
+            "type": "boolean"
+          },
+          "performance_shared": {
+            "title": "Performance Shared",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role",
+          "status",
+          "has_password",
+          "performance_shared"
+        ],
+        "title": "SessionUserOut",
+        "type": "object"
+      },
+      "VerifyEmailIn": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "maxLength": 274,
+            "title": "Email",
+            "type": "string"
+          },
+          "code": {
+            "default": "",
+            "maxLength": 12,
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "VerifyEmailIn",
         "type": "object"
       }
     }

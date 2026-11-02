@@ -2,6 +2,7 @@ from typing import cast
 
 import factory
 
+from core import clock
 from core.context import Role
 from modules.identity.models import User
 
@@ -17,6 +18,7 @@ class UserFactory(factory.django.DjangoModelFactory[User]):
     name = factory.Sequence(lambda n: f"Student {n}")
     role = Role.STUDENT
     is_active = True
+    email_verified_at = factory.LazyFunction(clock.now)
     password = factory.django.Password("correct-horse-battery")
 
     class Params:

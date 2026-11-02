@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "API for the coaching center test platform"
 requires-python = ">=3.13,<3.14"
 dependencies = [
+    "argon2-cffi>=23,<26",
     "django>=6.0,<6.1",
     "django-ninja>=1.4,<2",
     "gunicorn>=23,<24",
@@ -92,7 +93,7 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.per-file-ignores]
 "core/clock.py" = ["TID251"]  # the one place allowed to read the system clock
-"**/tests/**" = ["S101", "S105", "S106", "PLR2004"]  # asserts, fake secrets and literal values
+"**/tests/**" = ["S101", "S105", "S106", "S107", "PLR2004"]  # asserts, fake secrets, literal values
 "conftest.py" = ["S101"]
 
 # --- Types (Y-01) ---

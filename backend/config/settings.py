@@ -68,6 +68,23 @@ MIDDLEWARE = [
 ]
 
 AUTH_USER_MODEL = "identity.User"
+# Pending students log in too (to see their status); what they may do is decided by role
+# and admission status, not by Django's is_active flag
+AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.AllowAllUsersModelBackend"]
+PASSWORD_HASHERS = (
+    # Hashing on purpose is slow; tests create many users and only need a valid hash
+    ["django.contrib.auth.hashers.MD5PasswordHasher"]
+    if env.django_env == "test"
+    else ["django.contrib.auth.hashers.Argon2PasswordHasher"]
+)
+# The password rule: 8+ characters, not a common password (api_contract.md §1)
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+]
 # Database sessions that also record the user, so all of a user's sessions can be ended
 SESSION_ENGINE = "modules.identity.sessions"
 
