@@ -3,21 +3,24 @@
      Keys: Ctrl+Enter new question of this type · Ctrl+D duplicate · Alt+↑/↓ move. -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { EditorQuestion, QuestionType, Tag, TestSettings } from '~/api/types'
+import type { EditorQuestion, EditorSection, QuestionType, Tag, TestSettings } from '~/api/types'
 import NumericAnswer from '~/features/editor/components/NumericAnswer.vue'
 import OptionsEditor from '~/features/editor/components/OptionsEditor.vue'
 import QuestionHeader from '~/features/editor/components/QuestionHeader.vue'
 import { useEditorContext } from '~/features/editor/composables/editorContext'
 import { suggestTags } from '~/features/editor/composables/editorApi'
+import { useQuestionDrag } from '~/features/editor/composables/useQuestionDrag'
 import { focusQuestion } from '~/features/editor/utils/focus'
 import type { EditorCommand } from '~/shared/components/rich-content/menus'
 import RichField from '~/shared/components/RichField.vue'
 import TagPills from '~/shared/components/TagPills.vue'
 
-const props = defineProps<{ number: number, settings: TestSettings, hasProblem: boolean }>()
+const props = defineProps<{ number: number, settings: TestSettings, hasProblem: boolean, section: EditorSection }>()
 const question = defineModel<EditorQuestion>('question', { required: true })
 
 const { editor, actions } = useEditorContext()
+const drag = useQuestionDrag()
+const dropHere = computed(() => drag.target.value?.beforeId === question.value.id && drag.dragging.value !== question.value.id)
 const showSolution = ref(question.value.solution !== null)
 const disabled = computed(() => editor.readOnly.value)
 
@@ -65,8 +68,28 @@ function onKeydown(event: KeyboardEvent): void {
 </script>
 
 <template>
-  <section :id="`question-${question.id}`" class="space-y-2 rounded-lg border p-3" :class="hasProblem ? 'border-warning' : 'border-default'" @keydown="onKeydown">
-    <QuestionHeader v-model:question="question" :number="number" :settings="settings" :disabled="disabled" @changed="changed" />
+  <section
+    :id="`question-${question.id}`"
+    class="space-y-2 rounded-lg border p-3"
+    :class="[hasProblem ? 'border-warning' : 'border-default', dropHere ? 'border-t-4 border-t-primary' : '', drag.dragging.value === question.id ? 'opacity-50' : '']"
+    @keydown="onKeydown"
+    @focusin="editor.current.value = question.id"
+    @dragover="drag.overQuestion($event, section, question.id)"
+    @drop.prevent="drag.finish()"
+  >
+    <div class="flex items-start gap-1">
+      <span
+        class="mt-1 shrink-0 cursor-grab text-muted"
+        :draggable="!disabled"
+        :aria-label="`Drag question ${number}`"
+        title="Drag to move (or Alt+↑/↓)"
+        @dragstart="drag.start($event, question.id)"
+        @dragend="drag.cancel()"
+      >
+        <UIcon name="i-lucide-grip-vertical" class="size-4" />
+      </span>
+      <QuestionHeader v-model:question="question" class="flex-1" :number="number" :settings="settings" :disabled="disabled" @changed="changed" />
+    </div>
     <div class="flex flex-wrap gap-4">
       <TagPills v-model="chapters" label="Chapter" :suggest="typed => suggestTags('CHAPTER', typed)" :disabled="disabled" />
       <TagPills v-model="topics" label="Topic" :suggest="typed => suggestTags('TOPIC', typed)" :disabled="disabled" />

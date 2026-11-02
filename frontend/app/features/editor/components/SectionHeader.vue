@@ -5,11 +5,13 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from 'vue'
 import type { EditorSection } from '~/api/types'
 import { useEditorContext } from '~/features/editor/composables/editorContext'
+import { useQuestionDrag } from '~/features/editor/composables/useQuestionDrag'
 
 const props = defineProps<{ index: number, canDelete: boolean }>()
 const section = defineModel<EditorSection>('section', { required: true })
 
 const { editor, actions } = useEditorContext()
+const drag = useQuestionDrag()
 const deleting = ref(false)
 const disabled = computed(() => editor.readOnly.value)
 const minutes = computed({
@@ -36,7 +38,7 @@ async function remove(questions: 'move_to_previous' | 'delete'): Promise<void> {
 </script>
 
 <template>
-  <div :id="`section-${section.id}`" class="flex flex-wrap items-center gap-3 border-b-2 border-default pb-2 pt-4">
+  <div :id="`section-${section.id}`" class="flex flex-wrap items-center gap-3 border-b-2 border-default pb-2 pt-4" @dragover="drag.overSection($event, section)" @drop.prevent="drag.finish()">
     <span class="text-sm font-semibold text-muted">Section {{ index + 1 }}</span>
     <UInput
       v-model="section.title"

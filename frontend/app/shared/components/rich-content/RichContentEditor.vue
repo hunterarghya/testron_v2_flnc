@@ -19,9 +19,12 @@ const props = defineProps<{
   disabled?: boolean
   label?: string
   inserts?: PageInsert[]
+  // Options: Enter adds the next option; Backspace in an empty one removes it (T-03)
+  captureEnter?: boolean
+  captureEmptyBackspace?: boolean
 }>()
 const model = defineModel<RichDoc | null>({ required: true })
-const emit = defineEmits<{ blur: [], command: [command: EditorCommand] }>()
+const emit = defineEmits<{ blur: [], command: [command: EditorCommand], enter: [], emptyBackspace: [] }>()
 
 const toast = useToast()
 const notify = (problem: Parameters<typeof problemMessage>[0]) => toast.add({ title: problemMessage(problem), color: 'error' })
@@ -32,6 +35,22 @@ const editorRef = computed(() => root.value?.editor ?? null)
 const extensions = richExtensions(props.profile)
 const content = ref<JSONContent>(toEditor(model.value) as JSONContent)
 const paste = usePaste(() => editorRef.value, notify)
+const editorProps = {
+  ...paste.editorProps,
+  handleKeyDown(view: { state: { doc: { textContent: string, childCount: number } } }, event: KeyboardEvent): boolean {
+    const plain = !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey
+    if (plain && event.key === 'Enter' && props.captureEnter) {
+      emit('enter')
+      return true
+    }
+    const empty = view.state.doc.textContent === '' && view.state.doc.childCount <= 1
+    if (plain && event.key === 'Backspace' && empty && props.captureEmptyBackspace) {
+      emit('emptyBackspace')
+      return true
+    }
+    return false
+  },
+}
 const handlers = useInsertHandlers({ pickImage: () => picker.value?.click(), command: command => emit('command', command) })
 const slash = computed(() => slashItems(props.profile, props.inserts))
 const toolbar = computed(() => toolbarItems(props.profile))
@@ -70,7 +89,7 @@ function onPicked(event: Event): void {
     :placeholder="placeholder"
     :editable="!disabled"
     :handlers="handlers"
-    :editor-props="paste.editorProps"
+    :editor-props="editorProps"
     :aria-label="label ?? placeholder"
     class="w-full"
     :ui="{ base: profile === 'compact' ? 'min-h-6' : 'min-h-12' }"

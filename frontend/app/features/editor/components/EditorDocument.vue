@@ -54,6 +54,7 @@ const firstNumber = computed(() => {
         :number="firstNumber[s]! + q"
         :settings="doc.settings"
         :has-problem="withProblems.has(question.id)"
+        :section="section"
       />
       <UEmpty
         v-if="!section.questions.length && !sectioned"

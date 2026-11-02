@@ -4,9 +4,11 @@
 import { computed } from 'vue'
 import type { TestDocument, TestProblem } from '~/api/types'
 import { formatDecimal } from '~/shared/utils/decimals'
+import { useEditorContext } from '~/features/editor/composables/editorContext'
 import { formatDuration } from '~/shared/utils/time'
 
 const props = defineProps<{ doc: TestDocument }>()
+const { editor, actions } = useEditorContext()
 
 const sectioned = computed(() => props.doc.settings.timing.kind === 'SECTIONED')
 const flagged = computed(() => new Set(props.doc.problems.map(p => p.question_id).filter(Boolean)))
@@ -31,7 +33,11 @@ function jump(questionId: string): void {
 <template>
   <nav class="space-y-4 text-sm" aria-label="Outline">
     <div v-for="({ section, questions }, s) in numbered" :key="section.id" class="space-y-1">
-      <p v-if="sectioned" class="truncate font-medium">S{{ s + 1 }} {{ section.title }}</p>
+      <div v-if="sectioned" class="flex items-center gap-1">
+        <p class="min-w-0 flex-1 truncate font-medium">S{{ s + 1 }} {{ section.title }}</p>
+        <UButton icon="i-lucide-arrow-up" size="xs" color="neutral" variant="ghost" :disabled="s === 0 || editor.readOnly.value" :aria-label="`Move section ${s + 1} up`" @click="actions.moveSection(section.id, -1)" />
+        <UButton icon="i-lucide-arrow-down" size="xs" color="neutral" variant="ghost" :disabled="s === numbered.length - 1 || editor.readOnly.value" :aria-label="`Move section ${s + 1} down`" @click="actions.moveSection(section.id, 1)" />
+      </div>
       <div class="flex flex-wrap gap-1">
         <UButton
           v-for="question in questions"

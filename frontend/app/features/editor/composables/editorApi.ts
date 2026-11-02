@@ -78,3 +78,29 @@ export function suggestTags(kind: 'CHAPTER' | 'TOPIC', typed: string): Promise<s
   return unwrap(api.GET('/api/v1/admin/tags/suggest', { params: { query: { kind, q: typed } } }))
     .then(tags => tags.map(tag => tag.name))
 }
+
+export function saveSettings(testId: string, revision: number, settings: NonNullable<TestPatch['settings']>) {
+  return unwrap(api.PATCH('/api/v1/admin/tests/{test_id}', {
+    params: { path: { test_id: testId } },
+    body: { revision, settings },
+  }))
+}
+
+export function importQuestions(testId: string, revision: number, sourceIds: string[], sectionId: string, afterId: string | null) {
+  return unwrap(api.POST('/api/v1/admin/tests/{test_id}/questions/import', {
+    params: { path: { test_id: testId } },
+    body: { revision, source_question_ids: sourceIds, section_id: sectionId, after_question_id: afterId },
+  }))
+}
+
+export function searchQuestions(testId: string, search: string) {
+  return unwrap(api.GET('/api/v1/admin/questions/search', {
+    params: { query: { q: search.trim() || undefined, exclude_test_id: testId, page_size: 50 } },
+  }))
+}
+
+export function getPreview(testId: string, showAnswers: boolean) {
+  return unwrap(api.GET('/api/v1/admin/tests/{test_id}/preview', {
+    params: { path: { test_id: testId }, query: { show_answers: showAnswers } },
+  }))
+}

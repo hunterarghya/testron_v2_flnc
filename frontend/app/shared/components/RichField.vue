@@ -13,9 +13,11 @@ withDefaults(defineProps<{
   label?: string
   // Question or section inserts in the "/" menu (a stem only)
   inserts?: PageInsert[]
+  captureEnter?: boolean
+  captureEmptyBackspace?: boolean
 }>(), { profile: 'full', placeholder: undefined, label: undefined, inserts: () => [] })
 const model = defineModel<RichDoc | null>({ required: true })
-const emit = defineEmits<{ blur: [], command: [command: EditorCommand] }>()
+const emit = defineEmits<{ blur: [], command: [command: EditorCommand], enter: [], emptyBackspace: [] }>()
 
 const RichContentEditor = defineAsyncComponent(() => import('~/shared/components/rich-content/RichContentEditor.vue'))
 </script>
@@ -28,7 +30,11 @@ const RichContentEditor = defineAsyncComponent(() => import('~/shared/components
     :disabled="disabled"
     :label="label"
     :inserts="inserts"
+    :capture-enter="captureEnter"
+    :capture-empty-backspace="captureEmptyBackspace"
     @blur="emit('blur')"
+    @enter="emit('enter')"
+    @empty-backspace="emit('emptyBackspace')"
     @command="(command: EditorCommand) => emit('command', command)"
   />
 </template>

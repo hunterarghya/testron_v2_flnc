@@ -4,8 +4,8 @@
 import { computed } from 'vue'
 import type { SaveStatus } from '~/features/editor/utils/save-queue'
 
-const props = defineProps<{ title: string, status: SaveStatus, assignedBefore: boolean }>()
-const emit = defineEmits<{ reload: [] }>()
+const props = defineProps<{ testId: string, title: string, status: SaveStatus, assignedBefore: boolean }>()
+const emit = defineEmits<{ reload: [], settings: [], import: [] }>()
 
 const STATUS: Record<SaveStatus, { label: string, icon: string, color: 'neutral' | 'success' | 'warning' | 'error' }> = {
   saved: { label: 'Saved', icon: 'i-lucide-check', color: 'success' },
@@ -23,6 +23,9 @@ const crumbs = computed(() => [{ label: 'Tests', to: '/admin/tests' }, { label: 
     <div class="flex flex-wrap items-center gap-3">
       <UBreadcrumb :items="crumbs" class="min-w-0 flex-1" />
       <UBadge :label="shown.label" :icon="shown.icon" :color="shown.color" variant="subtle" role="status" />
+      <UButton label="Preview" icon="i-lucide-eye" color="neutral" variant="outline" size="sm" :to="`/admin/tests/${testId}/preview`" />
+      <UButton label="Import" icon="i-lucide-import" color="neutral" variant="outline" size="sm" :disabled="status === 'conflict'" @click="emit('import')" />
+      <UButton label="Settings" icon="i-lucide-settings" color="neutral" variant="outline" size="sm" @click="emit('settings')" />
     </div>
     <UAlert
       v-if="status === 'conflict'"

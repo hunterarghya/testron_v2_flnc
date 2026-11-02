@@ -19,6 +19,8 @@ export function useTestEditor(testId: string) {
   const loadProblem = shallowRef<ApiProblem | null>(null)
   const status = ref<SaveStatus>('saved')
   const readOnly = computed(() => status.value === 'conflict')
+  // The question last worked on: Import and new questions go after it ("at the cursor")
+  const current = ref<string | null>(null)
   let queue: SaveQueue<SavePayload> | null = null
   const timers = new Map<string, { timer: ReturnType<typeof setTimeout>, build: () => SavePayload }>()
 
@@ -117,7 +119,7 @@ export function useTestEditor(testId: string) {
     window.removeEventListener('pagehide', onPageHide)
   })
 
-  return { doc, loadProblem, status, readOnly, load, edits, flush, flushAll, change, reload, findQuestion }
+  return { doc, loadProblem, status, readOnly, current, load, edits, flush, flushAll, change, reload, findQuestion }
 }
 
 export type TestEditor = ReturnType<typeof useTestEditor>
