@@ -13,6 +13,7 @@ from modules.authoring.services.commands.rename_tag import rename_tag
 from modules.authoring.services.queries.list_tags_with_usage import list_tags_with_usage
 from modules.authoring.services.queries.suggest_tags import suggest_tags
 from modules.tagging.public import TagKind, ensure_tags_by_name, list_tags
+from tests.factories.authoring import make_question, make_section, make_test
 from tests.factories.identity import make_user
 
 pytestmark = pytest.mark.django_db
@@ -121,3 +122,23 @@ def test_only_the_teacher_manages_tags(make_ctx: MakeCtx) -> None:
 
     with pytest.raises(Forbidden):
         list_tags_with_usage(make_ctx(student), kind=None, search=None)
+
+
+def test_counts_merge_and_delete_follow_the_questions(teacher_ctx: Ctx) -> None:
+    typo, real = new_tag(teacher_ctx, "Genetcs"), new_tag(teacher_ctx, "Genetics")
+    first, second = make_test(), make_test(title="Revision")
+    make_question(make_section(first), tag_ids=[typo, real])
+    make_question(make_section(second), tag_ids=[typo])
+    make_question(make_section(second, 1), tag_ids=[real])
+
+    before = {
+        u.tag.name: (u.question_count, u.test_count)
+        for u in list_tags_with_usage(teacher_ctx, kind=CHAPTER, search=None)
+    }
+    rename_tag(teacher_ctx, tag_id=typo, name="Genetics", merge=True)
+    after = list_tags_with_usage(teacher_ctx, kind=CHAPTER, search=None)
+
+    assert before == {"Genetcs": (2, 2), "Genetics": (2, 2)}
+    # The question that had both keeps one; the other two move over
+    assert [(u.tag.name, u.question_count, u.test_count) for u in after] == [("Genetics", 3, 2)]
+    assert delete_tag(teacher_ctx, tag_id=real) == 3

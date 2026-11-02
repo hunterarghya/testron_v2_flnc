@@ -34,7 +34,8 @@ def rename_tag(ctx: Ctx, *, tag_id: UUID, name: str, merge: bool) -> RenameTagRe
         locked = tagging.lock_tags([tag_id] + ([target_id] if target_id else []))
         if tag_id not in locked:
             raise NotFound("tag")
-        if target_id is None or target_id == tag_id:
+        # A target merged away while we waited for the locks makes this a plain rename
+        if target_id is None or target_id == tag_id or target_id not in locked:
             return _rename(tag_id, display)
         return _merge(tag_id, locked[target_id], merge=merge)
 
