@@ -82,6 +82,7 @@ class TestDocumentView:
     revision: int
     archived_at: datetime | None
     last_assigned_at: datetime | None
+    updated_at: datetime
     sections: tuple[SectionView, ...]
 
     def draft(self) -> TestDraft:

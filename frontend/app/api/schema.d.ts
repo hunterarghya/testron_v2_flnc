@@ -589,6 +589,23 @@ export interface paths {
         patch: operations["rename_tag"];
         trace?: never;
     };
+    "/api/v1/admin/questions/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Questions from other tests, to import */
+        get: operations["search_questions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/tests": {
         parameters: {
             query?: never;
@@ -596,7 +613,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** The Test Library: search, filter by tag, sort */
+        get: operations["list_tests"];
         put?: never;
         /** A new untitled draft with the teacher's defaults */
         post: operations["create_test"];
@@ -722,6 +740,91 @@ export interface paths {
         put?: never;
         /** Copy a question right after itself */
         post: operations["duplicate_question"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy a whole test as a new draft */
+        post: operations["duplicate_test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide a test from the library */
+        post: operations["archive_test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bring an archived test back */
+        post: operations["restore_test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The test as a student sees it */
+        get: operations["preview_test"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/tests/{test_id}/questions/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy questions from other tests in at the cursor */
+        post: operations["import_questions"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1251,6 +1354,54 @@ export interface components {
             /** Removed From Questions */
             removed_from_questions: number;
         };
+        /** QuestionSearchIn */
+        QuestionSearchIn: {
+            /** Q */
+            q?: string | null;
+            /** Tag Id */
+            tag_id?: string | null;
+            /** Exclude Test Id */
+            exclude_test_id?: string | null;
+        };
+        /** Page[QuestionSearchRowOut] */
+        Page_QuestionSearchRowOut_: {
+            /** Items */
+            items: components["schemas"]["QuestionSearchRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** QuestionSearchRowOut */
+        QuestionSearchRowOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Test Id
+             * Format: uuid
+             */
+            test_id: string;
+            /** Test Title */
+            test_title: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "MCQ" | "MSQ" | "NUMERICAL";
+            /** Stem */
+            stem: {
+                [key: string]: unknown;
+            };
+            /** Chapter Tags */
+            chapter_tags: components["schemas"]["TagOut"][];
+            /** Topic Tags */
+            topic_tags: components["schemas"]["TagOut"][];
+        };
         /** EditorQuestionOut */
         EditorQuestionOut: {
             /**
@@ -1434,6 +1585,66 @@ export interface components {
             marks: string;
             /** Duration S */
             duration_s: number | null;
+        };
+        /** TestFilterIn */
+        TestFilterIn: {
+            /** Q */
+            q?: string | null;
+            /** Tag Id */
+            tag_id?: string | null;
+            /**
+             * Status
+             * @default active
+             * @enum {string}
+             */
+            status: "active" | "archived";
+            /**
+             * Sort
+             * @default -updated_at
+             * @enum {string}
+             */
+            sort: "-updated_at" | "title" | "-last_assigned_at";
+        };
+        /** Page[TestRowOut] */
+        Page_TestRowOut_: {
+            /** Items */
+            items: components["schemas"]["TestRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** TestRowOut */
+        TestRowOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Question Count */
+            question_count: number;
+            /** Total Marks */
+            total_marks: string;
+            /**
+             * Timing Kind
+             * @enum {string}
+             */
+            timing_kind: "TOTAL" | "PER_QUESTION" | "SECTIONED";
+            /** Problem Count */
+            problem_count: number;
+            /** Last Assigned At */
+            last_assigned_at: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Archived At */
+            archived_at: string | null;
         };
         /** TestMutationOut */
         TestMutationOut: {
@@ -1653,6 +1864,149 @@ export interface components {
         RevisionIn: {
             /** Revision */
             revision: number;
+        };
+        /** PreviewIn */
+        PreviewIn: {
+            /**
+             * Show Answers
+             * @default false
+             */
+            show_answers: boolean;
+        };
+        /** PreviewAnswerOut */
+        PreviewAnswerOut: {
+            /**
+             * Question Id
+             * Format: uuid
+             */
+            question_id: string;
+            /** Correct Option Ids */
+            correct_option_ids: string[];
+            /** Numeric Answer */
+            numeric_answer: string | null;
+            /** Numeric Tolerance */
+            numeric_tolerance: string;
+            /** Solution */
+            solution: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** PreviewOptionOut */
+        PreviewOptionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+        };
+        /** PreviewOut */
+        PreviewOut: {
+            /**
+             * Test Id
+             * Format: uuid
+             */
+            test_id: string;
+            /** Title */
+            title: string;
+            /** Instructions */
+            instructions: {
+                [key: string]: unknown;
+            } | null;
+            timing: components["schemas"]["PreviewTimingOut"];
+            integrity: components["schemas"]["Integrity"];
+            /** Stages */
+            stages: components["schemas"]["PreviewStageOut"][];
+            /** Questions */
+            questions: components["schemas"]["PreviewQuestionOut"][];
+            /** Answers */
+            answers: components["schemas"]["PreviewAnswerOut"][];
+        };
+        /** PreviewQuestionOut */
+        PreviewQuestionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "MCQ" | "MSQ" | "NUMERICAL";
+            /** Stem */
+            stem: {
+                [key: string]: unknown;
+            };
+            /** Marks */
+            marks: string;
+            /** Negative Marks */
+            negative_marks: string;
+            /** Time S */
+            time_s: number | null;
+            /** Options */
+            options: components["schemas"]["PreviewOptionOut"][];
+        };
+        /** PreviewStageOut */
+        PreviewStageOut: {
+            /** Index */
+            index: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "WHOLE" | "SECTION" | "QUESTION";
+            /** Title */
+            title: string | null;
+            /** Instructions */
+            instructions: {
+                [key: string]: unknown;
+            } | null;
+            /** Duration S */
+            duration_s: number | null;
+            /** Question Ids */
+            question_ids: string[];
+        };
+        /** PreviewTimingOut */
+        PreviewTimingOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "TOTAL" | "PER_QUESTION" | "SECTIONED";
+            /** Allow Return */
+            allow_return: boolean;
+        };
+        /** ImportOut */
+        ImportOut: {
+            /** Revision */
+            revision: number;
+            /** Problems */
+            problems: components["schemas"]["ProblemOut"][];
+            totals: components["schemas"]["TotalsOut"];
+            /** Questions */
+            questions: components["schemas"]["EditorQuestionOut"][];
+        };
+        /** ImportIn */
+        ImportIn: {
+            /** Revision */
+            revision: number;
+            /** Source Question Ids */
+            source_question_ids: string[];
+            /**
+             * Section Id
+             * Format: uuid
+             */
+            section_id: string;
+            /** After Question Id */
+            after_question_id?: string | null;
         };
         /** BadgesOut */
         BadgesOut: {
@@ -2543,6 +2897,59 @@ export interface operations {
             };
         };
     };
+    search_questions: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                tag_id?: string | null;
+                exclude_test_id?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_QuestionSearchRowOut_"];
+                };
+            };
+        };
+    };
+    list_tests: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                tag_id?: string | null;
+                status?: "active" | "archived";
+                sort?: "-updated_at" | "title" | "-last_assigned_at";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_TestRowOut_"];
+                };
+            };
+        };
+    };
     create_test: {
         parameters: {
             query?: never;
@@ -2812,6 +3219,122 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuestionMutationOut"];
+                };
+            };
+        };
+    };
+    duplicate_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestDocumentOut"];
+                };
+            };
+        };
+    };
+    archive_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestRowOut"];
+                };
+            };
+        };
+    };
+    restore_test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestRowOut"];
+                };
+            };
+        };
+    };
+    preview_test: {
+        parameters: {
+            query?: {
+                show_answers?: boolean;
+            };
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreviewOut"];
+                };
+            };
+        };
+    };
+    import_questions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                test_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
                 };
             };
         };

@@ -13,9 +13,8 @@ def duplicate_question(ctx: Ctx, *, question_id: UUID, revision: int) -> EditRes
     def change() -> UUID:
         layout = dict(sections.layout(test_id))
         section_id = next(sid for sid, ids in layout.items() if question_id in ids)
-        copy_id = questions.copy_question(
-            question_id, position=len(layout[section_id]), now=ctx.now
-        )
+        target = questions.CopyTo(question_id, test_id, section_id, len(layout[section_id]))
+        [copy_id] = questions.copy_questions([target], now=ctx.now)
         layout[section_id] = insert_after(layout[section_id], copy_id, question_id)
         sections.apply_layout(list(layout.items()))
         return copy_id

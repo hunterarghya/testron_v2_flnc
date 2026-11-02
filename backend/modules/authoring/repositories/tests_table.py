@@ -82,3 +82,9 @@ def owning_test_of_question(question_id: UUID) -> UUID:
     if found is None:
         raise NotFound("question")
     return found
+
+
+def set_archived_at(test_id: UUID, archived_at: datetime | None) -> None:
+    if not Test.objects.filter(pk=test_id).exists():
+        raise NotFound("test")
+    Test.objects.filter(pk=test_id).update(archived_at=archived_at)

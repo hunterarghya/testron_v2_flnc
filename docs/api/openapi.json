@@ -1323,6 +1323,104 @@
         ]
       }
     },
+    "/api/v1/admin/questions/search": {
+      "get": {
+        "operationId": "search_questions",
+        "summary": "Questions from other tests, to import",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "tag_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "exclude_test_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exclude Test Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_QuestionSearchRowOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ]
+      }
+    },
     "/api/v1/admin/tests": {
       "post": {
         "operationId": "create_test",
@@ -1341,6 +1439,115 @@
           }
         },
         "tags": [
+          "authoring",
+          "authoring"
+        ]
+      },
+      "get": {
+        "operationId": "list_tests",
+        "summary": "The Test Library: search, filter by tag, sort",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "tag_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "default": "active",
+              "enum": [
+                "active",
+                "archived"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "-updated_at",
+              "enum": [
+                "-updated_at",
+                "title",
+                "-last_assigned_at"
+              ],
+              "title": "Sort",
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_TestRowOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
           "authoring"
         ]
       }
@@ -1374,6 +1581,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ]
       },
@@ -1405,6 +1613,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1448,6 +1657,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1491,6 +1701,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1534,6 +1745,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1577,6 +1789,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1647,6 +1860,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ]
       }
@@ -1680,6 +1894,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1730,6 +1945,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ]
       }
@@ -1763,6 +1979,7 @@
           }
         },
         "tags": [
+          "authoring",
           "authoring"
         ],
         "requestBody": {
@@ -1770,6 +1987,196 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RevisionIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/duplicate": {
+      "post": {
+        "operationId": "duplicate_test",
+        "summary": "Copy a whole test as a new draft",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestDocumentOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/archive": {
+      "post": {
+        "operationId": "archive_test",
+        "summary": "Hide a test from the library",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestRowOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/restore": {
+      "post": {
+        "operationId": "restore_test",
+        "summary": "Bring an archived test back",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestRowOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/preview": {
+      "get": {
+        "operationId": "preview_test",
+        "summary": "The test as a student sees it",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "show_answers",
+            "schema": {
+              "default": false,
+              "title": "Show Answers",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreviewOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ]
+      }
+    },
+    "/api/v1/admin/tests/{test_id}/questions/import": {
+      "post": {
+        "operationId": "import_questions",
+        "summary": "Copy questions from other tests in at the cursor",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "test_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Test Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "authoring",
+          "authoring"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportIn"
               }
             }
           },
@@ -3175,6 +3582,138 @@
         "title": "TagDeleteOut",
         "type": "object"
       },
+      "QuestionSearchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "tag_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Id"
+          },
+          "exclude_test_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exclude Test Id"
+          }
+        },
+        "title": "QuestionSearchIn",
+        "type": "object"
+      },
+      "Page_QuestionSearchRowOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionSearchRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[QuestionSearchRowOut]",
+        "type": "object"
+      },
+      "QuestionSearchRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "test_id": {
+            "format": "uuid",
+            "title": "Test Id",
+            "type": "string"
+          },
+          "test_title": {
+            "title": "Test Title",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "MCQ",
+              "MSQ",
+              "NUMERICAL"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "stem": {
+            "additionalProperties": true,
+            "title": "Stem",
+            "type": "object"
+          },
+          "chapter_tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagOut"
+            },
+            "title": "Chapter Tags",
+            "type": "array"
+          },
+          "topic_tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagOut"
+            },
+            "title": "Topic Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "test_id",
+          "test_title",
+          "type",
+          "stem",
+          "chapter_tags",
+          "topic_tags"
+        ],
+        "title": "QuestionSearchRowOut",
+        "type": "object"
+      },
       "EditorQuestionOut": {
         "additionalProperties": false,
         "properties": {
@@ -3710,6 +4249,164 @@
           "duration_s"
         ],
         "title": "TotalsOut",
+        "type": "object"
+      },
+      "TestFilterIn": {
+        "additionalProperties": false,
+        "properties": {
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "tag_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Id"
+          },
+          "status": {
+            "default": "active",
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "sort": {
+            "default": "-updated_at",
+            "enum": [
+              "-updated_at",
+              "title",
+              "-last_assigned_at"
+            ],
+            "title": "Sort",
+            "type": "string"
+          }
+        },
+        "title": "TestFilterIn",
+        "type": "object"
+      },
+      "Page_TestRowOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TestRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[TestRowOut]",
+        "type": "object"
+      },
+      "TestRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          },
+          "total_marks": {
+            "title": "Total Marks",
+            "type": "string"
+          },
+          "timing_kind": {
+            "enum": [
+              "TOTAL",
+              "PER_QUESTION",
+              "SECTIONED"
+            ],
+            "title": "Timing Kind",
+            "type": "string"
+          },
+          "problem_count": {
+            "title": "Problem Count",
+            "type": "integer"
+          },
+          "last_assigned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Assigned At"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "question_count",
+          "total_marks",
+          "timing_kind",
+          "problem_count",
+          "last_assigned_at",
+          "updated_at",
+          "archived_at"
+        ],
+        "title": "TestRowOut",
         "type": "object"
       },
       "TestMutationOut": {
@@ -4486,6 +5183,399 @@
           "revision"
         ],
         "title": "RevisionIn",
+        "type": "object"
+      },
+      "PreviewIn": {
+        "additionalProperties": false,
+        "properties": {
+          "show_answers": {
+            "default": false,
+            "title": "Show Answers",
+            "type": "boolean"
+          }
+        },
+        "title": "PreviewIn",
+        "type": "object"
+      },
+      "PreviewAnswerOut": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "correct_option_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Correct Option Ids",
+            "type": "array"
+          },
+          "numeric_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeric Answer"
+          },
+          "numeric_tolerance": {
+            "title": "Numeric Tolerance",
+            "type": "string"
+          },
+          "solution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solution"
+          }
+        },
+        "required": [
+          "question_id",
+          "correct_option_ids",
+          "numeric_answer",
+          "numeric_tolerance",
+          "solution"
+        ],
+        "title": "PreviewAnswerOut",
+        "type": "object"
+      },
+      "PreviewOptionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "content"
+        ],
+        "title": "PreviewOptionOut",
+        "type": "object"
+      },
+      "PreviewOut": {
+        "additionalProperties": false,
+        "properties": {
+          "test_id": {
+            "format": "uuid",
+            "title": "Test Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/PreviewTimingOut"
+          },
+          "integrity": {
+            "$ref": "#/components/schemas/Integrity"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewStageOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewQuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewAnswerOut"
+            },
+            "title": "Answers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "test_id",
+          "title",
+          "instructions",
+          "timing",
+          "integrity",
+          "stages",
+          "questions",
+          "answers"
+        ],
+        "title": "PreviewOut",
+        "type": "object"
+      },
+      "PreviewQuestionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "MCQ",
+              "MSQ",
+              "NUMERICAL"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "stem": {
+            "additionalProperties": true,
+            "title": "Stem",
+            "type": "object"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "negative_marks": {
+            "title": "Negative Marks",
+            "type": "string"
+          },
+          "time_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time S"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "type",
+          "stem",
+          "marks",
+          "negative_marks",
+          "time_s",
+          "options"
+        ],
+        "title": "PreviewQuestionOut",
+        "type": "object"
+      },
+      "PreviewStageOut": {
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "WHOLE",
+              "SECTION",
+              "QUESTION"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration S"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Question Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "index",
+          "kind",
+          "title",
+          "instructions",
+          "duration_s",
+          "question_ids"
+        ],
+        "title": "PreviewStageOut",
+        "type": "object"
+      },
+      "PreviewTimingOut": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "TOTAL",
+              "PER_QUESTION",
+              "SECTIONED"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "allow_return": {
+            "title": "Allow Return",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "allow_return"
+        ],
+        "title": "PreviewTimingOut",
+        "type": "object"
+      },
+      "ImportOut": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "problems": {
+            "items": {
+              "$ref": "#/components/schemas/ProblemOut"
+            },
+            "title": "Problems",
+            "type": "array"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/EditorQuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "revision",
+          "problems",
+          "totals",
+          "questions"
+        ],
+        "title": "ImportOut",
+        "type": "object"
+      },
+      "ImportIn": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Source Question Ids",
+            "type": "array"
+          },
+          "section_id": {
+            "format": "uuid",
+            "title": "Section Id",
+            "type": "string"
+          },
+          "after_question_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After Question Id"
+          }
+        },
+        "required": [
+          "revision",
+          "source_question_ids",
+          "section_id"
+        ],
+        "title": "ImportIn",
         "type": "object"
       },
       "BadgesOut": {

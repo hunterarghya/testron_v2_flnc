@@ -2,7 +2,7 @@
 check and bump, one transaction, and the answer every change returns (the new revision, the
 problems and the totals), read from the test as it is after the change."""
 
-from collections.abc import Callable, Collection, Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -14,7 +14,7 @@ from modules.authoring.domain.document import TestDocumentView, Totals
 from modules.authoring.domain.problems import Problem
 from modules.authoring.policies import ensure_teacher
 from modules.authoring.repositories import tests_table
-from modules.authoring.repositories.document import load_document
+from modules.authoring.repositories.document import load_document, load_documents
 from modules.media import public as media
 from modules.tagging import public as tagging
 
@@ -40,10 +40,10 @@ def edit[T](ctx: Ctx, test_id: UUID, *, revision: int, change: Callable[[], T]) 
 
 
 def read_document(test_id: UUID) -> TestDocumentView:
-    return load_document(test_id, tag_names=_tag_names)
+    return load_document(test_id, tag_names=tag_names)
 
 
-def _tag_names(tag_ids: Collection[UUID]) -> Mapping[UUID, tuple[str, str]]:
+def tag_names(tag_ids: Collection[UUID]) -> Mapping[UUID, tuple[str, str]]:
     return {
         tag_id: (tag.kind.value, tag.name) for tag_id, tag in tagging.tags_by_ids(tag_ids).items()
     }
@@ -52,3 +52,12 @@ def _tag_names(tag_ids: Collection[UUID]) -> Mapping[UUID, tuple[str, str]]:
 def rich(field: str, raw: object, profile: Profile = Profile.FULL) -> Json:
     """Rich content checked and normalized, images only from our storage (ADR-061)."""
     return validate_field(field, raw, profile, image_src_allowed=media.is_allowed_image_url)
+
+
+def read_documents(test_ids: Sequence[UUID]) -> dict[UUID, TestDocumentView]:
+    return load_documents(test_ids, tag_names=tag_names)
+
+
+def matching_tag_ids(search: str) -> list[UUID]:
+    """Tags whose name contains the search text, so a search finds what is tagged with them."""
+    return [tag.id for tag in tagging.list_tags(None, search=tagging.normalize_tag_name(search))]

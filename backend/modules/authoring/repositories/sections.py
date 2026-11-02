@@ -4,14 +4,27 @@ its questions in order). Positions are rewritten whole; the uniques are checked 
 from collections.abc import Sequence
 from uuid import UUID
 
+from core.rich_content import Json
 from modules.authoring.domain.structure import Layout
 from modules.authoring.models import Question, Section
 
 
-def insert_section(test_id: UUID, *, position: int, title: str, duration_s: int | None) -> UUID:
-    return Section.objects.create(
-        test_id=test_id, position=position, title=title, duration_s=duration_s
-    ).id
+def insert_section(
+    test_id: UUID,
+    *,
+    position: int,
+    title: str,
+    duration_s: int | None,
+    instructions: Json | None = None,
+) -> UUID:
+    section = Section.objects.create(
+        test_id=test_id,
+        position=position,
+        title=title,
+        duration_s=duration_s,
+        instructions=instructions,
+    )
+    return section.id
 
 
 def update_section(section_id: UUID, values: dict[str, object]) -> None:

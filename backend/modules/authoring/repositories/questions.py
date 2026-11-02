@@ -1,9 +1,11 @@
 """Questions, their options and their tags."""
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from core.errors import NotFound
 from core.rich_content import Json
 from modules.authoring.domain.question_patch import OptionsPlan
 from modules.authoring.models import Option, Question, QuestionTag
@@ -86,20 +88,55 @@ def delete_questions(question_ids: Sequence[UUID]) -> None:
     Question.objects.filter(pk__in=question_ids).delete()
 
 
-def copy_question(question_id: UUID, *, position: int, now: datetime) -> UUID:
-    """A copy right where asked, with its options and tags (T-03 Duplicate, Import)."""
-    source = Question.objects.get(pk=question_id)
+@dataclass(frozen=True, slots=True)
+class CopyTo:
+    """Where one copied question goes."""
+
+    source_id: UUID
+    test_id: UUID
+    section_id: UUID
+    position: int
+
+
+def copy_questions(targets: Sequence[CopyTo], *, now: datetime) -> list[UUID]:
+    """Copies with their options and tags, in `targets` order (T-03 Duplicate and Import,
+    T-02 Duplicate test). Six queries however many questions."""
+    sources = Question.objects.in_bulk([target.source_id for target in targets])
+    if len(sources) != len({target.source_id for target in targets}):
+        raise NotFound("question")
+    copies = [_copy_of(sources[target.source_id], target, now) for target in targets]
+    Question.objects.bulk_create(copies)
+    new_id = {target.source_id: copy.id for target, copy in zip(targets, copies, strict=True)}
+    options = Option.objects.filter(question_id__in=new_id).order_by("question_id", "position")
+    Option.objects.bulk_create(
+        [
+            Option(
+                question_id=new_id[o.question_id],
+                position=o.position,
+                content=o.content,
+                is_correct=o.is_correct,
+            )
+            for o in options
+        ]
+    )
+    tags = QuestionTag.objects.filter(question_id__in=new_id).values_list("question_id", "tag_id")
+    QuestionTag.objects.bulk_create(
+        [QuestionTag(question_id=new_id[qid], tag_id=tag) for qid, tag in tags]
+    )
+    return [copy.id for copy in copies]
+
+
+def _copy_of(source: Question, target: CopyTo, now: datetime) -> Question:
     fields = {
         field.attname: getattr(source, field.attname)
         for field in Question._meta.concrete_fields
         if not field.primary_key
     }
-    copy_id: UUID = Question.objects.create(
-        **(fields | {"position": position, "created_at": now, "updated_at": now})
-    ).id
-    options = Option.objects.filter(question_id=question_id).order_by("position")
-    insert_options(copy_id, [(option.content, option.is_correct) for option in options])
-    QuestionTag.objects.bulk_create(
-        [QuestionTag(question_id=copy_id, tag_id=tag) for tag in tag_ids(question_id)]
-    )
-    return copy_id
+    changes = {
+        "test_id": target.test_id,
+        "section_id": target.section_id,
+        "position": target.position,
+        "created_at": now,
+        "updated_at": now,
+    }
+    return Question(**(fields | changes))
