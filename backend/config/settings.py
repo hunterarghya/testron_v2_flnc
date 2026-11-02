@@ -15,7 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # The image build (collectstatic) runs without secrets; every other environment has one
 SECRET_KEY = env.secret_key.get_secret_value() if env.secret_key else "image-build-only"
 DEBUG = env.debug
-ALLOWED_HOSTS = env.allowed_hosts
+# The container's own health check calls http://127.0.0.1:8000
+ALLOWED_HOSTS = [*env.allowed_hosts, "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = env.csrf_trusted_origins
 
 # Auth, sessions and the back office come with the identity module. Django needs our
@@ -44,10 +45,23 @@ TEMPLATES = [
 ]
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+# The built SPA (`nuxt generate`), served by WhiteNoise from the API's own origin (ADR-004).
+# It exists only inside the image; in `just dev` the SPA is served by Nuxt on :3000.
+SPA_BUILD_DIR = BASE_DIR / "spa_build"
+WHITENOISE_ROOT = SPA_BUILD_DIR if SPA_BUILD_DIR.is_dir() else None
+WHITENOISE_INDEX_FILE = True
+# Nuxt puts a content hash in every file name under /_nuxt/, so browsers may keep them forever
+WHITENOISE_IMMUTABLE_FILE_TEST = r"/_nuxt/"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "core.http.middleware.request_id.RequestIdMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 # Turns a request into the Actor the area guards check (core.http.areas).

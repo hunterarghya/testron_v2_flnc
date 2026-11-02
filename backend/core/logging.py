@@ -9,7 +9,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
-from core.request_id import current_request_id
+from core.request_id import REQUEST_META_KEY, current_request_id
 
 REDACTED = "[redacted]"
 # A key containing any of these words is treated as secret
@@ -27,7 +27,7 @@ class JsonFormatter(logging.Formatter):
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
-            "request_id": current_request_id(),
+            "request_id": current_request_id() or _request_id_of(record),
             **redact(_extra_fields(record)),
         }
         if record.exc_info:
@@ -61,6 +61,15 @@ def logging_config(level: str = "INFO") -> dict[str, Any]:
 
 def _extra_fields(record: logging.LogRecord) -> dict[str, object]:
     return {key: value for key, value in vars(record).items() if key not in _RECORD_ATTRS}
+
+
+def _request_id_of(record: logging.LogRecord) -> str | None:
+    # Django logs some lines (e.g. "Not Found") after the middleware has finished;
+    # those records carry the request, which still holds its id
+    request = getattr(record, "request", None)
+    meta = getattr(request, "META", {})
+    request_id = meta.get(REQUEST_META_KEY) if isinstance(meta, dict) else None
+    return request_id if isinstance(request_id, str) else None
 
 
 def _is_secret_key(key: str) -> bool:

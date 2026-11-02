@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from ninja import NinjaAPI, Router
+from ninja.operation import Operation
 
 from core.http.problems import register_problem_handlers
 from modules.assignments.routes import router as assignments
@@ -27,7 +28,14 @@ ROUTERS: tuple[Router, ...] = (
     results,
 )
 
-api = NinjaAPI(
+
+class Api(NinjaAPI):
+    def get_openapi_operation_id(self, operation: Operation) -> str:
+        # Controllers are named after their use case, which is unique across the API
+        return operation.view_func.__name__
+
+
+api = Api(
     title="Test Platform API",
     version="1",
     urls_namespace="api",

@@ -118,7 +118,7 @@ just test             # all backend + frontend unit tests
 just test-fast <mod>  # domain + one module's service tests
 just lint             # every static gate CI runs
 just openapi          # export OpenAPI + regenerate the TS client
-just migrate / just makemigrations name=<x>
+just migrate / just makemigrations <name>
 just full             # run the production image locally
 just e2e              # Playwright against the full stack
 ```

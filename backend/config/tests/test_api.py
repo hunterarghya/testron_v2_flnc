@@ -28,6 +28,12 @@ def test_every_module_has_a_public_surface() -> None:
         assert (apps_file.parent / "public.py").exists(), apps_file.parent.name
 
 
+def test_operation_ids_are_controller_names() -> None:
+    operation = api.get_openapi_schema()["paths"]["/api/v1/healthz"]["get"]
+
+    assert operation["operationId"] == "get_health"
+
+
 def test_api_docs_are_off_outside_debug() -> None:
     # Tests run with DEBUG=False, like production
     assert api.docs_url is None

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineVitestProject } from '@nuxt/test-utils/config'
 import { defineConfig } from 'vitest/config'
 
@@ -9,6 +10,7 @@ export default defineConfig({
     passWithNoTests: true,
     projects: [
       {
+        resolve: { alias: { '~': fileURLToPath(new URL('./app', import.meta.url)) } },
         test: {
           name: 'unit',
           include: ['tests/unit/**/*.test.ts'],
@@ -20,6 +22,8 @@ export default defineConfig({
           name: 'component',
           include: ['tests/component/**/*.test.ts'],
           environment: 'nuxt',
+          // Starting a Nuxt app per file is slow, more so with coverage on
+          hookTimeout: 30_000,
         },
       }),
     ],

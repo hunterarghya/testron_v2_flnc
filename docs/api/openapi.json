@@ -1,0 +1,79 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Test Platform API",
+    "version": "1",
+    "description": ""
+  },
+  "paths": {
+    "/api/v1/healthz": {
+      "get": {
+        "operationId": "get_health",
+        "summary": "Liveness and server time",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "deep",
+            "schema": {
+              "default": false,
+              "title": "Deep",
+              "type": "boolean"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "commit": {
+            "title": "Commit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "server_now",
+          "version",
+          "commit"
+        ],
+        "title": "HealthOut",
+        "type": "object"
+      }
+    }
+  },
+  "servers": []
+}

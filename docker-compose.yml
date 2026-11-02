@@ -1,0 +1,33 @@
+# Local Docker (dev_environment_and_deployment.md §3.2).
+#   infra: Postgres + Mailpit for `just dev`
+#   full:  the production image on top, at http://localhost:8000 (`just full`)
+#   e2e:   the image built with test hooks (`just e2e`, backlog B-08)
+services:
+  postgres:
+    profiles: [infra, full, e2e]
+    image: postgres:17
+    environment: { POSTGRES_DB: app, POSTGRES_USER: app, POSTGRES_PASSWORD: app }
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "app"], interval: 2s, retries: 30 }
+
+  mailpit:
+    profiles: [infra, full, e2e]
+    image: axllent/mailpit:v1.33
+    ports: ["1025:1025", "8025:8025"]
+
+  web:
+    profiles: [full, e2e]
+    build:
+      context: .
+      args: { E2E_TEST_HOOKS: "${E2E_TEST_HOOKS:-0}" }
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://app:app@postgres:5432/app
+      DATABASE_URL_DIRECT: postgres://app:app@postgres:5432/app
+      EMAIL_URL: smtp://mailpit:1025
+    ports: ["8000:8000"]
+    depends_on: { postgres: { condition: service_healthy } }
+
+volumes:
+  pgdata: {}

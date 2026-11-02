@@ -6,9 +6,11 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
     "django>=6.0,<6.1",
     "django-ninja>=1.4,<2",
+    "gunicorn>=23,<24",
     "psycopg[binary]>=3.2,<4",
     "pydantic>=2.11,<3",
     "pydantic-settings>=2.7,<3",
+    "whitenoise>=6.9,<7",
 ]
 
 [dependency-groups]
@@ -35,6 +37,10 @@ addopts = "--strict-markers --strict-config"
 # The CI check scripts in ../scripts are tested here too
 pythonpath = [".", "../scripts"]
 testpaths = ["core", "config", "modules", "tests"]
+filterwarnings = [
+    # Collected static files exist only inside the image (collectstatic at build time)
+    "ignore:No directory at:UserWarning",
+]
 # Tests never read the developer's .env. "D:" values are defaults that CI may override.
 env = [
     "DJANGO_ENV=test",

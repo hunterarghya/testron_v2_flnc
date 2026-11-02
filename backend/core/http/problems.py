@@ -62,6 +62,11 @@ def problem_response(
     return JsonResponse(body, status=status, content_type=CONTENT_TYPE, encoder=DjangoJSONEncoder)
 
 
+def api_not_found(request: HttpRequest) -> HttpResponse:
+    """Unknown paths under /api/ answer in the API's own error format, not an HTML page."""
+    return _domain_error(request, NotFound("endpoint"))
+
+
 def _domain_error(request: HttpRequest, error: DomainError) -> HttpResponse:
     extra = {"context": error.context} if error.context else None
     return problem_response(

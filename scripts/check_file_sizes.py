@@ -6,6 +6,7 @@ raised for one file.
 Usage: python scripts/check_file_sizes.py [repo_dir]
 """
 
+import os
 import sys
 from collections.abc import Iterator
 from pathlib import Path
@@ -84,10 +85,10 @@ def _is_test(path: Path) -> bool:
 
 def _source_files(repo: Path) -> Iterator[Path]:
     for root in ROOTS:
-        for path in sorted((repo / root).rglob("*")):
-            relative = path.relative_to(repo).parts
-            if path.is_file() and not _SKIPPED_DIRS & set(relative):
-                yield path
+        for folder, dirs, files in os.walk(repo / root):
+            # Pruned in place, so node_modules and .venv are never even listed
+            dirs[:] = sorted(name for name in dirs if name not in _SKIPPED_DIRS)
+            yield from (Path(folder) / name for name in sorted(files))
 
 
 def main(argv: list[str]) -> int:

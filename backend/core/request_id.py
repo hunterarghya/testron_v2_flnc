@@ -3,6 +3,9 @@
 import uuid
 from contextvars import ContextVar, Token
 
+# Where the middleware also keeps the id on the request, for log lines written after it ends
+REQUEST_META_KEY = "REQUEST_ID"
+
 _request_id: ContextVar[str | None] = ContextVar("request_id", default=None)
 
 

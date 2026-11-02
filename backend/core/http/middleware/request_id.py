@@ -5,7 +5,7 @@ from collections.abc import Callable
 
 from django.http import HttpRequest, HttpResponse
 
-from core.request_id import bind_request_id, new_request_id, unbind_request_id
+from core.request_id import REQUEST_META_KEY, bind_request_id, new_request_id, unbind_request_id
 
 HEADER = "X-Request-ID"
 # An id from the proxy (Caddy, Render) is kept, so one request can be followed across
@@ -19,6 +19,7 @@ class RequestIdMiddleware:
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         request_id = _incoming_id(request) or new_request_id()
+        request.META[REQUEST_META_KEY] = request_id
         token = bind_request_id(request_id)
         try:
             response = self.get_response(request)

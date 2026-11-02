@@ -2,8 +2,10 @@ import json
 import logging
 import sys
 
+from django.test import RequestFactory
+
 from core.logging import REDACTED, JsonFormatter
-from core.request_id import bind_request_id, unbind_request_id
+from core.request_id import REQUEST_META_KEY, bind_request_id, unbind_request_id
 
 
 def format_record(message: str = "hello", **extra: object) -> dict[str, object]:
@@ -63,3 +65,10 @@ def test_exception_trace_is_included() -> None:
     line = json.loads(JsonFormatter().format(record))
 
     assert "RuntimeError: boom" in line["exception"]
+
+
+def test_late_django_log_line_takes_the_id_from_its_request() -> None:
+    request = RequestFactory().get("/")
+    request.META[REQUEST_META_KEY] = "req-from-request"
+
+    assert format_record(request=request)["request_id"] == "req-from-request"
