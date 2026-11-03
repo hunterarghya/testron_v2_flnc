@@ -2791,6 +2791,125 @@
         }
       }
     },
+    "/api/v1/admin/assignments/{assignment_id}/publish": {
+      "post": {
+        "operationId": "publish_results",
+        "summary": "Show every result now, with these options",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/unpublish": {
+      "post": {
+        "operationId": "unpublish_results",
+        "summary": "Hide every result again",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/publication": {
+      "patch": {
+        "operationId": "update_publication",
+        "summary": "Change how and what results show",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicationPatchIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/my/tests": {
       "get": {
         "operationId": "list_my_tests",
@@ -3392,6 +3511,49 @@
         ]
       }
     },
+    "/api/v1/admin/attempts/{attempt_id}/override-disqualification": {
+      "post": {
+        "operationId": "override_disqualification",
+        "summary": "Let a disqualified attempt count again",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptSummaryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverrideIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/admin/badges": {
       "get": {
         "operationId": "get_badges",
@@ -3412,6 +3574,49 @@
         "tags": [
           "results"
         ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/answer-key-corrections": {
+      "post": {
+        "operationId": "correct_answer_key",
+        "summary": "Correct one question's answer and regrade everyone",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyCorrectedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeyCorrectionIn"
+              }
+            }
+          },
+          "required": true
+        }
       }
     }
   },
@@ -8244,6 +8449,146 @@
         "title": "ExtendTimeIn",
         "type": "object"
       },
+      "PublicationOptionsIn": {
+        "additionalProperties": false,
+        "description": "What a visible result shows (domain_model.md §6.4); leave out to keep.",
+        "properties": {
+          "content": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublishContent"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "show_paper": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Paper"
+          },
+          "show_solutions": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Solutions"
+          },
+          "show_rank_and_stats": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Rank And Stats"
+          }
+        },
+        "title": "PublicationOptionsIn",
+        "type": "object"
+      },
+      "PublishIn": {
+        "additionalProperties": false,
+        "properties": {
+          "options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicationOptionsIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "PublishIn",
+        "type": "object"
+      },
+      "PublicationPatchIn": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublishContent"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "show_paper": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Paper"
+          },
+          "show_solutions": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Solutions"
+          },
+          "show_rank_and_stats": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Show Rank And Stats"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicationMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "delay_s": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delay S"
+          }
+        },
+        "title": "PublicationPatchIn",
+        "type": "object"
+      },
       "CardState": {
         "enum": [
           "START",
@@ -9945,6 +10290,21 @@
         "title": "IntegrityKind",
         "type": "string"
       },
+      "OverrideIn": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "OverrideIn",
+        "type": "object"
+      },
       "BadgesOut": {
         "additionalProperties": false,
         "properties": {
@@ -9962,6 +10322,93 @@
           "results_to_publish"
         ],
         "title": "BadgesOut",
+        "type": "object"
+      },
+      "KeyCorrectedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "regraded_attempts": {
+            "title": "Regraded Attempts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "regraded_attempts"
+        ],
+        "title": "KeyCorrectedOut",
+        "type": "object"
+      },
+      "KeyCorrectionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "entry": {
+            "$ref": "#/components/schemas/KeyEntryIn"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "entry",
+          "reason"
+        ],
+        "title": "KeyCorrectionIn",
+        "type": "object"
+      },
+      "KeyEntryIn": {
+        "additionalProperties": false,
+        "description": "MCQ/MSQ: `option_ids`. Numerical: `answer` and `tolerance`.",
+        "properties": {
+          "option_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 26,
+            "title": "Option Ids",
+            "type": "array"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "tolerance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Tolerance"
+          }
+        },
+        "title": "KeyEntryIn",
         "type": "object"
       }
     }

@@ -8,8 +8,13 @@ from django.db.models.functions import Coalesce
 from core.db.locking import for_update
 from core.errors import NotFound
 from modules.assignments.domain.assignment import AssignmentRecord, Settings
+from modules.assignments.domain.settings import Publication
 from modules.assignments.models import Assignment
-from modules.assignments.repositories.columns import record_of, settings_columns
+from modules.assignments.repositories.columns import (
+    publication_columns,
+    record_of,
+    settings_columns,
+)
 
 
 def insert_assignment(
@@ -117,4 +122,13 @@ def mark_ended(assignment_id: UUID, *, now: datetime) -> None:
     """ "End for everyone": the first time only, so ending twice keeps the first instant."""
     Assignment.objects.filter(pk=assignment_id, ended_at__isnull=True).update(
         ended_at=now, updated_at=now
+    )
+
+
+def set_publication(
+    assignment_id: UUID, publication: Publication, *, published_at: datetime | None, now: datetime
+) -> None:
+    """The results settings and when they were published (None: not, or unpublished)."""
+    Assignment.objects.filter(pk=assignment_id).update(
+        **publication_columns(publication), published_at=published_at, updated_at=now
     )

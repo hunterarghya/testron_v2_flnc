@@ -88,3 +88,14 @@ def answered_counts(attempt_ids: list[UUID]) -> dict[UUID, int]:
         .values_list("attempt_id", "count")
     )
     return dict(rows)
+
+
+def answers_of(attempt_ids: list[UUID]) -> dict[UUID, dict[UUID, Json | None]]:
+    """Every stored answer of these attempts, per attempt, in one query."""
+    found: dict[UUID, dict[UUID, Json | None]] = {attempt_id: {} for attempt_id in attempt_ids}
+    rows = Response.objects.filter(attempt_id__in=attempt_ids).values_list(
+        "attempt_id", "question_id", "answer"
+    )
+    for attempt_id, question_id, answer in rows:
+        found[attempt_id][question_id] = answer
+    return found

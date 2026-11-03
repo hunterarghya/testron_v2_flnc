@@ -4,7 +4,8 @@ from typing import cast
 from uuid import UUID
 
 from core.rich_content import Json
-from modules.assignments.models import AnswerKey, Paper
+from modules.assignments.domain.answer_key import Correction
+from modules.assignments.models import AnswerKey, AnswerKeyCorrection, Paper
 
 
 def insert_paper(  # keyword-only after the id (CLAUDE.md limits)
@@ -46,3 +47,31 @@ def answer_key(assignment_id: UUID) -> tuple[int, Json]:
     """The key's version and its entries (database_schema.md §4.3)."""
     version, entries = AnswerKey.objects.values_list("version", "entries").get(pk=assignment_id)
     return version, cast("Json", entries)
+
+
+def lock_answer_key(assignment_id: UUID) -> tuple[int, Json]:
+    """The key and its version, locked: corrections are made one at a time."""
+    version, stored = (
+        AnswerKey.objects.select_for_update()
+        .values_list("version", "entries")
+        .get(pk=assignment_id)
+    )
+    return version, cast("Json", stored)
+
+
+def save_correction(
+    assignment_id: UUID, *, entries: Json, correction: Correction, now: datetime
+) -> None:
+    """The corrected key and the record of what changed, written together."""
+    AnswerKey.objects.filter(pk=assignment_id).update(
+        entries=entries, version=correction.version_after, updated_at=now
+    )
+    AnswerKeyCorrection.objects.create(
+        answer_key_id=assignment_id,
+        question_id=correction.question_id,
+        before=correction.before,
+        after=correction.after,
+        reason=correction.reason,
+        version_after=correction.version_after,
+        corrected_at=now,
+    )

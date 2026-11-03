@@ -8,8 +8,14 @@ from core.http.pagination import Page
 from modules.assignments.controllers import admin_assignments as admin
 from modules.assignments.controllers import admin_live as live
 from modules.assignments.controllers import admin_lobby as lobby
+from modules.assignments.controllers import admin_publishing as publishing
 from modules.assignments.dto.lobby import ActivationOut, ExtendedOut, LobbyOut
-from modules.assignments.dto.views import AssignmentDetailOut, AssignmentRowOut, PasswordOut
+from modules.assignments.dto.views import (
+    AssignmentDetailOut,
+    AssignmentRowOut,
+    PasswordOut,
+    PublicationOut,
+)
 
 router = Router(tags=["assignments"], auth=TeacherArea())
 
@@ -115,4 +121,27 @@ router.add_api_operation(
     live.grant_retakes,
     response={200: BulkResultOut},
     summary="Unlock one more sitting for chosen students",
+)
+
+# Teacher: publishing results (D-01, T-11)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/publish",
+    ["POST"],
+    publishing.publish_results,
+    response={200: PublicationOut},
+    summary="Show every result now, with these options",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/unpublish",
+    ["POST"],
+    publishing.unpublish_results,
+    response={200: PublicationOut},
+    summary="Hide every result again",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/publication",
+    ["PATCH"],
+    publishing.update_publication,
+    response={200: PublicationOut},
+    summary="Change how and what results show",
 )

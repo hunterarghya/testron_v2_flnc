@@ -128,3 +128,8 @@ class EndedOut(_Out):
     @classmethod
     def from_result(cls, result: EndedForEveryone) -> Self:
         return cls(ended_at=result.ended_at, ended_attempts=result.ended_attempts)
+
+
+class OverrideIn(Schema):
+    model_config = ConfigDict(extra="forbid")
+    reason: str = Field(max_length=1000)

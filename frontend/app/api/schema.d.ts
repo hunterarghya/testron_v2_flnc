@@ -1021,6 +1021,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments/{assignment_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Show every result now, with these options */
+        post: operations["publish_results"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/unpublish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hide every result again */
+        post: operations["unpublish_results"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/publication": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change how and what results show */
+        patch: operations["update_publication"];
+        trace?: never;
+    };
     "/api/v1/my/tests": {
         parameters: {
             query?: never;
@@ -1276,6 +1327,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/attempts/{attempt_id}/override-disqualification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Let a disqualified attempt count again */
+        post: operations["override_disqualification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -1287,6 +1355,23 @@ export interface paths {
         get: operations["get_badges"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/answer-key-corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Correct one question's answer and regrade everyone */
+        post: operations["correct_answer_key"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2923,6 +3008,36 @@ export interface components {
             stage_index?: number | null;
         };
         /**
+         * PublicationOptionsIn
+         * @description What a visible result shows (domain_model.md §6.4); leave out to keep.
+         */
+        PublicationOptionsIn: {
+            content?: components["schemas"]["PublishContent"] | null;
+            /** Show Paper */
+            show_paper?: boolean | null;
+            /** Show Solutions */
+            show_solutions?: boolean | null;
+            /** Show Rank And Stats */
+            show_rank_and_stats?: boolean | null;
+        };
+        /** PublishIn */
+        PublishIn: {
+            options?: components["schemas"]["PublicationOptionsIn"] | null;
+        };
+        /** PublicationPatchIn */
+        PublicationPatchIn: {
+            content?: components["schemas"]["PublishContent"] | null;
+            /** Show Paper */
+            show_paper?: boolean | null;
+            /** Show Solutions */
+            show_solutions?: boolean | null;
+            /** Show Rank And Stats */
+            show_rank_and_stats?: boolean | null;
+            mode?: components["schemas"]["PublicationMode"] | null;
+            /** Delay S */
+            delay_s?: number | null;
+        };
+        /**
          * CardState
          * @enum {string}
          */
@@ -3522,12 +3637,50 @@ export interface components {
          * @enum {string}
          */
         IntegrityKind: "FULLSCREEN_EXIT" | "TAB_HIDDEN" | "WINDOW_BLUR" | "DEVICE_CHANGED";
+        /** OverrideIn */
+        OverrideIn: {
+            /** Reason */
+            reason: string;
+        };
         /** BadgesOut */
         BadgesOut: {
             /** Pending Students */
             pending_students: number;
             /** Results To Publish */
             results_to_publish: number;
+        };
+        /** KeyCorrectedOut */
+        KeyCorrectedOut: {
+            /** Version */
+            version: number;
+            /** Regraded Attempts */
+            regraded_attempts: number;
+        };
+        /** KeyCorrectionIn */
+        KeyCorrectionIn: {
+            /**
+             * Question Id
+             * Format: uuid
+             */
+            question_id: string;
+            entry: components["schemas"]["KeyEntryIn"];
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * KeyEntryIn
+         * @description MCQ/MSQ: `option_ids`. Numerical: `answer` and `tolerance`.
+         */
+        KeyEntryIn: {
+            /** Option Ids */
+            option_ids?: string[];
+            /** Answer */
+            answer?: number | string | null;
+            /**
+             * Tolerance
+             * @default 0
+             */
+            tolerance: number | string;
         };
     };
     responses: never;
@@ -5193,6 +5346,80 @@ export interface operations {
             };
         };
     };
+    publish_results: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationOut"];
+                };
+            };
+        };
+    };
+    unpublish_results: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationOut"];
+                };
+            };
+        };
+    };
+    update_publication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublicationPatchIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicationOut"];
+                };
+            };
+        };
+    };
     list_my_tests: {
         parameters: {
             query?: never;
@@ -5554,6 +5781,32 @@ export interface operations {
             };
         };
     };
+    override_disqualification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OverrideIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptSummaryOut"];
+                };
+            };
+        };
+    };
     get_badges: {
         parameters: {
             query?: never;
@@ -5570,6 +5823,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BadgesOut"];
+                };
+            };
+        };
+    };
+    correct_answer_key: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeyCorrectionIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeyCorrectedOut"];
                 };
             };
         };

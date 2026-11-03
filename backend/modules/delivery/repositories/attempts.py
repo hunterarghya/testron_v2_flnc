@@ -163,3 +163,32 @@ def lock_running_of(assignment_id: UUID, *, skip_locked: bool) -> list[AttemptRe
         .order_by("id")
     )
     return [record_of(row) for row in rows]
+
+
+def lock_ended_of(assignment_id: UUID) -> list[UUID]:
+    """Every ended attempt of the assignment, locked in id order (for a regrade)."""
+    rows = (
+        Attempt.objects.select_for_update()
+        .filter(assignment_id=assignment_id, status=AttemptStatus.ENDED)
+        .order_by("id")
+        .values_list("id", flat=True)
+    )
+    return list(rows)
+
+
+def set_scores(scores: dict[UUID, tuple[Decimal, int]], *, graded_at: datetime) -> None:
+    """New scores and key versions after a regrade, in one statement."""
+    Attempt.objects.bulk_update(
+        [
+            Attempt(id=attempt_id, score=score, answer_key_version=version, graded_at=graded_at)
+            for attempt_id, (score, version) in scores.items()
+        ],
+        ["score", "answer_key_version", "graded_at"],
+    )
+
+
+def mark_overridden(attempt_id: UUID, *, now: datetime) -> None:
+    """The first override stays: repeating it changes nothing."""
+    Attempt.objects.filter(pk=attempt_id, disqualification_overridden_at__isnull=True).update(
+        disqualification_overridden_at=now
+    )

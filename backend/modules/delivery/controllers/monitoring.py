@@ -11,9 +11,11 @@ from modules.delivery.dto.monitor import (
     IntegrityEventOut,
     MonitorFilterIn,
     MonitorOut,
+    OverrideIn,
 )
 from modules.delivery.services.commands import end_for_everyone as ending
 from modules.delivery.services.commands import force_submit_attempt as forcing
+from modules.delivery.services.commands import override_disqualification as overriding
 from modules.delivery.services.queries import get_monitor as monitoring
 from modules.delivery.services.queries import list_integrity_events as events
 
@@ -44,3 +46,12 @@ def force_submit_attempt(request: HttpRequest, attempt_id: UUID) -> AttemptSumma
 def list_integrity_events(request: HttpRequest, attempt_id: UUID) -> list[IntegrityEventOut]:
     found = events.list_integrity_events(ctx_from(request), attempt_id=attempt_id)
     return [IntegrityEventOut.from_row(event) for event in found]
+
+
+def override_disqualification(
+    request: HttpRequest, attempt_id: UUID, payload: OverrideIn
+) -> AttemptSummaryOut:
+    row = overriding.override_disqualification(
+        ctx_from(request), attempt_id=attempt_id, reason=payload.reason
+    )
+    return AttemptSummaryOut.from_row(row)

@@ -131,3 +131,11 @@ router.add_api_operation(
     auth=TeacherArea(),
     summary="Each time the student left the test",
 )
+router.add_api_operation(
+    "/admin/attempts/{attempt_id}/override-disqualification",
+    ["POST"],
+    monitoring.override_disqualification,
+    response={200: AttemptSummaryOut},
+    auth=TeacherArea(),
+    summary="Let a disqualified attempt count again",
+)
