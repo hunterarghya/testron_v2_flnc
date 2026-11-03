@@ -18,22 +18,39 @@ const FINAL_FLUSH_MS = 3000
 // The server may still say "a moment left" if the device's estimate ran ahead: ask again
 const RECHECK_MS = 1000
 const LIVE: HallPhase[] = ['active', 'review']
+// A section that runs out shows "time is over" this long before the next one (P-04, E-2)
+export const INTERSTITIAL_MS = 3000
 
 export function useHallClock(session: ExamSession) {
   const serverClock = useServerClock()
   const remainingMs = ref(Number.POSITIVE_INFINITY)
+  const nowMs = ref(serverClock.now())
+  const interstitial = ref<string | null>(null)
   const deadline = computed(() => (session.clock.value ? watchedDeadline(session.clock.value) : null))
   let handled: string | null = null
 
   async function reachDeadline(): Promise<void> {
+    const before = session.state.value
     await session.drain(FINAL_FLUSH_MS)
     await session.load()
+    announceTimeout(before, session.state.value)
     setTimeout(() => {
       handled = null
     }, RECHECK_MS)
   }
 
+  function announceTimeout(before: typeof session.state.value, after: typeof session.state.value): void {
+    if (!before || !after || before.timing.kind !== 'SECTIONED' || after.status !== 'IN_PROGRESS') return
+    if (before.current_stage_index === after.current_stage_index) return
+    const name = (index: number) => after.stage_meta[index]?.title ?? `Section ${index + 1}`
+    interstitial.value = `${name(before.current_stage_index)} time is over. Moving to ${name(after.current_stage_index)}…`
+    setTimeout(() => {
+      interstitial.value = null
+    }, INTERSTITIAL_MS)
+  }
+
   function tick(): void {
+    nowMs.value = serverClock.now()
     if (!deadline.value || !LIVE.includes(session.phase.value)) return
     remainingMs.value = serverClock.remaining(deadline.value)
     if (remainingMs.value === 0 && handled !== deadline.value) {
@@ -60,5 +77,5 @@ export function useHallClock(session: ExamSession) {
   // A hidden tab keeps beating: in the hall, leaving is an integrity event anyway
   usePolling(beat, HEARTBEAT_MS, { pauseWhenHidden: false })
 
-  return { remainingMs, deadline }
+  return { remainingMs, deadline, nowMs, interstitial }
 }

@@ -100,3 +100,9 @@ class SubmitResultOut(_Out):
             ended_at=ending.ended_at,
             result_available=ending.result_available,
         )
+
+
+class NextStageIn(Schema):
+    model_config = ConfigDict(extra="forbid")
+    # The stage being left: a retry of the same move then changes nothing
+    from_stage_index: int = Field(ge=0, le=10_000)

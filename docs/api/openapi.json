@@ -3001,6 +3001,144 @@
         ]
       }
     },
+    "/api/v1/attempts/{attempt_id}/stages/next": {
+      "post": {
+        "operationId": "move_to_next_stage",
+        "summary": "Leave the current stage for the next one (safe to repeat)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NextStageIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/stages/{stage_index}/return": {
+      "post": {
+        "operationId": "return_to_stage",
+        "summary": "Go back to a section left earlier, while its timer runs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "stage_index",
+            "schema": {
+              "title": "Stage Index",
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/integrity-events/{event_id}": {
+      "put": {
+        "operationId": "report_integrity_event",
+        "summary": "Report leaving the test; the server counts warnings and decides",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "event_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Event Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrityAckOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrityReportIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/admin/badges": {
       "get": {
         "operationId": "get_badges",
@@ -8972,6 +9110,165 @@
           "result_available"
         ],
         "title": "SubmitResultOut",
+        "type": "object"
+      },
+      "NextStageIn": {
+        "additionalProperties": false,
+        "properties": {
+          "from_stage_index": {
+            "maximum": 10000,
+            "minimum": 0,
+            "title": "From Stage Index",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "from_stage_index"
+        ],
+        "title": "NextStageIn",
+        "type": "object"
+      },
+      "IntegrityAckOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "attempt_deadline": {
+            "format": "date-time",
+            "title": "Attempt Deadline",
+            "type": "string"
+          },
+          "current_stage_index": {
+            "title": "Current Stage Index",
+            "type": "integer"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageClockOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Notice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "counted": {
+            "title": "Counted",
+            "type": "boolean"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "$ref": "#/components/schemas/WarningAction"
+          }
+        },
+        "required": [
+          "status",
+          "end_reason",
+          "ended_at",
+          "server_now",
+          "attempt_deadline",
+          "current_stage_index",
+          "stages",
+          "warning_count",
+          "notice",
+          "counted",
+          "max_warnings",
+          "action"
+        ],
+        "title": "IntegrityAckOut",
+        "type": "object"
+      },
+      "WarningAction": {
+        "enum": [
+          "NONE",
+          "WARN",
+          "ENDED"
+        ],
+        "title": "WarningAction",
+        "type": "string"
+      },
+      "IntegrityReportIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "FULLSCREEN_EXIT",
+              "TAB_HIDDEN",
+              "WINDOW_BLUR"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "left_at": {
+            "format": "date-time",
+            "title": "Left At",
+            "type": "string"
+          },
+          "beyond_grace": {
+            "title": "Beyond Grace",
+            "type": "boolean"
+          },
+          "returned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned At"
+          }
+        },
+        "required": [
+          "kind",
+          "left_at",
+          "beyond_grace"
+        ],
+        "title": "IntegrityReportIn",
         "type": "object"
       },
       "BadgesOut": {

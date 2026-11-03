@@ -33,3 +33,11 @@ export const LAST_MINUTES_MS = 5 * 60_000
 export function hallTitle(title: string, take: number): string {
   return `${title} – Take ${take}`
 }
+
+/** P-06: "Warning 2 of 3. One more and your test will be submitted automatically." */
+export function warningText(count: number, max: number, action: string): string {
+  const left = max - count
+  const outcome = action === 'DISQUALIFY' ? 'you will be disqualified' : 'your test will be submitted automatically'
+  const next = left === 1 ? 'One more' : `${left} more`
+  return `Warning ${count} of ${max}. ${next} and ${outcome}.`
+}

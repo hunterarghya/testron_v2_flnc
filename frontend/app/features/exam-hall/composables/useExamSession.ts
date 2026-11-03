@@ -6,11 +6,15 @@ import { computed, inject, type InjectionKey, ref, shallowRef } from 'vue'
 import { type ApiProblem, toProblem } from '~/api/problems'
 import type { AttemptClock, AttemptState, EndReason, HallAnswer } from '~/api/types'
 import type { SaveQueue } from '~/engine/save-queue'
+import { stageQuestionIds } from '~/engine/stage-navigator'
 import { loadAttempt, recordVisit } from '~/features/exam-hall/composables/hallApi'
 import { createHallQueue, waitingChanges } from '~/features/exam-hall/composables/hallQueue'
 import { type LocalResponse, responsesFrom, serverSeq } from '~/features/exam-hall/utils/palette'
 import { forgetAttempt } from '~/shared/utils/exam-device'
 import { exitFullscreen } from '~/shared/utils/fullscreen'
+
+// The hall's picture of the stages is out of date: the server's state is loaded again
+const STALE = new Set(['stage_closed', 'stage_navigation_invalid', 'question_not_in_stage'])
 
 export type HallPhase = 'loading' | 'active' | 'review' | 'submitting' | 'ended' | 'taken_over' | 'error'
 
@@ -31,7 +35,13 @@ export function useExamSession(attemptId: string) {
   const lastContactAt = ref(Date.now())
   let queue: SaveQueue<HallAnswer> | null = null
 
-  const questions = computed(() => state.value?.questions ?? [])
+  // Only the current stage's questions: the palette shows one section at a time (P-04)
+  const questions = computed(() => {
+    const loaded = state.value
+    if (!loaded) return []
+    const ids = new Set(stageQuestionIds(loaded.stage_meta, loaded))
+    return loaded.questions.filter(question => ids.has(question.id))
+  })
   const current = computed(() => questions.value[position.value])
 
   function finish(reason: EndReason, endedAt: string): void {
@@ -70,6 +80,7 @@ export function useExamSession(attemptId: string) {
   }
 
   function apply(loaded: AttemptState): void {
+    const movedStage = state.value !== null && state.value.current_stage_index !== loaded.current_stage_index
     state.value = loaded
     if (loaded.status === 'ENDED' && loaded.end_reason && loaded.ended_at) {
       finish(loaded.end_reason, loaded.ended_at)
@@ -79,8 +90,10 @@ export function useExamSession(attemptId: string) {
       .map(([id, change]) => [id, { answer: change.answer, marked_for_review: change.marked_for_review, visited: true }])
     responses.value = { ...responsesFrom(loaded.responses), ...Object.fromEntries(unsent) }
     if (!queue) startQueue(loaded)
-    applyClock(loaded)
-    position.value = Math.min(position.value, Math.max(0, loaded.questions.length - 1))
+    // A whole state is already the newest: no need to load it again for a new stage
+    clock.value = loaded
+    lastContactAt.value = Date.now()
+    position.value = movedStage ? 0 : Math.min(position.value, Math.max(0, questions.value.length - 1))
     if (phase.value === 'loading' || phase.value === 'error') phase.value = 'active'
   }
 
@@ -95,7 +108,7 @@ export function useExamSession(attemptId: string) {
 
   function handleProblem(found: ApiProblem): void {
     if (found.code === 'attempt_taken_over') takenOver()
-    else if (found.code === 'attempt_ended') void load()
+    else if (found.code === 'attempt_ended' || STALE.has(found.code)) void load()
     else if (phase.value === 'loading') {
       problem.value = found
       phase.value = 'error'
@@ -130,6 +143,7 @@ export function useExamSession(attemptId: string) {
     queueStatus,
     lastContactAt,
     load,
+    apply,
     applyClock,
     finish,
     handleProblem,

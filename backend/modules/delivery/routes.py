@@ -3,9 +3,10 @@
 from ninja import Router
 
 from core.http.areas import StudentArea
-from modules.delivery.controllers import attempts, my_tests
+from modules.delivery.controllers import attempts, integrity, my_tests, stages
 from modules.delivery.dto.attempt_clock import AttemptClockOut, SaveAckOut, SubmitResultOut
 from modules.delivery.dto.attempt_state import AttemptStateOut
+from modules.delivery.dto.integrity import IntegrityAckOut
 from modules.delivery.dto.my_tests import GateStateOut, MyTestsOut
 
 # Student area by default; the teacher monitor routes set auth=TeacherArea()
@@ -69,4 +70,29 @@ router.add_api_operation(
     attempts.submit_attempt,
     response={200: SubmitResultOut},
     summary="Submit the attempt (safe to repeat)",
+)
+
+# Student: sections and rapid fire (P-04, P-05)
+router.add_api_operation(
+    "/attempts/{attempt_id}/stages/next",
+    ["POST"],
+    stages.move_to_next_stage,
+    response={200: AttemptStateOut},
+    summary="Leave the current stage for the next one (safe to repeat)",
+)
+router.add_api_operation(
+    "/attempts/{attempt_id}/stages/{stage_index}/return",
+    ["POST"],
+    stages.return_to_stage,
+    response={200: AttemptStateOut},
+    summary="Go back to a section left earlier, while its timer runs",
+)
+
+# Student: leaving the test (P-06); the event id comes from the browser, so retries are safe
+router.add_api_operation(
+    "/attempts/{attempt_id}/integrity-events/{event_id}",
+    ["PUT"],
+    integrity.report_integrity_event,
+    response={200: IntegrityAckOut},
+    summary="Report leaving the test; the server counts warnings and decides",
 )

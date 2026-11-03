@@ -6,7 +6,7 @@ import { formatCountdown } from '~/engine/clock'
 import { useHall } from '~/features/exam-hall/composables/useExamSession'
 import { hallTitle, LAST_MINUTES_MS, saveStatus } from '~/features/exam-hall/utils/hall-text'
 
-const props = defineProps<{ remainingMs: number }>()
+const props = defineProps<{ remainingMs: number, palette: boolean }>()
 defineEmits<{ submit: [], palette: [] }>()
 
 const hall = useHall()
@@ -27,7 +27,7 @@ const shown = computed(() => (Number.isFinite(props.remainingMs) ? formatCountdo
     </span>
     <span class="sr-only" aria-live="polite">{{ lastMinutes ? '5 minutes left' : '' }}</span>
     <UBadge :icon="status.icon" :label="status.label" :color="status.tone" variant="subtle" />
-    <UButton icon="i-lucide-grid-3x3" aria-label="Questions" color="neutral" variant="ghost" class="lg:hidden" @click="$emit('palette')" />
+    <UButton v-if="palette" icon="i-lucide-grid-3x3" aria-label="Questions" color="neutral" variant="ghost" class="lg:hidden" @click="$emit('palette')" />
     <UButton label="Submit" @click="$emit('submit')" />
   </header>
 </template>

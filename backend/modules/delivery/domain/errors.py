@@ -82,3 +82,10 @@ class QuestionNotInStage(Invalid):
 class AnswerInvalid(Invalid):
     code = "answer_invalid"
     title = "This answer doesn't fit the question"
+
+
+class StageNavigationInvalid(Conflict):
+    """Moving on from a stage that isn't the current one, or back where returning isn't allowed."""
+
+    code = "stage_navigation_invalid"
+    title = "You can't move to that part of the test now"

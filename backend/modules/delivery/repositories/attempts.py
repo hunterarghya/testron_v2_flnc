@@ -140,3 +140,7 @@ def mark_ended(  # keyword-only after the id (CLAUDE.md limits)
         answer_key_version=answer_key_version,
         graded_at=graded_at,
     )
+
+
+def set_warning_count(attempt_id: UUID, count: int) -> None:
+    Attempt.objects.filter(pk=attempt_id).update(warning_count=count)

@@ -1,10 +1,10 @@
 from config.database import database_settings
 
+# Made-up addresses shaped like Neon's (".invalid" can never resolve): no real database
 NEON_POOLED = (
-    "postgresql://app:p%40ss@ep-cool-1234-pooler.ap-southeast-1.aws.neon.tech/app"
-    "?sslmode=require&channel_binding=require"
+    "postgresql://app:p%40ss@db-pooler.example.invalid/app?sslmode=require&channel_binding=require"
 )
-NEON_DIRECT = "postgresql://app:p%40ss@ep-cool-1234.ap-southeast-1.aws.neon.tech/app"
+NEON_DIRECT = "postgresql://app:p%40ss@db.example.invalid/app"
 
 
 def test_url_parts_are_mapped() -> None:
@@ -40,8 +40,8 @@ def test_pooler_safe_options_are_set() -> None:
 def test_direct_alias_uses_the_direct_url() -> None:
     databases = database_settings(NEON_POOLED, direct_url=NEON_DIRECT)
 
-    assert databases["default"]["HOST"] == "ep-cool-1234-pooler.ap-southeast-1.aws.neon.tech"
-    assert databases["direct"]["HOST"] == "ep-cool-1234.ap-southeast-1.aws.neon.tech"
+    assert databases["default"]["HOST"] == "db-pooler.example.invalid"
+    assert databases["direct"]["HOST"] == "db.example.invalid"
 
 
 def test_direct_alias_falls_back_to_the_main_url() -> None:

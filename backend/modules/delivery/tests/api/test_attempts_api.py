@@ -130,3 +130,17 @@ def test_start_before_the_teacher_is_a_409_with_server_time(frozen_clock: Frozen
     assert (response.status_code, response.json()["code"]) == (409, "waiting_for_teacher")
     assert "server_now" in response.json()["context"]
     start(assignment_id, now=frozen_clock.now())
+
+
+def test_stage_moves_answer_409_where_there_is_nowhere_to_go(frozen_clock: FrozenClock) -> None:
+    client, state = _sitting(frozen_clock)
+    header = {"X-Exam-Client": str(state["exam_client_id"])}
+    base = f"/api/v1/attempts/{state['attempt_id']}/stages"
+
+    onward = send(client, "post", f"{base}/next", {"from_stage_index": 0}, headers=header)
+    back = send(client, "post", f"{base}/3/return", headers=header)
+    junk = send(client, "post", f"{base}/next", {"from_stage_index": -1}, headers=header)
+
+    assert (onward.status_code, onward.json()["code"]) == (409, "stage_navigation_invalid")
+    assert (back.status_code, back.json()["code"]) == (409, "stage_navigation_invalid")
+    assert junk.status_code == 422

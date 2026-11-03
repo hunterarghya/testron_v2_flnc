@@ -6,10 +6,27 @@ export async function enterFullscreen(): Promise<void> {
   if (document.fullscreenElement || !document.documentElement.requestFullscreen) return
   try {
     await document.documentElement.requestFullscreen()
+    await holdEscape()
   }
   catch {
     // Refused or unsupported: the test continues in the window
   }
+}
+
+// Chromium's Keyboard Lock: Esc must then be held to leave fullscreen (PRD §8). Elsewhere
+// there is no such API and nothing extra happens.
+interface KeyboardLock {
+  lock: (keys: string[]) => Promise<void>
+}
+
+async function holdEscape(): Promise<void> {
+  const keyboard = (navigator as Navigator & { keyboard?: KeyboardLock }).keyboard
+  await keyboard?.lock(['Escape'])
+}
+
+/** Fullscreen exists here (not on iPhone Safari, frontend_spec.md §5.4). */
+export function canFullscreen(): boolean {
+  return Boolean(document.fullscreenEnabled)
 }
 
 export async function exitFullscreen(): Promise<void> {

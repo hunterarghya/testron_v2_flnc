@@ -1,7 +1,8 @@
-// What this browser keeps per attempt (frontend_spec.md §5.2, §5.7): the exam client id the
-// server gave it (so a refresh isn't a takeover) and the save queue. The gate and the hall
-// both use it. Storage can be unavailable (private windows, full disks): then nothing is
-// kept and the hall still works, it just can't survive a reload offline.
+// What this browser keeps per attempt (frontend_spec.md §5.2, §5.4, §5.7): the exam client
+// id the server gave it (so a refresh isn't a takeover), the save queue and the departures
+// not yet reported. The gate and the hall both use it. Storage can be unavailable (private
+// windows, full disks): then nothing is kept and the hall still works, it just can't
+// survive a reload offline.
 
 export const EXAM_CLIENT_HEADER = 'X-Exam-Client'
 
@@ -11,6 +12,11 @@ export function clientKey(attemptId: string): string {
 
 export function queueKey(attemptId: string): string {
   return `exam:${attemptId}:queue`
+}
+
+/** Departures not yet acknowledged (P-06), kept like answers */
+export function integrityKey(attemptId: string): string {
+  return `exam:${attemptId}:integrity`
 }
 
 export function readItem(key: string): string | null {
@@ -55,4 +61,5 @@ export function rememberExamClient(attemptId: string, clientId: string | null | 
 export function forgetAttempt(attemptId: string): void {
   removeItem(clientKey(attemptId))
   removeItem(queueKey(attemptId))
+  removeItem(integrityKey(attemptId))
 }

@@ -2,9 +2,9 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '~/api/client'
-import type { AttemptState } from '~/api/types'
 import ExamHall from '~/features/exam-hall/components/ExamHall.vue'
 import { type FakeApi, fails, ok } from '../fake-api'
+import { attempt, clockOf, NOW } from '../hall-fixtures'
 
 vi.mock('~/api/client', async () => {
   const { fakeApi, fakeClientModule } = await import('../fake-api')
@@ -12,32 +12,6 @@ vi.mock('~/api/client', async () => {
 })
 
 const fake = api as unknown as FakeApi
-const NOW = new Date().toISOString()
-const LATER = new Date(Date.now() + 3_600_000).toISOString()
-const DOC = { v: 1, type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Which organelle?' }] }] }
-
-function attempt(changes: Partial<AttemptState> = {}): AttemptState {
-  return {
-    status: 'IN_PROGRESS', end_reason: null, ended_at: null, server_now: NOW, attempt_deadline: LATER,
-    current_stage_index: 0, stages: [{ index: 0, state: 'OPEN', deadline_at: LATER }], warning_count: 0, notice: null,
-    attempt_id: 'att1', assignment_id: 'a1', title: 'Cell Biology', take_number: 1, exam_client_id: 'dev1',
-    timing: { kind: 'TOTAL', allow_return: false }, integrity: { grace_s: 5, max_warnings: 3, action: 'AUTO_SUBMIT' },
-    stage_meta: [{ index: 0, kind: 'WHOLE', title: null, instructions: null, duration_s: 3600, question_ids: ['q1', 'q2'] }],
-    questions: [
-      { id: 'q1', number: 1, type: 'MCQ', stem: DOC, marks: '4.00', negative_marks: '1.00', time_s: null,
-        options: [{ id: 'o1', label: 'A', content: DOC }, { id: 'o2', label: 'B', content: DOC }] },
-      { id: 'q2', number: 2, type: 'NUMERICAL', stem: DOC, marks: '4.00', negative_marks: '0.00', time_s: null, options: [] },
-    ],
-    responses: {},
-    ...changes,
-  } as AttemptState
-}
-
-function clockOf(state: AttemptState) {
-  const { status, end_reason, ended_at, server_now, attempt_deadline, current_stage_index, stages, warning_count, notice } = state
-  return { status, end_reason, ended_at, server_now, attempt_deadline, current_stage_index, stages, warning_count, notice }
-}
-
 async function mountHall() {
   const wrapper = await mountSuspended(ExamHall, { props: { attemptId: 'att1' } })
   await flushPromises()
@@ -148,6 +122,30 @@ describe('ExamHall (P-03)', () => {
     await flushPromises()
 
     expect((wrapper.find('input[inputmode="none"]').element as HTMLInputElement).value).toBe('-1.5')
+    wrapper.unmount()
+  })
+})
+
+describe('leaving the test (P-06)', () => {
+  it('reports a departure past the grace period and shows the server\'s warning', async () => {
+    fake.GET.mockImplementation(() => ok(attempt({ integrity: { grace_s: 0, max_warnings: 3, action: 'AUTO_SUBMIT' } })))
+    fake.PUT.mockImplementation(() => ok({ ...clockOf(attempt()), warning_count: 1, counted: true, max_warnings: 3, action: 'WARN' }))
+    const wrapper = await mountHall()
+    const hidden = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden')
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
+
+    document.dispatchEvent(new Event('visibilitychange'))
+    await flushPromises()
+    await new Promise(resolve => setTimeout(resolve, 10))
+    await flushPromises()
+
+    const reports = fake.PUT.mock.calls.filter(([path]) => path.includes('integrity-events'))
+    expect(reports.map(([, init]) => (init as { body: { kind: string, beyond_grace: boolean } }).body))
+      .toEqual([expect.objectContaining({ kind: 'TAB_HIDDEN', beyond_grace: false }), expect.objectContaining({ kind: 'TAB_HIDDEN', beyond_grace: true })])
+    expect(wrapper.text()).toContain('You left the test')
+    expect(wrapper.text()).toContain('Warning 1 of 3. 2 more and your test will be submitted automatically.')
+    if (hidden) Object.defineProperty(document, 'hidden', hidden)
+    else delete (document as { hidden?: boolean }).hidden
     wrapper.unmount()
   })
 })

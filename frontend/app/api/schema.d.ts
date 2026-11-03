@@ -1123,6 +1123,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/attempts/{attempt_id}/stages/next": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Leave the current stage for the next one (safe to repeat) */
+        post: operations["move_to_next_stage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/stages/{stage_index}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Go back to a section left earlier, while its timer runs */
+        post: operations["return_to_stage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/integrity-events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Report leaving the test; the server counts warnings and decides */
+        put: operations["report_integrity_event"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -3177,6 +3228,62 @@ export interface components {
             /** Result Available */
             result_available: boolean;
         };
+        /** NextStageIn */
+        NextStageIn: {
+            /** From Stage Index */
+            from_stage_index: number;
+        };
+        /** IntegrityAckOut */
+        IntegrityAckOut: {
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"] | null;
+            /** Ended At */
+            ended_at: string | null;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+            /**
+             * Attempt Deadline
+             * Format: date-time
+             */
+            attempt_deadline: string;
+            /** Current Stage Index */
+            current_stage_index: number;
+            /** Stages */
+            stages: components["schemas"]["StageClockOut"][];
+            /** Warning Count */
+            warning_count: number;
+            notice: components["schemas"]["Notice"] | null;
+            /** Counted */
+            counted: boolean;
+            /** Max Warnings */
+            max_warnings: number;
+            action: components["schemas"]["WarningAction"];
+        };
+        /**
+         * WarningAction
+         * @enum {string}
+         */
+        WarningAction: "NONE" | "WARN" | "ENDED";
+        /** IntegrityReportIn */
+        IntegrityReportIn: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FULLSCREEN_EXIT" | "TAB_HIDDEN" | "WINDOW_BLUR";
+            /**
+             * Left At
+             * Format: date-time
+             */
+            left_at: string;
+            /** Beyond Grace */
+            beyond_grace: boolean;
+            /** Returned At */
+            returned_at?: string | null;
+        };
         /** BadgesOut */
         BadgesOut: {
             /** Pending Students */
@@ -4983,6 +5090,82 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubmitResultOut"];
+                };
+            };
+        };
+    };
+    move_to_next_stage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NextStageIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptStateOut"];
+                };
+            };
+        };
+    };
+    return_to_stage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+                stage_index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptStateOut"];
+                };
+            };
+        };
+    };
+    report_integrity_event: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IntegrityReportIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrityAckOut"];
                 };
             };
         };

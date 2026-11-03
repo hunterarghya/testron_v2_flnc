@@ -46,6 +46,23 @@ def exam_test(**test_fields: object) -> Test:
     return test
 
 
+def sectioned_test(*, allow_return: bool, durations: tuple[int, ...] = (600, 1200)) -> Test:
+    """One MCQ per section, each section timed (P-04)."""
+    test = make_test(timing_kind="SECTIONED", duration_s=None, allow_return=allow_return)
+    for position, duration in enumerate(durations):
+        make_question(make_section(test, position, title=f"S{position + 1}", duration_s=duration))
+    return test
+
+
+def rapid_test(questions: int = 3, seconds: int = 30) -> Test:
+    """Rapid fire (P-05): one timed stage per question."""
+    test = make_test(timing_kind="PER_QUESTION", duration_s=None, default_question_s=seconds)
+    section = make_section(test)
+    for position in range(questions):
+        make_question(section, position)
+    return test
+
+
 def new_assignment(test_id: UUID, student_ids: Sequence[UUID], **changes: Any) -> NewAssignment:
     """`changes` may set Settings fields (title, window, …) or NewAssignment ones (password, …)."""
     settings = replace(SETTINGS, **{k: v for k, v in changes.items() if k in _SETTING_NAMES})

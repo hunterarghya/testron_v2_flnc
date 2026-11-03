@@ -31,12 +31,12 @@ export function outcomeOf(problem: ApiProblem): SendOutcome {
   return 'retry'
 }
 
-export function queueStorage(attemptId: string): QueueStorage<HallAnswer> {
-  const key = queueKey(attemptId)
+/** A queue kept under `key` in this browser (answers, or departures). */
+export function storageAt<A>(key: string): QueueStorage<A> {
   return {
     read: () => {
       const raw = readItem(key)
-      return raw ? (JSON.parse(raw) as QueueSnapshot<HallAnswer>) : null
+      return raw ? (JSON.parse(raw) as QueueSnapshot<A>) : null
     },
     write: snapshot => writeItem(key, JSON.stringify(snapshot)),
     clear: () => removeItem(key),
@@ -45,7 +45,7 @@ export function queueStorage(attemptId: string): QueueStorage<HallAnswer> {
 
 /** The changes this browser still has to send, e.g. after a reload while offline. */
 export function waitingChanges(attemptId: string): QueueSnapshot<HallAnswer>['pending'] {
-  return queueStorage(attemptId).read()?.pending ?? {}
+  return storageAt<HallAnswer>(queueKey(attemptId)).read()?.pending ?? {}
 }
 
 export function createHallQueue(attemptId: string, serverSeq: number, handlers: HallQueueHandlers): SaveQueue<HallAnswer> {
@@ -61,7 +61,7 @@ export function createHallQueue(attemptId: string, serverSeq: number, handlers: 
 
   return createSaveQueue<HallAnswer>({
     send,
-    storage: queueStorage(attemptId),
+    storage: storageAt<HallAnswer>(queueKey(attemptId)),
     onStop: handlers.onStop,
     onChange: handlers.onChange,
     onDropped: handlers.onDropped,

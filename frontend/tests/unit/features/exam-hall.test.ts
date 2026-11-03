@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ApiProblem } from '~/api/problems'
 import { outcomeOf } from '~/features/exam-hall/composables/hallQueue'
-import { ENDING_TITLE, hallTitle, saveStatus } from '~/features/exam-hall/utils/hall-text'
+import { ENDING_TITLE, hallTitle, saveStatus, warningText } from '~/features/exam-hall/utils/hall-text'
 import { hasAnswer, paletteCounts, paletteMark, responsesFrom, serverSeq } from '~/features/exam-hall/utils/palette'
 
 const problem = (code: string, status = 409) => new ApiProblem({ status, code, detail: code })
@@ -58,5 +58,12 @@ describe('what the queue does with a refusal', () => {
     ['rate_limited', 'retry'],
   ])('%s → %s', (code, outcome) => {
     expect(outcomeOf(problem(code))).toBe(outcome)
+  })
+})
+
+describe('the warning overlay text (P-06)', () => {
+  it('counts down to the action', () => {
+    expect(warningText(2, 3, 'AUTO_SUBMIT')).toBe('Warning 2 of 3. One more and your test will be submitted automatically.')
+    expect(warningText(1, 5, 'DISQUALIFY')).toBe('Warning 1 of 5. 4 more and you will be disqualified.')
   })
 })

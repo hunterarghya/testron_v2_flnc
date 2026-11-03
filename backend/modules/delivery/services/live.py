@@ -3,7 +3,7 @@ deadline if its time ran out (lazy finalization, domain_model.md §5.3, §5.5). 
 use case starts here, with the attempt locked, inside its own transaction."""
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Protocol
 
@@ -79,14 +79,12 @@ def bring_up_to_date(
         reason = end_reason_at_deadline(caught.ended_at, ended_for_everyone_at=terms.ended_at)
         ended = end_attempt(attempt, reason=reason, ended_at=caught.ended_at, now=ctx.now)
         return LiveAttempt(ended, clock, caught.progress, _ending_notice(ended))
-    if moved:
-        attempts.save_position(
-            attempt.id,
-            current=caught.progress.current,
-            furthest=caught.progress.furthest,
-            now=ctx.now,
-        )
-    return LiveAttempt(attempt, clock, caught.progress, Notice.STAGE_ADVANCED if moved else None)
+    if not moved:
+        return LiveAttempt(attempt, clock, caught.progress)
+    current, furthest = caught.progress.current, caught.progress.furthest
+    attempts.save_position(attempt.id, current=current, furthest=furthest, now=ctx.now)
+    advanced = replace(attempt, current_stage_index=current, furthest_stage_index=furthest)
+    return LiveAttempt(advanced, clock, caught.progress, Notice.STAGE_ADVANCED)
 
 
 def _ending_notice(attempt: AttemptRecord) -> Notice | None:

@@ -1,11 +1,21 @@
 """Real requests at the same moment, each on its own connection (testing_strategy.md §3.8;
 V1 F-29): one attempt from many starts (E-01), and no save lands after the end."""
 
+from uuid import UUID, uuid4
+
 import pytest
 
 from core.clock import FrozenClock
+from core.context import Ctx
 from modules.delivery.domain.errors import AttemptEnded
+from modules.delivery.domain.values import EndReason, IntegrityKind
 from modules.delivery.models import Attempt
+from modules.delivery.services.attempt_views import AttemptStateView
+from modules.delivery.services.commands.report_integrity_event import (
+    IntegrityAck,
+    IntegrityReport,
+    report_integrity_event,
+)
 from modules.delivery.services.commands.save_response import Saved
 from modules.delivery.services.commands.start_attempt import Started, start_attempt
 from modules.delivery.services.commands.submit_attempt import Ending, submit_attempt
@@ -64,3 +74,39 @@ def test_saves_racing_submit_are_either_graded_or_refused(frozen_clock: FrozenCl
     for number, outcome in enumerate(saves, start=1):
         graded = grades[state.questions[number - 1].question.id]
         assert graded == ("CORRECT" if isinstance(outcome, Saved) else "UNANSWERED")
+
+
+def _report_now(ctx: Ctx, state: AttemptStateView, event_id: UUID) -> object:
+    return report_integrity_event(
+        ctx,
+        attempt_id=state.attempt.id,
+        client_id=state.attempt.active_client_id,
+        report=IntegrityReport(event_id, IntegrityKind.TAB_HIDDEN, ctx.now, beyond_grace=True),
+    )
+
+
+def test_v1_f29_concurrent_warnings_at_the_limit_end_it_once(frozen_clock: FrozenClock) -> None:
+    me = make_student().id
+    ctx = as_student(me, now=frozen_clock.now())
+    state = begin(ctx, assign([me], now=ctx.now))
+    _report_now(ctx, state, uuid4())
+    _report_now(ctx, state, uuid4())
+
+    outcomes = run_together(*[lambda: _report_now(ctx, state, uuid4()) for _ in range(10)])
+
+    assert all(isinstance(o, IntegrityAck) for o in outcomes), outcomes
+    assert sum(o.counted for o in outcomes if isinstance(o, IntegrityAck)) == 1
+    attempt = Attempt.objects.get(pk=state.attempt.id)
+    assert (attempt.warning_count, attempt.end_reason) == (3, EndReason.AUTO_SUBMITTED)
+
+
+def test_the_same_event_five_times_at_once_counts_once_e20(frozen_clock: FrozenClock) -> None:
+    me = make_student().id
+    ctx = as_student(me, now=frozen_clock.now())
+    state = begin(ctx, assign([me], now=ctx.now))
+    event = uuid4()
+
+    outcomes = run_together(*[lambda: _report_now(ctx, state, event) for _ in range(5)])
+
+    assert all(isinstance(o, IntegrityAck) and o.warning_count == 1 for o in outcomes), outcomes
+    assert Attempt.objects.get(pk=state.attempt.id).warning_count == 1

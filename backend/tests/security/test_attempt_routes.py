@@ -9,4 +9,7 @@ def test_v1_f05_attempt_has_no_patch_or_delete() -> None:
     assert attempt_routes
     assert all(op.method in ("GET", "POST", "PUT") for op in attempt_routes)
     puts = {op.path for op in attempt_routes if op.method == "PUT"}
-    assert puts == {"/api/v1/attempts/{attempt_id}/responses/{question_id}"}
+    assert puts == {
+        "/api/v1/attempts/{attempt_id}/responses/{question_id}",
+        "/api/v1/attempts/{attempt_id}/integrity-events/{event_id}",
+    }
