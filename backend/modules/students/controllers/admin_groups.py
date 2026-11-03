@@ -3,6 +3,7 @@ from uuid import UUID
 from django.http import HttpRequest
 from ninja import Query, Status
 
+from core.http.bulk import BulkResultOut
 from core.http.context import ctx_from
 from modules.students.dto.groups import (
     AudienceCandidateOut,
@@ -13,7 +14,7 @@ from modules.students.dto.groups import (
     GroupOut,
     GroupPatchIn,
 )
-from modules.students.dto.students import BulkResultOut, ShareIn, StudentIdsIn
+from modules.students.dto.students import ShareIn, StudentIdsIn
 from modules.students.services.commands import add_group_members as adding
 from modules.students.services.commands import archive_group as archiving
 from modules.students.services.commands import create_group as creating

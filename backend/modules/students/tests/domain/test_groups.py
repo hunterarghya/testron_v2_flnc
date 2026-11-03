@@ -2,8 +2,8 @@ from uuid import UUID
 
 import pytest
 
+from core.bulk import NOT_FOUND, Skip
 from core.context import StudentStatus as S
-from modules.students.domain.bulk import NOT_FOUND, Skip
 from modules.students.domain.groups import (
     normalize_group_name,
     plan_adding_members,

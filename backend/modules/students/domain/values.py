@@ -67,3 +67,13 @@ class StudentDetail:
 
     row: StudentRow
     groups: list[GroupRef]
+
+
+@dataclass(frozen=True, slots=True)
+class StudentBrief:
+    """A student as other modules show them: an assignment's audience (T-08)."""
+
+    student_id: UUID
+    name: str
+    status: StudentStatus
+    group_names: list[str]

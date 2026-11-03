@@ -831,6 +831,128 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One tab of the assignments list */
+        get: operations["list_assignments"];
+        put?: never;
+        /** Assign a test (freezes the paper) */
+        post: operations["create_assignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One assignment's overview */
+        get: operations["get_assignment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Change an assignment's settings */
+        patch: operations["update_assignment"];
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/audience": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the audience (before the start only) */
+        put: operations["replace_audience"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/audience/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add students to the audience */
+        post: operations["add_audience"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/audience/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Remove students who haven't begun */
+        post: operations["remove_audience"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reveal the test password (audited) */
+        get: operations["reveal_password"];
+        /** Set, change or remove the test password */
+        put: operations["set_password"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an assignment no one has begun */
+        post: operations["cancel_assignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -2007,6 +2129,385 @@ export interface components {
             section_id: string;
             /** After Question Id */
             after_question_id?: string | null;
+        };
+        /** AssignmentFilterIn */
+        AssignmentFilterIn: {
+            state?: components["schemas"]["Tab"] | null;
+            /** Group Id */
+            group_id?: string | null;
+            /** Q */
+            q?: string | null;
+            /** From */
+            from?: string | null;
+            /** To */
+            to?: string | null;
+        };
+        /**
+         * Tab
+         * @description T-06's tabs, each a set of lifecycle states.
+         * @enum {string}
+         */
+        Tab: "upcoming" | "live" | "closed" | "cancelled";
+        /** AssignmentRowOut */
+        AssignmentRowOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Test Id
+             * Format: uuid
+             */
+            test_id: string;
+            window_kind: components["schemas"]["WindowKind"];
+            window_summary: components["schemas"]["WindowSummaryOut"];
+            state: components["schemas"]["LifecycleState"];
+            audience: components["schemas"]["AudienceSummaryOut"];
+            progress: components["schemas"]["ProgressOut"];
+            publication_state: components["schemas"]["PublicationState"];
+            /** Locked */
+            locked: boolean;
+        };
+        /** AudienceSummaryOut */
+        AudienceSummaryOut: {
+            /** Count */
+            count: number;
+            /** Summary */
+            summary: string;
+        };
+        /**
+         * LifecycleState
+         * @description Derived, never stored (domain_model.md §3.5, [D-8]).
+         * @enum {string}
+         */
+        LifecycleState: "SCHEDULED" | "WAITING" | "LIVE" | "CLOSED" | "CANCELLED";
+        /** Page[AssignmentRowOut] */
+        Page_AssignmentRowOut_: {
+            /** Items */
+            items: components["schemas"]["AssignmentRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** ProgressOut */
+        ProgressOut: {
+            /** Ended */
+            ended: number;
+            /** In Progress */
+            in_progress: number;
+            /** Audience */
+            audience: number;
+        };
+        /**
+         * PublicationState
+         * @enum {string}
+         */
+        PublicationState: "UNPUBLISHED" | "SCHEDULED" | "PUBLISHED";
+        /**
+         * WindowKind
+         * @description When students may sit an assignment (domain_model.md §3.5 AssignmentWindow).
+         * @enum {string}
+         */
+        WindowKind: "MANUAL" | "SCHEDULED" | "DEADLINE" | "OPEN";
+        /** WindowSummaryOut */
+        WindowSummaryOut: {
+            /** Planned At */
+            planned_at: string | null;
+            /** Starts At */
+            starts_at: string | null;
+            /** Opens At */
+            opens_at: string | null;
+            /** Closes At */
+            closes_at: string | null;
+            /** Late Entry S */
+            late_entry_s: number | null;
+        };
+        /** AssignmentDetailOut */
+        AssignmentDetailOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Test Id
+             * Format: uuid
+             */
+            test_id: string;
+            window_kind: components["schemas"]["WindowKind"];
+            window_summary: components["schemas"]["WindowSummaryOut"];
+            state: components["schemas"]["LifecycleState"];
+            audience: components["schemas"]["AudienceSummaryOut"];
+            progress: components["schemas"]["ProgressOut"];
+            publication_state: components["schemas"]["PublicationState"];
+            /** Locked */
+            locked: boolean;
+            gate: components["schemas"]["GateOut"];
+            timing: components["schemas"]["TimingOut"];
+            integrity: components["schemas"]["IntegrityOut"];
+            publication: components["schemas"]["PublicationOut"];
+            /** Activated At */
+            activated_at: string | null;
+            /** Ended At */
+            ended_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+            /** Audience Students */
+            audience_students: components["schemas"]["AudienceStudentOut"][];
+            /** Editable Fields */
+            editable_fields: string[];
+        };
+        /** AudienceStudentOut */
+        AudienceStudentOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Group Names */
+            group_names: string[];
+            /** Has Attempt */
+            has_attempt: boolean;
+        };
+        /** GateOut */
+        GateOut: {
+            /** Requires Activation */
+            requires_activation: boolean;
+            /** Has Password */
+            has_password: boolean;
+        };
+        /** IntegrityOut */
+        IntegrityOut: {
+            /** Grace S */
+            grace_s: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /** Action */
+            action: string;
+        };
+        /** PublicationOut */
+        PublicationOut: {
+            /** Mode */
+            mode: string;
+            /** Delay S */
+            delay_s: number | null;
+            /** Content */
+            content: string;
+            /** Show Paper */
+            show_paper: boolean;
+            /** Show Solutions */
+            show_solutions: boolean;
+            /** Show Rank And Stats */
+            show_rank_and_stats: boolean;
+            /** Published At */
+            published_at: string | null;
+            /** Publish At */
+            publish_at: string | null;
+        };
+        /** TimingOut */
+        TimingOut: {
+            /** Kind */
+            kind: string;
+            /** Total Duration S */
+            total_duration_s: number;
+            /** Allow Return */
+            allow_return: boolean;
+        };
+        /** AssignmentIntegrityIn */
+        AssignmentIntegrityIn: {
+            /** Grace S */
+            grace_s: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "AUTO_SUBMIT" | "DISQUALIFY";
+        };
+        /** CreateAssignmentIn */
+        CreateAssignmentIn: {
+            /**
+             * Test Id
+             * Format: uuid
+             */
+            test_id: string;
+            /** Title */
+            title: string;
+            /** Student Ids */
+            student_ids: string[];
+            /** Window */
+            window: components["schemas"]["ManualWindowIn"] | components["schemas"]["ScheduledWindowIn"] | components["schemas"]["DeadlineWindowIn"] | components["schemas"]["OpenWindowIn"];
+            gate: components["schemas"]["GateIn"];
+            /** Timing Override */
+            timing_override?: (components["schemas"]["TotalOverrideIn"] | components["schemas"]["SectionedOverrideIn"] | components["schemas"]["PerQuestionOverrideIn"]) | null;
+            integrity: components["schemas"]["AssignmentIntegrityIn"];
+            publication: components["schemas"]["PublicationIn"];
+        };
+        /** DeadlineWindowIn */
+        DeadlineWindowIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "DEADLINE";
+            /**
+             * Opens At
+             * Format: date-time
+             */
+            opens_at: string;
+            /**
+             * Closes At
+             * Format: date-time
+             */
+            closes_at: string;
+        };
+        /** GateIn */
+        GateIn: {
+            /** Requires Activation */
+            requires_activation: boolean;
+            /** Password */
+            password?: string | null;
+            /** Password Confirm */
+            password_confirm?: string | null;
+        };
+        /** ManualWindowIn */
+        ManualWindowIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "MANUAL";
+            /** Planned At */
+            planned_at?: string | null;
+            /** Late Entry S */
+            late_entry_s?: number | null;
+        };
+        /** OpenWindowIn */
+        OpenWindowIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "OPEN";
+        };
+        /** PerQuestionOverrideIn */
+        PerQuestionOverrideIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "PER_QUESTION";
+            /** Default Question S */
+            default_question_s: number;
+        };
+        /** PublicationIn */
+        PublicationIn: {
+            mode: components["schemas"]["PublicationMode"];
+            /** Delay S */
+            delay_s?: number | null;
+            content: components["schemas"]["PublishContent"];
+            /** Show Paper */
+            show_paper: boolean;
+            /** Show Solutions */
+            show_solutions: boolean;
+            /** Show Rank And Stats */
+            show_rank_and_stats: boolean;
+        };
+        /**
+         * PublicationMode
+         * @enum {string}
+         */
+        PublicationMode: "MANUAL" | "AUTO_IMMEDIATE" | "AUTO_DELAYED";
+        /**
+         * PublishContent
+         * @enum {string}
+         */
+        PublishContent: "SCORE_ONLY" | "ANSWER_REVIEW";
+        /** ScheduledWindowIn */
+        ScheduledWindowIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "SCHEDULED";
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /** Late Entry S */
+            late_entry_s?: number | null;
+        };
+        /** SectionedOverrideIn */
+        SectionedOverrideIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "SECTIONED";
+            /** Section Durations S */
+            section_durations_s: {
+                [key: string]: number;
+            };
+        };
+        /** TotalOverrideIn */
+        TotalOverrideIn: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "TOTAL";
+            /** Duration S */
+            duration_s: number;
+        };
+        /**
+         * GatePatchIn
+         * @description The password has its own endpoint (D-07).
+         */
+        GatePatchIn: {
+            /** Requires Activation */
+            requires_activation: boolean;
+        };
+        /** UpdateAssignmentIn */
+        UpdateAssignmentIn: {
+            /** Title */
+            title?: string | null;
+            /** Window */
+            window?: (components["schemas"]["ManualWindowIn"] | components["schemas"]["ScheduledWindowIn"] | components["schemas"]["DeadlineWindowIn"] | components["schemas"]["OpenWindowIn"]) | null;
+            gate?: components["schemas"]["GatePatchIn"] | null;
+            integrity?: components["schemas"]["AssignmentIntegrityIn"] | null;
+            publication?: components["schemas"]["PublicationIn"] | null;
+        };
+        /** AudienceIn */
+        AudienceIn: {
+            /** Student Ids */
+            student_ids: string[];
+        };
+        /**
+         * PasswordIn
+         * @description `{password, password_confirm}`, or `{password: null}` to remove it.
+         */
+        PasswordIn: {
+            /** Password */
+            password: string | null;
+            /** Password Confirm */
+            password_confirm?: string | null;
+        };
+        /** PasswordOut */
+        PasswordOut: {
+            /** Password */
+            password: string | null;
         };
         /** BadgesOut */
         BadgesOut: {
@@ -3336,6 +3837,250 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ImportOut"];
                 };
+            };
+        };
+    };
+    list_assignments: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["Tab"] | null;
+                group_id?: string | null;
+                q?: string | null;
+                from?: string | null;
+                to?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_AssignmentRowOut_"];
+                };
+            };
+        };
+    };
+    create_assignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssignmentIn"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDetailOut"];
+                };
+            };
+        };
+    };
+    get_assignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDetailOut"];
+                };
+            };
+        };
+    };
+    update_assignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssignmentIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDetailOut"];
+                };
+            };
+        };
+    };
+    replace_audience: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AudienceIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDetailOut"];
+                };
+            };
+        };
+    };
+    add_audience: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AudienceIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    remove_audience: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AudienceIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
+    reveal_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasswordOut"];
+                };
+            };
+        };
+    };
+    set_password: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordIn"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    cancel_assignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

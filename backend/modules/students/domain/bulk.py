@@ -3,28 +3,13 @@ refused as a whole (domain_model.md §3.2 #4). Admission, group membership and p
 sharing all plan their changes here."""
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
 from uuid import UUID
 
+from core.bulk import NOT_FOUND, BulkOutcome, Skip
 from core.context import StudentStatus
 
-NOT_FOUND = "not_found"
 # Students who were admitted: the only ones who can be in groups or see their performance
 ADMITTED = frozenset({StudentStatus.ACTIVE, StudentStatus.DEACTIVATED})
-
-
-@dataclass(frozen=True, slots=True)
-class Skip:
-    student_id: UUID
-    # "not_found", "status_<status>", or what made the change pointless ("already_member", …)
-    reason: str
-
-
-@dataclass(frozen=True, slots=True)
-class BulkOutcome:
-    applied: tuple[UUID, ...]
-    skipped: tuple[Skip, ...]
-
 
 # (student id, status) → why it is skipped, or None to apply it
 SkipReason = Callable[[UUID, StudentStatus], str | None]

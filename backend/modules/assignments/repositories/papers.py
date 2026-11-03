@@ -1,0 +1,31 @@
+from datetime import datetime
+from uuid import UUID
+
+from core.rich_content import Json
+from modules.assignments.models import AnswerKey, Paper
+
+
+def insert_paper(  # keyword-only after the id (CLAUDE.md limits)
+    assignment_id: UUID,
+    *,
+    content: Json,
+    content_hash: str,
+    key_entries: Json,
+    solutions: Json,
+    now: datetime,
+) -> None:
+    """The paper and its answer key, written together (domain_model.md §3.5 #2)."""
+    Paper.objects.create(
+        assignment_id=assignment_id, content=content, content_hash=content_hash, created_at=now
+    )
+    AnswerKey.objects.create(
+        assignment_id=assignment_id, entries=key_entries, solutions=solutions, updated_at=now
+    )
+
+
+def allow_return(assignment_id: UUID) -> bool:
+    """Whether students may go back to earlier questions, as frozen in the paper."""
+    found = Paper.objects.filter(pk=assignment_id).values_list(
+        "content__timing__allow_return", flat=True
+    )
+    return bool(found.first())

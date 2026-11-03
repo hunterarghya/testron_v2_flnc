@@ -2184,6 +2184,461 @@
         }
       }
     },
+    "/api/v1/admin/assignments": {
+      "get": {
+        "operationId": "list_assignments",
+        "summary": "One tab of the assignments list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Tab"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "group_id",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group Id"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AssignmentRowOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      },
+      "post": {
+        "operationId": "create_assignment",
+        "summary": "Assign a test (freezes the paper)",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssignmentIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}": {
+      "get": {
+        "operationId": "get_assignment",
+        "summary": "One assignment's overview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      },
+      "patch": {
+        "operationId": "update_assignment",
+        "summary": "Change an assignment's settings",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/audience": {
+      "put": {
+        "operationId": "replace_audience",
+        "summary": "Replace the audience (before the start only)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDetailOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/audience/add": {
+      "post": {
+        "operationId": "add_audience",
+        "summary": "Add students to the audience",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/audience/remove": {
+      "post": {
+        "operationId": "remove_audience",
+        "summary": "Remove students who haven't begun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/password": {
+      "put": {
+        "operationId": "set_password",
+        "summary": "Set, change or remove the test password",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordIn"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "get": {
+        "operationId": "reveal_password",
+        "summary": "Reveal the test password (audited)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/cancel": {
+      "post": {
+        "operationId": "cancel_assignment",
+        "summary": "Cancel an assignment no one has begun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
     "/api/v1/admin/badges": {
       "get": {
         "operationId": "get_badges",
@@ -5576,6 +6031,1193 @@
           "section_id"
         ],
         "title": "ImportIn",
+        "type": "object"
+      },
+      "AssignmentFilterIn": {
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Tab"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To"
+          }
+        },
+        "title": "AssignmentFilterIn",
+        "type": "object"
+      },
+      "Tab": {
+        "description": "T-06's tabs, each a set of lifecycle states.",
+        "enum": [
+          "upcoming",
+          "live",
+          "closed",
+          "cancelled"
+        ],
+        "title": "Tab",
+        "type": "string"
+      },
+      "AssignmentRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "test_id": {
+            "format": "uuid",
+            "title": "Test Id",
+            "type": "string"
+          },
+          "window_kind": {
+            "$ref": "#/components/schemas/WindowKind"
+          },
+          "window_summary": {
+            "$ref": "#/components/schemas/WindowSummaryOut"
+          },
+          "state": {
+            "$ref": "#/components/schemas/LifecycleState"
+          },
+          "audience": {
+            "$ref": "#/components/schemas/AudienceSummaryOut"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressOut"
+          },
+          "publication_state": {
+            "$ref": "#/components/schemas/PublicationState"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "test_id",
+          "window_kind",
+          "window_summary",
+          "state",
+          "audience",
+          "progress",
+          "publication_state",
+          "locked"
+        ],
+        "title": "AssignmentRowOut",
+        "type": "object"
+      },
+      "AudienceSummaryOut": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "count",
+          "summary"
+        ],
+        "title": "AudienceSummaryOut",
+        "type": "object"
+      },
+      "LifecycleState": {
+        "description": "Derived, never stored (domain_model.md §3.5, [D-8]).",
+        "enum": [
+          "SCHEDULED",
+          "WAITING",
+          "LIVE",
+          "CLOSED",
+          "CANCELLED"
+        ],
+        "title": "LifecycleState",
+        "type": "string"
+      },
+      "Page_AssignmentRowOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AssignmentRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[AssignmentRowOut]",
+        "type": "object"
+      },
+      "ProgressOut": {
+        "additionalProperties": false,
+        "properties": {
+          "ended": {
+            "title": "Ended",
+            "type": "integer"
+          },
+          "in_progress": {
+            "title": "In Progress",
+            "type": "integer"
+          },
+          "audience": {
+            "title": "Audience",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ended",
+          "in_progress",
+          "audience"
+        ],
+        "title": "ProgressOut",
+        "type": "object"
+      },
+      "PublicationState": {
+        "enum": [
+          "UNPUBLISHED",
+          "SCHEDULED",
+          "PUBLISHED"
+        ],
+        "title": "PublicationState",
+        "type": "string"
+      },
+      "WindowKind": {
+        "description": "When students may sit an assignment (domain_model.md §3.5 AssignmentWindow).",
+        "enum": [
+          "MANUAL",
+          "SCHEDULED",
+          "DEADLINE",
+          "OPEN"
+        ],
+        "title": "WindowKind",
+        "type": "string"
+      },
+      "WindowSummaryOut": {
+        "additionalProperties": false,
+        "properties": {
+          "planned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned At"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "opens_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opens At"
+          },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "late_entry_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Entry S"
+          }
+        },
+        "required": [
+          "planned_at",
+          "starts_at",
+          "opens_at",
+          "closes_at",
+          "late_entry_s"
+        ],
+        "title": "WindowSummaryOut",
+        "type": "object"
+      },
+      "AssignmentDetailOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "test_id": {
+            "format": "uuid",
+            "title": "Test Id",
+            "type": "string"
+          },
+          "window_kind": {
+            "$ref": "#/components/schemas/WindowKind"
+          },
+          "window_summary": {
+            "$ref": "#/components/schemas/WindowSummaryOut"
+          },
+          "state": {
+            "$ref": "#/components/schemas/LifecycleState"
+          },
+          "audience": {
+            "$ref": "#/components/schemas/AudienceSummaryOut"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressOut"
+          },
+          "publication_state": {
+            "$ref": "#/components/schemas/PublicationState"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "gate": {
+            "$ref": "#/components/schemas/GateOut"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/TimingOut"
+          },
+          "integrity": {
+            "$ref": "#/components/schemas/IntegrityOut"
+          },
+          "publication": {
+            "$ref": "#/components/schemas/PublicationOut"
+          },
+          "activated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activated At"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "audience_students": {
+            "items": {
+              "$ref": "#/components/schemas/AudienceStudentOut"
+            },
+            "title": "Audience Students",
+            "type": "array"
+          },
+          "editable_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Editable Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "test_id",
+          "window_kind",
+          "window_summary",
+          "state",
+          "audience",
+          "progress",
+          "publication_state",
+          "locked",
+          "gate",
+          "timing",
+          "integrity",
+          "publication",
+          "activated_at",
+          "ended_at",
+          "ends_at",
+          "audience_students",
+          "editable_fields"
+        ],
+        "title": "AssignmentDetailOut",
+        "type": "object"
+      },
+      "AudienceStudentOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "group_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Group Names",
+            "type": "array"
+          },
+          "has_attempt": {
+            "title": "Has Attempt",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "group_names",
+          "has_attempt"
+        ],
+        "title": "AudienceStudentOut",
+        "type": "object"
+      },
+      "GateOut": {
+        "additionalProperties": false,
+        "properties": {
+          "requires_activation": {
+            "title": "Requires Activation",
+            "type": "boolean"
+          },
+          "has_password": {
+            "title": "Has Password",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "requires_activation",
+          "has_password"
+        ],
+        "title": "GateOut",
+        "type": "object"
+      },
+      "IntegrityOut": {
+        "additionalProperties": false,
+        "properties": {
+          "grace_s": {
+            "title": "Grace S",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grace_s",
+          "max_warnings",
+          "action"
+        ],
+        "title": "IntegrityOut",
+        "type": "object"
+      },
+      "PublicationOut": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "delay_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delay S"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "show_paper": {
+            "title": "Show Paper",
+            "type": "boolean"
+          },
+          "show_solutions": {
+            "title": "Show Solutions",
+            "type": "boolean"
+          },
+          "show_rank_and_stats": {
+            "title": "Show Rank And Stats",
+            "type": "boolean"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "publish_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publish At"
+          }
+        },
+        "required": [
+          "mode",
+          "delay_s",
+          "content",
+          "show_paper",
+          "show_solutions",
+          "show_rank_and_stats",
+          "published_at",
+          "publish_at"
+        ],
+        "title": "PublicationOut",
+        "type": "object"
+      },
+      "TimingOut": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "total_duration_s": {
+            "title": "Total Duration S",
+            "type": "integer"
+          },
+          "allow_return": {
+            "title": "Allow Return",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "total_duration_s",
+          "allow_return"
+        ],
+        "title": "TimingOut",
+        "type": "object"
+      },
+      "AssignmentIntegrityIn": {
+        "additionalProperties": false,
+        "properties": {
+          "grace_s": {
+            "title": "Grace S",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grace_s",
+          "max_warnings",
+          "action"
+        ],
+        "title": "AssignmentIntegrityIn",
+        "type": "object"
+      },
+      "CreateAssignmentIn": {
+        "additionalProperties": false,
+        "properties": {
+          "test_id": {
+            "format": "uuid",
+            "title": "Test Id",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 400,
+            "title": "Title",
+            "type": "string"
+          },
+          "student_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "title": "Student Ids",
+            "type": "array"
+          },
+          "window": {
+            "discriminator": {
+              "mapping": {
+                "DEADLINE": "#/components/schemas/DeadlineWindowIn",
+                "MANUAL": "#/components/schemas/ManualWindowIn",
+                "OPEN": "#/components/schemas/OpenWindowIn",
+                "SCHEDULED": "#/components/schemas/ScheduledWindowIn"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ManualWindowIn"
+              },
+              {
+                "$ref": "#/components/schemas/ScheduledWindowIn"
+              },
+              {
+                "$ref": "#/components/schemas/DeadlineWindowIn"
+              },
+              {
+                "$ref": "#/components/schemas/OpenWindowIn"
+              }
+            ],
+            "title": "Window"
+          },
+          "gate": {
+            "$ref": "#/components/schemas/GateIn"
+          },
+          "timing_override": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "PER_QUESTION": "#/components/schemas/PerQuestionOverrideIn",
+                    "SECTIONED": "#/components/schemas/SectionedOverrideIn",
+                    "TOTAL": "#/components/schemas/TotalOverrideIn"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TotalOverrideIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SectionedOverrideIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PerQuestionOverrideIn"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timing Override"
+          },
+          "integrity": {
+            "$ref": "#/components/schemas/AssignmentIntegrityIn"
+          },
+          "publication": {
+            "$ref": "#/components/schemas/PublicationIn"
+          }
+        },
+        "required": [
+          "test_id",
+          "title",
+          "student_ids",
+          "window",
+          "gate",
+          "integrity",
+          "publication"
+        ],
+        "title": "CreateAssignmentIn",
+        "type": "object"
+      },
+      "DeadlineWindowIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "DEADLINE",
+            "title": "Kind",
+            "type": "string"
+          },
+          "opens_at": {
+            "format": "date-time",
+            "title": "Opens At",
+            "type": "string"
+          },
+          "closes_at": {
+            "format": "date-time",
+            "title": "Closes At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "opens_at",
+          "closes_at"
+        ],
+        "title": "DeadlineWindowIn",
+        "type": "object"
+      },
+      "GateIn": {
+        "additionalProperties": false,
+        "properties": {
+          "requires_activation": {
+            "title": "Requires Activation",
+            "type": "boolean"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "password_confirm": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password Confirm"
+          }
+        },
+        "required": [
+          "requires_activation"
+        ],
+        "title": "GateIn",
+        "type": "object"
+      },
+      "ManualWindowIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "MANUAL",
+            "title": "Kind",
+            "type": "string"
+          },
+          "planned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Planned At"
+          },
+          "late_entry_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Entry S"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "ManualWindowIn",
+        "type": "object"
+      },
+      "OpenWindowIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "OPEN",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "OpenWindowIn",
+        "type": "object"
+      },
+      "PerQuestionOverrideIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "PER_QUESTION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "default_question_s": {
+            "exclusiveMinimum": 0,
+            "title": "Default Question S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "default_question_s"
+        ],
+        "title": "PerQuestionOverrideIn",
+        "type": "object"
+      },
+      "PublicationIn": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/PublicationMode"
+          },
+          "delay_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delay S"
+          },
+          "content": {
+            "$ref": "#/components/schemas/PublishContent"
+          },
+          "show_paper": {
+            "title": "Show Paper",
+            "type": "boolean"
+          },
+          "show_solutions": {
+            "title": "Show Solutions",
+            "type": "boolean"
+          },
+          "show_rank_and_stats": {
+            "title": "Show Rank And Stats",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "content",
+          "show_paper",
+          "show_solutions",
+          "show_rank_and_stats"
+        ],
+        "title": "PublicationIn",
+        "type": "object"
+      },
+      "PublicationMode": {
+        "enum": [
+          "MANUAL",
+          "AUTO_IMMEDIATE",
+          "AUTO_DELAYED"
+        ],
+        "title": "PublicationMode",
+        "type": "string"
+      },
+      "PublishContent": {
+        "enum": [
+          "SCORE_ONLY",
+          "ANSWER_REVIEW"
+        ],
+        "title": "PublishContent",
+        "type": "string"
+      },
+      "ScheduledWindowIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "SCHEDULED",
+            "title": "Kind",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "late_entry_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Entry S"
+          }
+        },
+        "required": [
+          "kind",
+          "starts_at"
+        ],
+        "title": "ScheduledWindowIn",
+        "type": "object"
+      },
+      "SectionedOverrideIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "SECTIONED",
+            "title": "Kind",
+            "type": "string"
+          },
+          "section_durations_s": {
+            "additionalProperties": {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "title": "Section Durations S",
+            "type": "object"
+          }
+        },
+        "required": [
+          "kind",
+          "section_durations_s"
+        ],
+        "title": "SectionedOverrideIn",
+        "type": "object"
+      },
+      "TotalOverrideIn": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "TOTAL",
+            "title": "Kind",
+            "type": "string"
+          },
+          "duration_s": {
+            "exclusiveMinimum": 0,
+            "title": "Duration S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "duration_s"
+        ],
+        "title": "TotalOverrideIn",
+        "type": "object"
+      },
+      "GatePatchIn": {
+        "additionalProperties": false,
+        "description": "The password has its own endpoint (D-07).",
+        "properties": {
+          "requires_activation": {
+            "title": "Requires Activation",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "requires_activation"
+        ],
+        "title": "GatePatchIn",
+        "type": "object"
+      },
+      "UpdateAssignmentIn": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 400,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "window": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "DEADLINE": "#/components/schemas/DeadlineWindowIn",
+                    "MANUAL": "#/components/schemas/ManualWindowIn",
+                    "OPEN": "#/components/schemas/OpenWindowIn",
+                    "SCHEDULED": "#/components/schemas/ScheduledWindowIn"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ManualWindowIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ScheduledWindowIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/DeadlineWindowIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/OpenWindowIn"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window"
+          },
+          "gate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GatePatchIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "integrity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssignmentIntegrityIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publication": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicationIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "UpdateAssignmentIn",
+        "type": "object"
+      },
+      "AudienceIn": {
+        "additionalProperties": false,
+        "properties": {
+          "student_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Student Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "student_ids"
+        ],
+        "title": "AudienceIn",
+        "type": "object"
+      },
+      "PasswordIn": {
+        "additionalProperties": false,
+        "description": "`{password, password_confirm}`, or `{password: null}` to remove it.",
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "password_confirm": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password Confirm"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "PasswordIn",
+        "type": "object"
+      },
+      "PasswordOut": {
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "PasswordOut",
         "type": "object"
       },
       "BadgesOut": {

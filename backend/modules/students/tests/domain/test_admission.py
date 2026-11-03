@@ -2,6 +2,7 @@ from uuid import UUID
 
 import pytest
 
+from core.bulk import NOT_FOUND, Skip
 from core.context import StudentStatus as S
 from modules.students.domain.admission import (
     AdmissionAction,
@@ -10,7 +11,6 @@ from modules.students.domain.admission import (
     status_after,
     status_after_email_verified,
 )
-from modules.students.domain.bulk import NOT_FOUND, Skip
 from modules.students.domain.errors import AdmissionStepNotAllowed
 
 A = AdmissionAction

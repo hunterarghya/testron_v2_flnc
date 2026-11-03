@@ -7,8 +7,9 @@ from collections.abc import Mapping, Sequence
 from enum import StrEnum
 from uuid import UUID
 
+from core.bulk import BulkOutcome
 from core.context import StudentStatus
-from modules.students.domain.bulk import BulkOutcome, plan, status_reason
+from modules.students.domain.bulk import plan, status_reason
 from modules.students.domain.errors import AdmissionStepNotAllowed
 
 

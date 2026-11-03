@@ -3,9 +3,9 @@ from uuid import UUID
 
 from django.db import transaction
 
+from core.bulk import BulkOutcome
 from core.context import Ctx
 from modules.students.domain.admission import AdmissionAction
-from modules.students.domain.bulk import BulkOutcome
 from modules.students.repositories import memberships
 from modules.students.services.admission_changes import change_admission
 from modules.students.services.group_access import lock_active_group

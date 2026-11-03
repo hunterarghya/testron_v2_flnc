@@ -3,9 +3,10 @@
 from collections.abc import Collection, Mapping, Sequence
 from uuid import UUID
 
+from core.bulk import BulkOutcome
 from core.context import StudentStatus
 from core.text import clean_text_line
-from modules.students.domain.bulk import BulkOutcome, plan, unless_admitted
+from modules.students.domain.bulk import plan, unless_admitted
 
 
 def normalize_group_name(name: str) -> str:

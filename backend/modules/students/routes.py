@@ -3,11 +3,12 @@
 from ninja import Router
 
 from core.http.areas import SignedInArea, TeacherArea
+from core.http.bulk import BulkResultOut
 from core.http.pagination import Page
 from modules.students.controllers import admin_groups, admin_students, auth
 from modules.students.dto.auth import SessionOut, SessionUserOut, SignUpAcceptedOut
 from modules.students.dto.groups import AudienceCandidateOut, GroupDetailOut, GroupOut
-from modules.students.dto.students import BulkResultOut, StudentDetailOut, StudentRowOut
+from modules.students.dto.students import StudentDetailOut, StudentRowOut
 
 # Teacher area by default; the public admission routes (/auth/*) set auth=None (ADR-050)
 router = Router(tags=["students"], auth=TeacherArea())

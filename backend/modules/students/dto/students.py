@@ -5,7 +5,6 @@ from uuid import UUID
 from ninja import Schema
 from pydantic import ConfigDict, Field, model_validator
 
-from modules.students.domain.bulk import BulkOutcome
 from modules.students.domain.values import GroupRef, StudentDetail, StudentRow
 
 # The tabs of T-14; UNVERIFIED and ANONYMIZED accounts are never listed
@@ -113,29 +112,4 @@ class StudentDetailOut(Schema):
         return cls(
             student=StudentRowOut.from_row(detail.row),
             groups=[GroupRefOut.from_ref(group) for group in detail.groups],
-        )
-
-
-class SkippedOut(Schema):
-    model_config = ConfigDict(extra="forbid")
-
-    id: UUID
-    reason: str
-
-
-class BulkResultOut(Schema):
-    """`{succeeded, skipped}`: a student in the wrong status is skipped, not an error."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    succeeded: list[UUID]
-    skipped: list[SkippedOut]
-
-    @classmethod
-    def from_outcome(cls, outcome: BulkOutcome) -> "BulkResultOut":
-        return cls(
-            succeeded=list(outcome.applied),
-            skipped=[
-                SkippedOut(id=skip.student_id, reason=skip.reason) for skip in outcome.skipped
-            ],
         )

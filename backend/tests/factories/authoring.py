@@ -64,3 +64,12 @@ def make_question(
     )
     QuestionTag.objects.bulk_create([QuestionTag(question=question, tag_id=tag) for tag in tag_ids])
     return question
+
+
+def reload_test(test_id: UUID) -> Test:
+    return Test.objects.get(pk=test_id)
+
+
+def change_test(test_id: UUID, **fields: object) -> None:
+    """Edit a test behind the use cases' back, to show nothing else follows it."""
+    Test.objects.filter(pk=test_id).update(**fields)

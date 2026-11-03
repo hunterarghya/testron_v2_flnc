@@ -4,12 +4,12 @@ from django.http import HttpRequest
 from ninja import Query, Status
 
 from core.context import StudentStatus
+from core.http.bulk import BulkResultOut
 from core.http.context import ctx_from
 from core.http.pagination import Page, PageIn
 from modules.students.dto.students import (
     AnonymizeIn,
     ApproveIn,
-    BulkResultOut,
     StudentDetailOut,
     StudentFilterIn,
     StudentIdsIn,

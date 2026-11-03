@@ -3,8 +3,8 @@ from uuid import UUID
 
 from django.db import transaction
 
+from core.bulk import BulkOutcome
 from core.context import Ctx
-from modules.students.domain.bulk import BulkOutcome
 from modules.students.domain.groups import plan_adding_members
 from modules.students.policies import ensure_teacher
 from modules.students.repositories import memberships, students

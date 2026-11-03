@@ -90,3 +90,10 @@ def next_anonymized_number() -> int:
 
 def count_with_status(status: StudentStatus) -> int:
     return Student.objects.filter(status=status).count()
+
+
+def names_and_statuses(user_ids: Sequence[UUID]) -> dict[UUID, tuple[str, StudentStatus]]:
+    rows = Student.objects.filter(user_id__in=user_ids).values_list(
+        "user_id", "user__name", "status"
+    )
+    return {user_id: (name, StudentStatus(status)) for user_id, name, status in rows}
