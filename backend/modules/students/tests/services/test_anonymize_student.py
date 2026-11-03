@@ -3,8 +3,8 @@ import pytest
 from conftest import MakeCtx
 from core.context import Actor, Ctx, Role
 from core.context import StudentStatus as S
-from core.errors import Forbidden, NotFound
-from modules.students.domain.errors import AdmissionStepNotAllowed, ConfirmationMismatch
+from core.errors import ConfirmationMismatch, Forbidden, NotFound
+from modules.students.domain.errors import AdmissionStepNotAllowed
 from modules.students.models import PerformanceShare, Student
 from modules.students.services.commands.anonymize_student import anonymize_student
 from tests.factories.identity import User, make_user

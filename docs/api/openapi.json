@@ -2705,6 +2705,92 @@
         ]
       }
     },
+    "/api/v1/admin/assignments/{assignment_id}/extensions": {
+      "post": {
+        "operationId": "extend_time",
+        "summary": "Give extra time to everyone or chosen students",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendTimeIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/retake-grants": {
+      "post": {
+        "operationId": "grant_retakes",
+        "summary": "Unlock one more sitting for chosen students",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudienceIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/api/v1/my/tests": {
       "get": {
         "operationId": "list_my_tests",
@@ -3137,6 +3223,173 @@
           },
           "required": true
         }
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/monitor": {
+      "get": {
+        "operationId": "get_monitor",
+        "summary": "Each student's sitting, live",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "allOf": [
+                {
+                  "enum": [
+                    "all",
+                    "in_progress",
+                    "not_started",
+                    "ended",
+                    "flagged"
+                  ],
+                  "title": "MonitorFilter",
+                  "type": "string"
+                }
+              ],
+              "default": "all"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/end": {
+      "post": {
+        "operationId": "end_for_everyone",
+        "summary": "End the test for everyone now (type END to confirm)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndedOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndForEveryoneIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/admin/attempts/{attempt_id}/force-submit": {
+      "post": {
+        "operationId": "force_submit_attempt",
+        "summary": "End one student's sitting now",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptSummaryOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/admin/attempts/{attempt_id}/integrity-events": {
+      "get": {
+        "operationId": "list_integrity_events",
+        "summary": "Each time the student left the test",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IntegrityEventOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
       }
     },
     "/api/v1/admin/badges": {
@@ -7926,6 +8179,71 @@
         "title": "NotJoinedOut",
         "type": "object"
       },
+      "ExtendedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          }
+        },
+        "required": [
+          "ends_at"
+        ],
+        "title": "ExtendedOut",
+        "type": "object"
+      },
+      "ExtendTimeIn": {
+        "additionalProperties": false,
+        "description": "D-03: no students = everyone; no stage = the final one.",
+        "properties": {
+          "seconds": {
+            "title": "Seconds",
+            "type": "integer"
+          },
+          "student_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "maxItems": 1000,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Student Ids"
+          },
+          "stage_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Index"
+          }
+        },
+        "required": [
+          "seconds"
+        ],
+        "title": "ExtendTimeIn",
+        "type": "object"
+      },
       "CardState": {
         "enum": [
           "START",
@@ -9270,6 +9588,362 @@
         ],
         "title": "IntegrityReportIn",
         "type": "object"
+      },
+      "MonitorFilter": {
+        "enum": [
+          "all",
+          "in_progress",
+          "not_started",
+          "ended",
+          "flagged"
+        ],
+        "title": "MonitorFilter",
+        "type": "string"
+      },
+      "MonitorFilterIn": {
+        "additionalProperties": false,
+        "properties": {
+          "filter": {
+            "allOf": [
+              {
+                "enum": [
+                  "all",
+                  "in_progress",
+                  "not_started",
+                  "ended",
+                  "flagged"
+                ],
+                "title": "MonitorFilter",
+                "type": "string"
+              }
+            ],
+            "default": "all"
+          }
+        },
+        "title": "MonitorFilterIn",
+        "type": "object"
+      },
+      "MonitorOut": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/MonitorRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "summary": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/MonitorStatus"
+            },
+            "title": "Summary",
+            "type": "object"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "rows",
+          "summary",
+          "ends_at",
+          "server_now"
+        ],
+        "title": "MonitorOut",
+        "type": "object"
+      },
+      "MonitorRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "take_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Take Number"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MonitorStatus"
+          },
+          "current_stage_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Stage Index"
+          },
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "total_questions": {
+            "title": "Total Questions",
+            "type": "integer"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen At"
+          },
+          "deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline At"
+          }
+        },
+        "required": [
+          "student_id",
+          "name",
+          "take_number",
+          "attempt_id",
+          "status",
+          "current_stage_index",
+          "answered",
+          "total_questions",
+          "warning_count",
+          "last_seen_at",
+          "deadline_at"
+        ],
+        "title": "MonitorRowOut",
+        "type": "object"
+      },
+      "MonitorStatus": {
+        "enum": [
+          "NOT_STARTED",
+          "IN_PROGRESS",
+          "SUBMITTED",
+          "TIMED_OUT",
+          "AUTO_SUBMITTED",
+          "DISQUALIFIED",
+          "FORCE_SUBMITTED",
+          "ENDED_BY_TEACHER"
+        ],
+        "title": "MonitorStatus",
+        "type": "string"
+      },
+      "EndedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "ended_attempts": {
+            "title": "Ended Attempts",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ended_at",
+          "ended_attempts"
+        ],
+        "title": "EndedOut",
+        "type": "object"
+      },
+      "EndForEveryoneIn": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "maxLength": 20,
+            "title": "Confirm",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirm"
+        ],
+        "title": "EndForEveryoneIn",
+        "type": "object"
+      },
+      "AttemptSummaryOut": {
+        "additionalProperties": false,
+        "description": "The teacher's view of one sitting (force submit; overriding later in Phase 6).",
+        "properties": {
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "take_number": {
+            "title": "Take Number",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "student_id",
+          "take_number",
+          "status",
+          "end_reason",
+          "ended_at",
+          "score",
+          "max_score"
+        ],
+        "title": "AttemptSummaryOut",
+        "type": "object"
+      },
+      "IntegrityEventOut": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/IntegrityKind"
+          },
+          "left_at": {
+            "format": "date-time",
+            "title": "Left At",
+            "type": "string"
+          },
+          "returned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned At"
+          },
+          "counted": {
+            "title": "Counted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "left_at",
+          "returned_at",
+          "counted"
+        ],
+        "title": "IntegrityEventOut",
+        "type": "object"
+      },
+      "IntegrityKind": {
+        "enum": [
+          "FULLSCREEN_EXIT",
+          "TAB_HIDDEN",
+          "WINDOW_BLUR",
+          "DEVICE_CHANGED"
+        ],
+        "title": "IntegrityKind",
+        "type": "string"
       },
       "BadgesOut": {
         "additionalProperties": false,

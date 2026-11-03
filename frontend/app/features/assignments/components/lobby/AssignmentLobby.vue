@@ -1,5 +1,5 @@
 <!-- T-09 Lobby: who has the gate open (polled every 5 s), the password, and Start for
-     everyone. After Start the teacher goes back to the overview (the Monitor comes in Phase 5). -->
+     everyone. After Start the teacher goes on to the live monitor (T-10). -->
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { navigateTo } from '#imports'
@@ -30,7 +30,7 @@ const startText = computed(() => {
 })
 
 async function start(): Promise<void> {
-  if (await starting.submit()) await navigateTo(`/admin/assignments/${props.assignmentId}`)
+  if (await starting.submit()) await navigateTo(`/admin/assignments/${props.assignmentId}/monitor`)
 }
 
 usePolling(() => lobby.refresh(), LOBBY_INTERVAL_MS)

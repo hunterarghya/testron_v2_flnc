@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from django.db import connection
+from django.db.models import Count
 
 from core.rich_content import Json
 from modules.delivery.models import Response
@@ -76,3 +77,14 @@ def of_attempt(attempt_id: UUID) -> dict[UUID, StoredResponse]:
         question_id: StoredResponse(answer, marked, visited is not None, seq)
         for question_id, answer, marked, visited, seq in rows
     }
+
+
+def answered_counts(attempt_ids: list[UUID]) -> dict[UUID, int]:
+    """Questions with an answer, per attempt (the monitor's "Answered"), in one query."""
+    rows = (
+        Response.objects.filter(attempt_id__in=attempt_ids, answer__isnull=False)
+        .values("attempt_id")
+        .annotate(count=Count("question_id"))
+        .values_list("attempt_id", "count")
+    )
+    return dict(rows)

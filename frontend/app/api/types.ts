@@ -1,5 +1,5 @@
 // Friendly names for the generated API types (never edit schema.d.ts itself).
-import type { components } from '~/api/schema'
+import type { components, paths } from '~/api/schema'
 
 type Schemas = components['schemas']
 
@@ -62,3 +62,11 @@ export type HallResponse = Schemas['ResponseOut']
 export type HallAnswer = Schemas['ChoiceAnswerIn'] | Schemas['NumericAnswerIn']
 export type EndReason = SubmitResult['end_reason']
 export type IntegrityAck = Schemas['IntegrityAckOut']
+export type Monitor = Schemas['MonitorOut']
+export type MonitorRow = Schemas['MonitorRowOut']
+export type MonitorStatus = MonitorRow['status']
+export type MonitorFilter = NonNullable<NonNullable<paths['/api/v1/admin/assignments/{assignment_id}/monitor']['get']['parameters']['query']>['filter']>
+export type AttemptSummary = Schemas['AttemptSummaryOut']
+export type IntegrityEventView = Schemas['IntegrityEventOut']
+export type Extended = Schemas['ExtendedOut']
+export type EndedForEveryone = Schemas['EndedOut']

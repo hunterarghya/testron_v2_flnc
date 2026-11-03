@@ -987,6 +987,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments/{assignment_id}/extensions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Give extra time to everyone or chosen students */
+        post: operations["extend_time"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/retake-grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Unlock one more sitting for chosen students */
+        post: operations["grant_retakes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/my/tests": {
         parameters: {
             query?: never;
@@ -1167,6 +1201,74 @@ export interface paths {
         get?: never;
         /** Report leaving the test; the server counts warnings and decides */
         put: operations["report_integrity_event"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/monitor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Each student's sitting, live */
+        get: operations["get_monitor"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** End the test for everyone now (type END to confirm) */
+        post: operations["end_for_everyone"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/attempts/{attempt_id}/force-submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** End one student's sitting now */
+        post: operations["force_submit_attempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/attempts/{attempt_id}/integrity-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Each time the student left the test */
+        get: operations["list_integrity_events"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -2803,6 +2905,23 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** ExtendedOut */
+        ExtendedOut: {
+            /** Ends At */
+            ends_at: string | null;
+        };
+        /**
+         * ExtendTimeIn
+         * @description D-03: no students = everyone; no stage = the final one.
+         */
+        ExtendTimeIn: {
+            /** Seconds */
+            seconds: number;
+            /** Student Ids */
+            student_ids?: string[] | null;
+            /** Stage Index */
+            stage_index?: number | null;
+        };
         /**
          * CardState
          * @enum {string}
@@ -3284,6 +3403,125 @@ export interface components {
             /** Returned At */
             returned_at?: string | null;
         };
+        /**
+         * MonitorFilter
+         * @enum {string}
+         */
+        MonitorFilter: "all" | "in_progress" | "not_started" | "ended" | "flagged";
+        /** MonitorFilterIn */
+        MonitorFilterIn: {
+            /** @default all */
+            filter: "all" | "in_progress" | "not_started" | "ended" | "flagged";
+        };
+        /** MonitorOut */
+        MonitorOut: {
+            /** Title */
+            title: string;
+            /** Rows */
+            rows: components["schemas"]["MonitorRowOut"][];
+            /** Summary */
+            summary: {
+                [key: string]: number;
+            };
+            /** Ends At */
+            ends_at: string | null;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+        };
+        /** MonitorRowOut */
+        MonitorRowOut: {
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Name */
+            name: string;
+            /** Take Number */
+            take_number: number | null;
+            /** Attempt Id */
+            attempt_id: string | null;
+            status: components["schemas"]["MonitorStatus"];
+            /** Current Stage Index */
+            current_stage_index: number | null;
+            /** Answered */
+            answered: number;
+            /** Total Questions */
+            total_questions: number;
+            /** Warning Count */
+            warning_count: number;
+            /** Last Seen At */
+            last_seen_at: string | null;
+            /** Deadline At */
+            deadline_at: string | null;
+        };
+        /**
+         * MonitorStatus
+         * @enum {string}
+         */
+        MonitorStatus: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "AUTO_SUBMITTED" | "DISQUALIFIED" | "FORCE_SUBMITTED" | "ENDED_BY_TEACHER";
+        /** EndedOut */
+        EndedOut: {
+            /**
+             * Ended At
+             * Format: date-time
+             */
+            ended_at: string;
+            /** Ended Attempts */
+            ended_attempts: number;
+        };
+        /** EndForEveryoneIn */
+        EndForEveryoneIn: {
+            /** Confirm */
+            confirm: string;
+        };
+        /**
+         * AttemptSummaryOut
+         * @description The teacher's view of one sitting (force submit; overriding later in Phase 6).
+         */
+        AttemptSummaryOut: {
+            /**
+             * Attempt Id
+             * Format: uuid
+             */
+            attempt_id: string;
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Take Number */
+            take_number: number;
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"] | null;
+            /** Ended At */
+            ended_at: string | null;
+            /** Score */
+            score: string | null;
+            /** Max Score */
+            max_score: string;
+        };
+        /** IntegrityEventOut */
+        IntegrityEventOut: {
+            kind: components["schemas"]["IntegrityKind"];
+            /**
+             * Left At
+             * Format: date-time
+             */
+            left_at: string;
+            /** Returned At */
+            returned_at: string | null;
+            /** Counted */
+            counted: boolean;
+        };
+        /**
+         * IntegrityKind
+         * @enum {string}
+         */
+        IntegrityKind: "FULLSCREEN_EXIT" | "TAB_HIDDEN" | "WINDOW_BLUR" | "DEVICE_CHANGED";
         /** BadgesOut */
         BadgesOut: {
             /** Pending Students */
@@ -4903,6 +5141,58 @@ export interface operations {
             };
         };
     };
+    extend_time: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendTimeIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExtendedOut"];
+                };
+            };
+        };
+    };
+    grant_retakes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AudienceIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkResultOut"];
+                };
+            };
+        };
+    };
     list_my_tests: {
         parameters: {
             query?: never;
@@ -5166,6 +5456,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["IntegrityAckOut"];
+                };
+            };
+        };
+    };
+    get_monitor: {
+        parameters: {
+            query?: {
+                filter?: "all" | "in_progress" | "not_started" | "ended" | "flagged";
+            };
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorOut"];
+                };
+            };
+        };
+    };
+    end_for_everyone: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EndForEveryoneIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EndedOut"];
+                };
+            };
+        };
+    };
+    force_submit_attempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptSummaryOut"];
+                };
+            };
+        };
+    };
+    list_integrity_events: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrityEventOut"][];
                 };
             };
         };

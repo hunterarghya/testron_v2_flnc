@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
@@ -45,3 +46,22 @@ def mark_returned(event_id: UUID, *, returned_at: datetime) -> None:
 
 def mark_counted(event_id: UUID) -> None:
     IntegrityEvent.objects.filter(pk=event_id).update(counted=True)
+
+
+@dataclass(frozen=True, slots=True)
+class EventRow:
+    kind: IntegrityKind
+    left_at: datetime
+    returned_at: datetime | None
+    counted: bool
+
+
+def of_attempt(attempt_id: UUID) -> list[EventRow]:
+    rows = (
+        IntegrityEvent.objects.filter(attempt_id=attempt_id)
+        .order_by("left_at")
+        .values_list("kind", "left_at", "returned_at", "counted")
+    )
+    return [
+        EventRow(IntegrityKind(kind), left, back, counted) for kind, left, back, counted in rows
+    ]

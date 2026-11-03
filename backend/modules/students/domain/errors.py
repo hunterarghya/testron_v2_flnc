@@ -1,4 +1,4 @@
-from core.errors import Conflict, FieldError, FieldsInvalid, Invalid
+from core.errors import Conflict, FieldError, FieldsInvalid
 
 
 class AdmissionStepNotAllowed(Conflict):
@@ -6,11 +6,6 @@ class AdmissionStepNotAllowed(Conflict):
 
     code = "admission_step_not_allowed"
     title = "This account can't take that step now"
-
-
-class ConfirmationMismatch(Invalid):
-    code = "confirmation_mismatch"
-    title = "The confirmation text doesn't match"
 
 
 class GroupNameTaken(FieldsInvalid):

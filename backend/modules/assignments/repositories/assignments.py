@@ -111,3 +111,10 @@ def get_record_for_student(assignment_id: UUID, student_id: UUID) -> AssignmentR
     """Not in the audience, cancelled or missing all look the same (A-02)."""
     rows = Assignment.objects.filter(audience__student_id=student_id, cancelled_at__isnull=True)
     return record_of(_one(rows, assignment_id))
+
+
+def mark_ended(assignment_id: UUID, *, now: datetime) -> None:
+    """ "End for everyone": the first time only, so ending twice keeps the first instant."""
+    Assignment.objects.filter(pk=assignment_id, ended_at__isnull=True).update(
+        ended_at=now, updated_at=now
+    )

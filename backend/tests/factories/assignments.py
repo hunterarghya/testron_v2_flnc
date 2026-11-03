@@ -96,7 +96,10 @@ def last_seen(assignment_id: UUID, student_id: UUID) -> datetime | None:
     return None if row is None else row.last_seen_at
 
 
+def the_teacher() -> User:
+    """There is one teacher account; a test may have made it already."""
+    return User.objects.filter(role=Role.TEACHER).first() or make_user(teacher=True)
+
+
 def teacher_ctx(now: datetime) -> Ctx:
-    # There is one teacher account; a test may have made it already
-    teacher = User.objects.filter(role=Role.TEACHER).first() or make_user(teacher=True)
-    return Ctx(Actor(user_id=teacher.id, role=Role.TEACHER), now=now, request_id="factory")
+    return Ctx(Actor(user_id=the_teacher().id, role=Role.TEACHER), now=now, request_id="factory")

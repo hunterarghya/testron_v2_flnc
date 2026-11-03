@@ -20,7 +20,9 @@ const editing = ref(false)
 const cancelling = ref(false)
 const data = computed(() => detail.data.value)
 const cancelled = computed(() => data.value?.state === 'CANCELLED')
-const hasLobby = computed(() => Boolean(data.value && !cancelled.value
+// The lobby before the start; the live monitor (T-10) once it is running or over
+const live = computed(() => data.value?.state === 'LIVE' || data.value?.state === 'CLOSED')
+const hasLobby = computed(() => Boolean(data.value && !cancelled.value && !live.value
   && (data.value.window_kind === 'MANUAL' || data.value.gate.requires_activation)))
 const menu = computed(() => [
   ...(cancelled.value ? [] : [{ label: 'Edit settings', icon: 'i-lucide-settings', onSelect: () => { editing.value = true } }]),
@@ -48,6 +50,7 @@ onMounted(() => detail.refresh())
       <UBadge v-bind="STATE_LABELS[data.state]" variant="subtle" />
       <div class="ms-auto flex gap-2">
         <UButton v-if="hasLobby" label="Open lobby" icon="i-lucide-door-open" @click="navigateTo(`/admin/assignments/${assignmentId}/lobby`)" />
+        <UButton v-if="live" label="Open monitor" icon="i-lucide-activity" @click="navigateTo(`/admin/assignments/${assignmentId}/monitor`)" />
         <UDropdownMenu :items="menu">
           <UButton icon="i-lucide-ellipsis" aria-label="More actions" color="neutral" variant="outline" />
         </UDropdownMenu>

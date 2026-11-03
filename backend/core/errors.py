@@ -94,6 +94,13 @@ class Invalid(DomainError):
     title = "The request is not valid"
 
 
+class ConfirmationMismatch(Invalid):
+    """A typed confirmation ("END", the student's name) doesn't match (api_contract.md §1)."""
+
+    code = "confirmation_mismatch"
+    title = "The confirmation text doesn't match"
+
+
 class FieldsInvalid(Invalid):
     """A rule about specific fields that only the server can check (e.g. a name already taken)."""
 

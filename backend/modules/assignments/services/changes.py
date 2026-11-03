@@ -7,6 +7,7 @@ from uuid import UUID
 from core.context import Ctx
 from modules.assignments.domain.assignment import AssignmentRecord
 from modules.assignments.domain.editing import ensure_editable
+from modules.assignments.domain.live_controls import ensure_started
 from modules.assignments.policies import ensure_teacher
 from modules.assignments.repositories import assignments
 from modules.assignments.services.views import is_started
@@ -22,4 +23,11 @@ def lock_for_change(ctx: Ctx, assignment_id: UUID, fields: Collection[str]) -> A
         cancelled=record.timeline.cancelled_at is not None,
         started=is_started(record, now=ctx.now),
     )
+    return record
+
+
+def lock_started(ctx: Ctx, assignment_id: UUID) -> AssignmentRecord:
+    """Lock the assignment for a live control (T-10): not cancelled, and already started."""
+    record = lock_for_change(ctx, assignment_id, [])
+    ensure_started(is_started(record, now=ctx.now))
     return record

@@ -144,3 +144,22 @@ def mark_ended(  # keyword-only after the id (CLAUDE.md limits)
 
 def set_warning_count(attempt_id: UUID, count: int) -> None:
     Attempt.objects.filter(pk=attempt_id).update(warning_count=count)
+
+
+def lock_any(attempt_id: UUID) -> AttemptRecord:
+    """For the teacher: any attempt, locked like an ending (database_schema.md §5.1)."""
+    row = Attempt.objects.select_for_update().filter(pk=attempt_id).first()
+    if row is None:
+        raise NotFound("attempt")
+    return record_of(row)
+
+
+def lock_running_of(assignment_id: UUID, *, skip_locked: bool) -> list[AttemptRecord]:
+    """Every sitting of the assignment still in progress, locked in id order so two endings
+    never deadlock. `skip_locked` for readers (the monitor), not for "end for everyone"."""
+    rows = (
+        Attempt.objects.select_for_update(skip_locked=skip_locked)
+        .filter(assignment_id=assignment_id, status=AttemptStatus.IN_PROGRESS)
+        .order_by("id")
+    )
+    return [record_of(row) for row in rows]

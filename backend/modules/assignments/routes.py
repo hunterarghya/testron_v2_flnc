@@ -6,8 +6,9 @@ from core.http.areas import TeacherArea
 from core.http.bulk import BulkResultOut
 from core.http.pagination import Page
 from modules.assignments.controllers import admin_assignments as admin
+from modules.assignments.controllers import admin_live as live
 from modules.assignments.controllers import admin_lobby as lobby
-from modules.assignments.dto.lobby import ActivationOut, LobbyOut
+from modules.assignments.dto.lobby import ActivationOut, ExtendedOut, LobbyOut
 from modules.assignments.dto.views import AssignmentDetailOut, AssignmentRowOut, PasswordOut
 
 router = Router(tags=["assignments"], auth=TeacherArea())
@@ -98,4 +99,20 @@ router.add_api_operation(
     lobby.get_lobby,
     response={200: LobbyOut},
     summary="Who has the gate open now",
+)
+
+# Teacher: live controls (T-10, D-02, D-03); "end for everyone" is delivery's (it ends attempts)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/extensions",
+    ["POST"],
+    live.extend_time,
+    response={200: ExtendedOut},
+    summary="Give extra time to everyone or chosen students",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/retake-grants",
+    ["POST"],
+    live.grant_retakes,
+    response={200: BulkResultOut},
+    summary="Unlock one more sitting for chosen students",
 )

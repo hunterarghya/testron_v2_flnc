@@ -5,7 +5,7 @@ from typing import Self
 from uuid import UUID
 
 from ninja import Schema
-from pydantic import ConfigDict
+from pydantic import ConfigDict, Field
 
 from modules.assignments.domain.values import LifecycleState
 from modules.assignments.services.commands.activate_assignment import Activation
@@ -69,3 +69,17 @@ class LobbyOut(_Out):
             state=lobby.state,
             server_now=lobby.server_now,
         )
+
+
+class ExtendTimeIn(Schema):
+    """D-03: no students = everyone; no stage = the final one."""
+
+    model_config = ConfigDict(extra="forbid")
+    seconds: int
+    student_ids: list[UUID] | None = Field(default=None, min_length=1, max_length=1000)
+    stage_index: int | None = None
+
+
+class ExtendedOut(_Out):
+    # When the test now ends for everyone (None for an open window)
+    ends_at: datetime | None

@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from datetime import datetime
 from uuid import UUID
 
 from modules.assignments.models import RetakeGrant
@@ -27,3 +28,12 @@ def consume_oldest(assignment_id: UUID, student_id: UUID, *, attempt_id: UUID) -
         return False
     RetakeGrant.objects.filter(pk=oldest).update(consumed_by_attempt_id=attempt_id)
     return True
+
+
+def insert_grants(assignment_id: UUID, student_ids: Sequence[UUID], *, now: datetime) -> None:
+    RetakeGrant.objects.bulk_create(
+        [
+            RetakeGrant(assignment_id=assignment_id, student_id=s, granted_at=now)
+            for s in student_ids
+        ]
+    )

@@ -12,3 +12,9 @@ def ensure_active_student(actor: Actor) -> UUID:
     if not actor.is_active_student or actor.user_id is None:
         raise Forbidden()
     return actor.user_id
+
+
+def ensure_teacher(actor: Actor) -> None:
+    """The monitor and its actions are the teacher's alone (security.md §3.1)."""
+    if not actor.is_teacher:
+        raise Forbidden()

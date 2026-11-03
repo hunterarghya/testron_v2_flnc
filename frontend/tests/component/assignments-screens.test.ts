@@ -2,10 +2,11 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '~/api/client'
-import type { AssignmentDetail, Lobby } from '~/api/types'
+import type { Lobby } from '~/api/types'
 import AssignmentsList from '~/features/assignments/components/AssignmentsList.vue'
 import AssignmentLobby from '~/features/assignments/components/lobby/AssignmentLobby.vue'
 import AssignmentOverview from '~/features/assignments/components/overview/AssignmentOverview.vue'
+import { detail } from '../assignment-fixtures'
 import { type FakeApi, ok } from '../fake-api'
 
 vi.mock('~/api/client', async () => {
@@ -15,34 +16,6 @@ vi.mock('~/api/client', async () => {
 
 const fake = api as unknown as FakeApi
 
-export function detail(changes: Partial<AssignmentDetail> = {}): AssignmentDetail {
-  return {
-    id: 'a1',
-    title: 'Cell Biology – Take 1',
-    test_id: 't1',
-    window_kind: 'MANUAL',
-    window_summary: { planned_at: null, starts_at: null, opens_at: null, closes_at: null, late_entry_s: 600 },
-    state: 'WAITING',
-    audience: { count: 2, summary: '11A' },
-    progress: { ended: 0, in_progress: 0, audience: 2 },
-    publication_state: 'UNPUBLISHED',
-    locked: true,
-    gate: { requires_activation: true, has_password: true },
-    timing: { kind: 'TOTAL', total_duration_s: 3000, allow_return: false },
-    integrity: { grace_s: 5, max_warnings: 3, action: 'AUTO_SUBMIT' },
-    publication: { mode: 'MANUAL', delay_s: null, content: 'SCORE_ONLY', show_paper: false, show_solutions: false, show_rank_and_stats: false, published_at: null, publish_at: null },
-    activated_at: null,
-    ended_at: null,
-    ends_at: null,
-    audience_students: [
-      { id: 's1', name: 'Aditi Roy', group_names: ['11A'], has_attempt: false },
-      { id: 's2', name: 'Arjun Das', group_names: ['11A'], has_attempt: false },
-    ],
-    source_group_ids: ['g1'],
-    editable_fields: ['title', 'window', 'gate', 'integrity', 'publication', 'audience', 'password'],
-    ...changes,
-  }
-}
 
 // Buttons in the component itself, or in a dialog (dialogs render into the page body)
 function button(wrapper: { element: Element }, label: string): HTMLButtonElement {

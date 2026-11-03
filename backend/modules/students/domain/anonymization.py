@@ -1,7 +1,7 @@
 """Deleting a student keeps their results but removes who they were (domain_model.md §3.2 #3)."""
 
+from core.errors import ConfirmationMismatch
 from core.text import clean_text_line
-from modules.students.domain.errors import ConfirmationMismatch
 
 # `.invalid` is reserved and never routable: mail can't reach a deleted student
 _PLACEHOLDER_DOMAIN = "anonymized.invalid"

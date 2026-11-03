@@ -1,12 +1,12 @@
 import pytest
 
 from core.emails import normalize_email
+from core.errors import ConfirmationMismatch
 from modules.students.domain.anonymization import (
     anonymized_email,
     anonymized_name,
     ensure_name_confirmed,
 )
-from modules.students.domain.errors import ConfirmationMismatch
 
 
 def test_placeholder_name_and_email() -> None:

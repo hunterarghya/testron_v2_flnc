@@ -2,11 +2,12 @@
 
 from ninja import Router
 
-from core.http.areas import StudentArea
-from modules.delivery.controllers import attempts, integrity, my_tests, stages
+from core.http.areas import StudentArea, TeacherArea
+from modules.delivery.controllers import attempts, integrity, monitoring, my_tests, stages
 from modules.delivery.dto.attempt_clock import AttemptClockOut, SaveAckOut, SubmitResultOut
 from modules.delivery.dto.attempt_state import AttemptStateOut
 from modules.delivery.dto.integrity import IntegrityAckOut
+from modules.delivery.dto.monitor import AttemptSummaryOut, EndedOut, IntegrityEventOut, MonitorOut
 from modules.delivery.dto.my_tests import GateStateOut, MyTestsOut
 
 # Student area by default; the teacher monitor routes set auth=TeacherArea()
@@ -95,4 +96,38 @@ router.add_api_operation(
     integrity.report_integrity_event,
     response={200: IntegrityAckOut},
     summary="Report leaving the test; the server counts warnings and decides",
+)
+
+# Teacher: the live monitor and its actions (T-10, D-04)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/monitor",
+    ["GET"],
+    monitoring.get_monitor,
+    response={200: MonitorOut},
+    auth=TeacherArea(),
+    summary="Each student's sitting, live",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/end",
+    ["POST"],
+    monitoring.end_for_everyone,
+    response={200: EndedOut},
+    auth=TeacherArea(),
+    summary="End the test for everyone now (type END to confirm)",
+)
+router.add_api_operation(
+    "/admin/attempts/{attempt_id}/force-submit",
+    ["POST"],
+    monitoring.force_submit_attempt,
+    response={200: AttemptSummaryOut},
+    auth=TeacherArea(),
+    summary="End one student's sitting now",
+)
+router.add_api_operation(
+    "/admin/attempts/{attempt_id}/integrity-events",
+    ["GET"],
+    monitoring.list_integrity_events,
+    response={200: list[IntegrityEventOut]},
+    auth=TeacherArea(),
+    summary="Each time the student left the test",
 )
