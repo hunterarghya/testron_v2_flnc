@@ -77,3 +77,12 @@ class StudentBrief:
     name: str
     status: StudentStatus
     group_names: list[str]
+
+
+@dataclass(frozen=True, slots=True)
+class GroupRoster:
+    """A group's name and ACTIVE members: what an audience summary compares with (T-06)."""
+
+    group_id: UUID
+    name: str
+    active_member_ids: frozenset[UUID]

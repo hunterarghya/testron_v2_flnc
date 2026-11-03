@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -89,3 +89,25 @@ def _one(rows: QuerySet[Assignment], assignment_id: UUID) -> Assignment:
     if row is None:
         raise NotFound("assignment")
     return row
+
+
+def set_source_groups(assignment_id: UUID, group_ids: Sequence[UUID]) -> None:
+    Assignment.objects.filter(pk=assignment_id).update(source_group_ids=list(group_ids))
+
+
+def mark_activated(assignment_id: UUID, *, now: datetime) -> None:
+    Assignment.objects.filter(pk=assignment_id).update(activated_at=now, updated_at=now)
+
+
+def list_records_for_student(student_id: UUID) -> list[AssignmentRecord]:
+    """Every assignment the student is in, not cancelled (A-01), newest first."""
+    rows = Assignment.objects.filter(
+        audience__student_id=student_id, cancelled_at__isnull=True
+    ).order_by("-created_at", "-id")
+    return [record_of(row) for row in rows]
+
+
+def get_record_for_student(assignment_id: UUID, student_id: UUID) -> AssignmentRecord:
+    """Not in the audience, cancelled or missing all look the same (A-02)."""
+    rows = Assignment.objects.filter(audience__student_id=student_id, cancelled_at__isnull=True)
+    return record_of(_one(rows, assignment_id))

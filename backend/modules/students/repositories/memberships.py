@@ -5,8 +5,8 @@ from uuid import UUID
 from django.db.models import F
 
 from core.context import StudentStatus
-from modules.students.domain.values import AudienceCandidate, GroupMember, GroupRef
-from modules.students.models import GroupMembership, PerformanceShare, Student
+from modules.students.domain.values import AudienceCandidate, GroupMember, GroupRef, GroupRoster
+from modules.students.models import Group, GroupMembership, PerformanceShare, Student
 
 
 def member_ids(group_id: UUID) -> set[UUID]:
@@ -98,3 +98,15 @@ def active_students_in_groups(group_ids: Sequence[UUID]) -> list[AudienceCandida
         )
         candidate.group_names.append(group_name)
     return list(candidates.values())
+
+
+def rosters(group_ids: Sequence[UUID]) -> list[GroupRoster]:
+    """The groups, by name, each with its ACTIVE members. Two queries."""
+    groups = Group.objects.filter(pk__in=group_ids).order_by("name").values_list("id", "name")
+    members: dict[UUID, set[UUID]] = {gid: set() for gid in group_ids}
+    rows = GroupMembership.objects.filter(
+        group_id__in=group_ids, student__status=StudentStatus.ACTIVE
+    ).values_list("group_id", "student_id")
+    for group_id, student_id in rows:
+        members[group_id].add(student_id)
+    return [GroupRoster(gid, name, frozenset(members[gid])) for gid, name in groups]

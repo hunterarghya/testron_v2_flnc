@@ -9,7 +9,11 @@ from core.context import StudentStatus as S
 from core.errors import FieldsInvalid
 from modules.assignments.domain.audience import (
     ALREADY_MEMBER,
+    MINUS,
+    NO_GROUPS,
     NOT_MEMBER,
+    PickedGroup,
+    audience_summary,
     ensure_all_active,
     ensure_audience_not_empty,
     plan_additions,
@@ -18,6 +22,8 @@ from modules.assignments.domain.audience import (
 from modules.assignments.domain.errors import AudienceMemberHasAttempt
 
 A, B, C, D = (uuid4() for _ in range(4))
+G11 = ("11A", {A, B})
+G12 = ("12B", {C})
 
 
 def test_an_audience_needs_someone() -> None:
@@ -59,3 +65,18 @@ def test_a_student_who_began_stays_and_nobody_is_removed() -> None:
         plan_removals([A, B], members={A, B}, with_attempt={B})
 
     assert raised.value.context == {"student_ids": [str(B)]}
+
+
+@pytest.mark.parametrize(
+    ("groups", "audience", "summary"),
+    [
+        ([], [A, B], NO_GROUPS),
+        ([G11], [A, B], "11A"),
+        ([G11, G12], [A, B, C], "11A, 12B"),
+        ([G11], [A], f"11A {MINUS}1"),
+        ([G11], [A, B, D], "11A +1"),
+        ([G11, G12], [A, D], f"11A, 12B {MINUS}2, +1"),
+    ],
+)
+def test_audience_summary(groups: list[PickedGroup], audience: list[UUID], summary: str) -> None:
+    assert audience_summary(groups, audience) == summary

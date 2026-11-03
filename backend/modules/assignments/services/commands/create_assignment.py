@@ -25,6 +25,8 @@ class NewAssignment:
     timing_override: authoring.TimingOverride | None = None
     password: str | None = None
     password_confirm: str | None = None
+    # The groups the students were picked from (ADR-071)
+    source_group_ids: Sequence[UUID] = ()
 
 
 def create_assignment(ctx: Ctx, *, new: NewAssignment) -> AssignmentDetail:
@@ -55,4 +57,5 @@ def create_assignment(ctx: Ctx, *, new: NewAssignment) -> AssignmentDetail:
             now=ctx.now,
         )
         audience.add_members(assignment_id, student_ids, now=ctx.now)
+        assignments.set_source_groups(assignment_id, list(dict.fromkeys(new.source_group_ids)))
     return assignment_detail(assignments.get_record(assignment_id), now=ctx.now)

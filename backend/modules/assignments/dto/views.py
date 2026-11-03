@@ -64,10 +64,7 @@ class AssignmentRowOut(_Out):
                 late_entry_s=window.late_entry_s,
             ),
             state=row.state,
-            # Picked groups aren't stored, so the summary is the count (backlog B-18)
-            audience=AudienceSummaryOut(
-                count=row.audience_count, summary=f"{row.audience_count} students"
-            ),
+            audience=AudienceSummaryOut(count=row.audience_count, summary=row.audience_summary),
             progress=ProgressOut(
                 ended=row.progress.ended,
                 in_progress=row.progress.in_progress,
@@ -131,6 +128,8 @@ class AssignmentDetailOut(AssignmentRowOut):
     ended_at: datetime | None
     ends_at: datetime | None
     audience_students: list[AudienceStudentOut]
+    # The wizard's picked groups, for "Assign again" (D-7)
+    source_group_ids: list[UUID]
     editable_fields: list[str]
 
     @classmethod
@@ -169,6 +168,7 @@ class AssignmentDetailOut(AssignmentRowOut):
             ends_at=detail.row.ends_at,
             audience_students=[AudienceStudentOut.from_student(s) for s in detail.audience],
             editable_fields=list(detail.editable_fields),
+            source_group_ids=list(record.source_group_ids),
         )
 
 

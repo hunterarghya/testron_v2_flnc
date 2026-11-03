@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",  # ArrayField (assignments.source_group_ids, ADR-071)
     "ninja",  # templates + static files for the dev-only API docs
     "modules.identity",
     "modules.students",

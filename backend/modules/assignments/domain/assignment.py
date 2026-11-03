@@ -35,6 +35,7 @@ class AssignmentRecord:
     has_password: bool
     timing_kind: str
     published_at: datetime | None
+    source_group_ids: tuple[UUID, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

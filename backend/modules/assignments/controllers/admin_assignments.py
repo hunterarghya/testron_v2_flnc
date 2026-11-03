@@ -11,6 +11,7 @@ from modules.assignments.dto.requests import (
     AudienceIn,
     CreateAssignmentIn,
     PasswordIn,
+    ReplaceAudienceIn,
     UpdateAssignmentIn,
 )
 from modules.assignments.dto.views import AssignmentDetailOut, AssignmentRowOut, PasswordOut
@@ -58,10 +59,13 @@ def update_assignment(
 
 
 def replace_audience(
-    request: HttpRequest, assignment_id: UUID, payload: AudienceIn
+    request: HttpRequest, assignment_id: UUID, payload: ReplaceAudienceIn
 ) -> AssignmentDetailOut:
     updated = replacing.replace_audience(
-        ctx_from(request), assignment_id=assignment_id, student_ids=payload.student_ids
+        ctx_from(request),
+        assignment_id=assignment_id,
+        student_ids=payload.student_ids,
+        source_group_ids=payload.source_group_ids,
     )
     return AssignmentDetailOut.from_detail(updated)
 

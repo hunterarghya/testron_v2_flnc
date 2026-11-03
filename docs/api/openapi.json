@@ -2452,7 +2452,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AudienceIn"
+                "$ref": "#/components/schemas/ReplaceAudienceIn"
               }
             }
           },
@@ -2636,6 +2636,127 @@
         },
         "tags": [
           "assignments"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/activate": {
+      "post": {
+        "operationId": "activate_assignment",
+        "summary": "Start the test for everyone (idempotent)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivationOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/lobby": {
+      "get": {
+        "operationId": "get_lobby",
+        "summary": "Who has the gate open now",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LobbyOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "assignments"
+        ]
+      }
+    },
+    "/api/v1/my/tests": {
+      "get": {
+        "operationId": "list_my_tests",
+        "summary": "The student's tests to start, join or resume, and upcoming ones",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyTestsOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/my/tests/{assignment_id}/gate": {
+      "get": {
+        "operationId": "get_gate_state",
+        "summary": "The gate: rules and whether the student may begin (also the lobby heartbeat)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GateStateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
         ]
       }
     },
@@ -6437,6 +6558,14 @@
             "title": "Audience Students",
             "type": "array"
           },
+          "source_group_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Source Group Ids",
+            "type": "array"
+          },
           "editable_fields": {
             "items": {
               "type": "string"
@@ -6464,6 +6593,7 @@
           "ended_at",
           "ends_at",
           "audience_students",
+          "source_group_ids",
           "editable_fields"
         ],
         "title": "AssignmentDetailOut",
@@ -6689,6 +6819,15 @@
             },
             "maxItems": 1000,
             "title": "Student Ids",
+            "type": "array"
+          },
+          "source_group_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Source Group Ids",
             "type": "array"
           },
           "window": {
@@ -7144,6 +7283,42 @@
         "title": "UpdateAssignmentIn",
         "type": "object"
       },
+      "ReplaceAudienceIn": {
+        "additionalProperties": false,
+        "properties": {
+          "student_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Student Ids",
+            "type": "array"
+          },
+          "source_group_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "maxItems": 50,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Group Ids"
+          }
+        },
+        "required": [
+          "student_ids"
+        ],
+        "title": "ReplaceAudienceIn",
+        "type": "object"
+      },
       "AudienceIn": {
         "additionalProperties": false,
         "properties": {
@@ -7218,6 +7393,498 @@
           "password"
         ],
         "title": "PasswordOut",
+        "type": "object"
+      },
+      "ActivationOut": {
+        "additionalProperties": false,
+        "properties": {
+          "activated_at": {
+            "format": "date-time",
+            "title": "Activated At",
+            "type": "string"
+          },
+          "anchor_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchor At"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          }
+        },
+        "required": [
+          "activated_at",
+          "anchor_at",
+          "ends_at"
+        ],
+        "title": "ActivationOut",
+        "type": "object"
+      },
+      "JoinedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "last_seen_at": {
+            "format": "date-time",
+            "title": "Last Seen At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "student_id",
+          "name",
+          "last_seen_at"
+        ],
+        "title": "JoinedOut",
+        "type": "object"
+      },
+      "LobbyCountsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "joined": {
+            "title": "Joined",
+            "type": "integer"
+          },
+          "audience": {
+            "title": "Audience",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "joined",
+          "audience"
+        ],
+        "title": "LobbyCountsOut",
+        "type": "object"
+      },
+      "LobbyOut": {
+        "additionalProperties": false,
+        "properties": {
+          "joined": {
+            "items": {
+              "$ref": "#/components/schemas/JoinedOut"
+            },
+            "title": "Joined",
+            "type": "array"
+          },
+          "not_joined": {
+            "items": {
+              "$ref": "#/components/schemas/NotJoinedOut"
+            },
+            "title": "Not Joined",
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/LobbyCountsOut"
+          },
+          "state": {
+            "$ref": "#/components/schemas/LifecycleState"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "joined",
+          "not_joined",
+          "counts",
+          "state",
+          "server_now"
+        ],
+        "title": "LobbyOut",
+        "type": "object"
+      },
+      "NotJoinedOut": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "student_id",
+          "name"
+        ],
+        "title": "NotJoinedOut",
+        "type": "object"
+      },
+      "CardState": {
+        "enum": [
+          "START",
+          "JOIN",
+          "RESUME",
+          "STARTS_IN",
+          "RETAKE_AVAILABLE"
+        ],
+        "title": "CardState",
+        "type": "string"
+      },
+      "MyTestCardOut": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          },
+          "total_duration_s": {
+            "title": "Total Duration S",
+            "type": "integer"
+          },
+          "stage_count": {
+            "title": "Stage Count",
+            "type": "integer"
+          },
+          "timing_kind": {
+            "title": "Timing Kind",
+            "type": "string"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "state": {
+            "$ref": "#/components/schemas/CardState"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "title",
+          "question_count",
+          "total_duration_s",
+          "stage_count",
+          "timing_kind",
+          "locked",
+          "state",
+          "starts_at",
+          "closes_at",
+          "attempt_id"
+        ],
+        "title": "MyTestCardOut",
+        "type": "object"
+      },
+      "MyTestsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "items": {
+              "$ref": "#/components/schemas/MyTestCardOut"
+            },
+            "title": "Available",
+            "type": "array"
+          },
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/MyTestCardOut"
+            },
+            "title": "Upcoming",
+            "type": "array"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "upcoming",
+          "server_now"
+        ],
+        "title": "MyTestsOut",
+        "type": "object"
+      },
+      "GateStateOut": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/RulesOut"
+          },
+          "state": {
+            "$ref": "#/components/schemas/GateStatus"
+          },
+          "requires_password": {
+            "title": "Requires Password",
+            "type": "boolean"
+          },
+          "opens_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opens At"
+          },
+          "late_entry_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Late Entry Until"
+          },
+          "time_remaining_if_started_now_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Remaining If Started Now S"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "next_take_number": {
+            "title": "Next Take Number",
+            "type": "integer"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "title",
+          "rules",
+          "state",
+          "requires_password",
+          "opens_at",
+          "late_entry_until",
+          "time_remaining_if_started_now_s",
+          "attempt_id",
+          "next_take_number",
+          "server_now"
+        ],
+        "title": "GateStateOut",
+        "type": "object"
+      },
+      "GateStatus": {
+        "enum": [
+          "NOT_OPEN",
+          "WAITING_FOR_TEACHER",
+          "READY",
+          "IN_PROGRESS",
+          "ENTRY_CLOSED",
+          "NO_ATTEMPTS_LEFT"
+        ],
+        "title": "GateStatus",
+        "type": "string"
+      },
+      "MarkingOut": {
+        "additionalProperties": false,
+        "properties": {
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "negative_marks": {
+            "title": "Negative Marks",
+            "type": "string"
+          }
+        },
+        "required": [
+          "marks",
+          "negative_marks"
+        ],
+        "title": "MarkingOut",
+        "type": "object"
+      },
+      "RulesOut": {
+        "additionalProperties": false,
+        "properties": {
+          "question_count": {
+            "title": "Question Count",
+            "type": "integer"
+          },
+          "total_marks": {
+            "title": "Total Marks",
+            "type": "string"
+          },
+          "total_duration_s": {
+            "title": "Total Duration S",
+            "type": "integer"
+          },
+          "timing_kind": {
+            "title": "Timing Kind",
+            "type": "string"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "marking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MarkingOut"
+              },
+              {
+                "const": "MIXED",
+                "type": "string"
+              }
+            ],
+            "title": "Marking"
+          },
+          "allow_return": {
+            "title": "Allow Return",
+            "type": "boolean"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_count",
+          "total_marks",
+          "total_duration_s",
+          "timing_kind",
+          "stages",
+          "marking",
+          "allow_return",
+          "max_warnings",
+          "action"
+        ],
+        "title": "RulesOut",
+        "type": "object"
+      },
+      "StageOut": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "duration_s": {
+            "title": "Duration S",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "duration_s"
+        ],
+        "title": "StageOut",
         "type": "object"
       },
       "BadgesOut": {

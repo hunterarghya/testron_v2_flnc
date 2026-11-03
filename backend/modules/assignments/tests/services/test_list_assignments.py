@@ -9,6 +9,7 @@ from pytest_django import DjangoAssertNumQueries
 from conftest import MakeCtx
 from core.context import Actor, Ctx, Role
 from core.errors import Forbidden, NotFound
+from modules.assignments.domain.audience import MINUS
 from modules.assignments.domain.editing import BEFORE_START, PublicationState
 from modules.assignments.domain.values import LifecycleState, WindowKind
 from modules.assignments.domain.window import Window
@@ -103,7 +104,10 @@ def test_the_overview_shows_state_audience_and_what_can_change(teacher_ctx: Ctx)
 
     assert detail.row.state is LifecycleState.WAITING
     assert detail.row.publication_state is PublicationState.UNPUBLISHED
-    assert (detail.row.audience_count, detail.row.locked) == (1, False)
+    assert (detail.row.audience_count, detail.row.locked) == (
+        1,
+        True,
+    )  # a locked (MANUAL) test always waits for Start
     assert [(s.name, s.has_attempt) for s in detail.audience] == [("Rina", False)]
     assert detail.editable_fields == BEFORE_START
     assert detail.allow_return is False  # the test's default
@@ -121,3 +125,19 @@ def test_only_the_teacher_reads_and_missing_is_not_found(
         )
     with pytest.raises(NotFound):
         get_assignment(teacher_ctx, assignment_id=student.id)
+
+
+def test_the_audience_is_summarised_against_the_picked_groups(
+    teacher_ctx: Ctx, django_assert_num_queries: DjangoAssertNumQueries
+) -> None:
+    kept, left_out, extra = make_student().id, make_student().id, make_student().id
+    group = make_group("12B", [kept, left_out])
+    assignment_id = assign(teacher_ctx, "Respiration", [kept, extra], source_group_ids=[group.id])
+
+    # assignments, audience, extensions, groups, their members
+    with django_assert_num_queries(5):
+        page = list_assignments(teacher_ctx, filters=AssignmentFilter(), offset=0, limit=50)
+
+    assert page.rows[0].audience_summary == f"12B {MINUS}1, +1"
+    detail = get_assignment(teacher_ctx, assignment_id=assignment_id)
+    assert detail.row.record.source_group_ids == (group.id,)

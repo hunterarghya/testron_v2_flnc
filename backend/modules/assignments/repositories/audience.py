@@ -2,8 +2,6 @@ from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
-from django.db.models import Count
-
 from modules.assignments.models import AudienceMember
 
 
@@ -34,10 +32,11 @@ def replace_members(assignment_id: UUID, student_ids: Sequence[UUID], *, now: da
     add_members(assignment_id, student_ids, now=now)
 
 
-def counts(assignment_ids: Sequence[UUID]) -> dict[UUID, int]:
-    rows = (
-        AudienceMember.objects.filter(assignment_id__in=assignment_ids)
-        .values_list("assignment_id")
-        .annotate(n=Count("student_id"))
+def members_by_assignment(assignment_ids: Sequence[UUID]) -> dict[UUID, set[UUID]]:
+    members: dict[UUID, set[UUID]] = {aid: set() for aid in assignment_ids}
+    rows = AudienceMember.objects.filter(assignment_id__in=assignment_ids).values_list(
+        "assignment_id", "student_id"
     )
-    return dict(rows.values_list("assignment_id", "n"))
+    for assignment_id, student_id in rows:
+        members[assignment_id].add(student_id)
+    return members

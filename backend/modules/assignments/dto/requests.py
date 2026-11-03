@@ -17,6 +17,7 @@ from modules.assignments.services.queries.list_assignments import AssignmentFilt
 from modules.authoring import public as authoring
 
 MAX_AUDIENCE = 1000
+MAX_GROUPS = 50
 # Wide enough for any title; the domain cleans it and checks the real limit
 Title = Annotated[str, Field(max_length=400)]
 Password = Annotated[str, Field(max_length=64)]
@@ -111,6 +112,7 @@ class CreateAssignmentIn(_In):
     test_id: UUID
     title: Title
     student_ids: list[UUID] = Field(max_length=MAX_AUDIENCE)
+    source_group_ids: list[UUID] = Field(default_factory=list, max_length=MAX_GROUPS)
     window: WindowIn
     gate: GateIn
     timing_override: TimingOverrideIn | None = None
@@ -133,6 +135,7 @@ class CreateAssignmentIn(_In):
             else to_override(self.timing_override),
             password=self.gate.password,
             password_confirm=self.gate.password_confirm,
+            source_group_ids=self.source_group_ids,
         )
 
 
@@ -155,6 +158,11 @@ class UpdateAssignmentIn(_In):
 
 class AudienceIn(_In):
     student_ids: list[UUID] = Field(min_length=1, max_length=MAX_AUDIENCE)
+
+
+class ReplaceAudienceIn(AudienceIn):
+    # Leave out to keep the groups the audience was picked from (ADR-071)
+    source_group_ids: list[UUID] | None = Field(default=None, max_length=MAX_GROUPS)
 
 
 class PasswordIn(_In):

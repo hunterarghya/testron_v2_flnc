@@ -121,3 +121,29 @@ def test_students_are_kept_out(frozen_clock: FrozenClock) -> None:
     client = logged_in(student.email)
 
     assert send(client, "get", ASSIGNMENTS).status_code == 403
+
+
+def test_start_and_lobby(teacher: Client) -> None:
+    assignment_id = create(teacher).json()["id"]
+    path = f"{ASSIGNMENTS}/{assignment_id}"
+
+    lobby = send(teacher, "get", f"{path}/lobby").json()
+    started = send(teacher, "post", f"{path}/activate")
+    again = send(teacher, "post", f"{path}/activate")
+
+    assert (lobby["counts"], lobby["state"], lobby["joined"]) == (
+        {"joined": 0, "audience": 1},
+        "WAITING",
+        [],
+    )
+    assert started.status_code == 200
+    assert started.json() == again.json()
+    assert started.json()["anchor_at"] == started.json()["activated_at"]
+
+
+def test_start_on_an_open_test_is_refused(teacher: Client) -> None:
+    assignment_id = create(teacher, window={"kind": "OPEN"}).json()["id"]
+
+    response = send(teacher, "post", f"{ASSIGNMENTS}/{assignment_id}/activate")
+
+    assert (response.status_code, response.json()["code"]) == (409, "activation_not_required")

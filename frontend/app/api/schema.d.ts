@@ -953,6 +953,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments/{assignment_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start the test for everyone (idempotent) */
+        post: operations["activate_assignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/lobby": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who has the gate open now */
+        get: operations["get_lobby"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The student's tests to start, join or resume, and upcoming ones */
+        get: operations["list_my_tests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/tests/{assignment_id}/gate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The gate: rules and whether the student may begin (also the lobby heartbeat) */
+        get: operations["get_gate_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -2262,6 +2330,8 @@ export interface components {
             ends_at: string | null;
             /** Audience Students */
             audience_students: components["schemas"]["AudienceStudentOut"][];
+            /** Source Group Ids */
+            source_group_ids: string[];
             /** Editable Fields */
             editable_fields: string[];
         };
@@ -2346,6 +2416,8 @@ export interface components {
             title: string;
             /** Student Ids */
             student_ids: string[];
+            /** Source Group Ids */
+            source_group_ids?: string[];
             /** Window */
             window: components["schemas"]["ManualWindowIn"] | components["schemas"]["ScheduledWindowIn"] | components["schemas"]["DeadlineWindowIn"] | components["schemas"]["OpenWindowIn"];
             gate: components["schemas"]["GateIn"];
@@ -2489,6 +2561,13 @@ export interface components {
             integrity?: components["schemas"]["AssignmentIntegrityIn"] | null;
             publication?: components["schemas"]["PublicationIn"] | null;
         };
+        /** ReplaceAudienceIn */
+        ReplaceAudienceIn: {
+            /** Student Ids */
+            student_ids: string[];
+            /** Source Group Ids */
+            source_group_ids?: string[] | null;
+        };
         /** AudienceIn */
         AudienceIn: {
             /** Student Ids */
@@ -2508,6 +2587,177 @@ export interface components {
         PasswordOut: {
             /** Password */
             password: string | null;
+        };
+        /** ActivationOut */
+        ActivationOut: {
+            /**
+             * Activated At
+             * Format: date-time
+             */
+            activated_at: string;
+            /** Anchor At */
+            anchor_at: string | null;
+            /** Ends At */
+            ends_at: string | null;
+        };
+        /** JoinedOut */
+        JoinedOut: {
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+        };
+        /** LobbyCountsOut */
+        LobbyCountsOut: {
+            /** Joined */
+            joined: number;
+            /** Audience */
+            audience: number;
+        };
+        /** LobbyOut */
+        LobbyOut: {
+            /** Joined */
+            joined: components["schemas"]["JoinedOut"][];
+            /** Not Joined */
+            not_joined: components["schemas"]["NotJoinedOut"][];
+            counts: components["schemas"]["LobbyCountsOut"];
+            state: components["schemas"]["LifecycleState"];
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+        };
+        /** NotJoinedOut */
+        NotJoinedOut: {
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * CardState
+         * @enum {string}
+         */
+        CardState: "START" | "JOIN" | "RESUME" | "STARTS_IN" | "RETAKE_AVAILABLE";
+        /** MyTestCardOut */
+        MyTestCardOut: {
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Title */
+            title: string;
+            /** Question Count */
+            question_count: number;
+            /** Total Duration S */
+            total_duration_s: number;
+            /** Stage Count */
+            stage_count: number;
+            /** Timing Kind */
+            timing_kind: string;
+            /** Locked */
+            locked: boolean;
+            state: components["schemas"]["CardState"];
+            /** Starts At */
+            starts_at: string | null;
+            /** Closes At */
+            closes_at: string | null;
+            /** Attempt Id */
+            attempt_id: string | null;
+        };
+        /** MyTestsOut */
+        MyTestsOut: {
+            /** Available */
+            available: components["schemas"]["MyTestCardOut"][];
+            /** Upcoming */
+            upcoming: components["schemas"]["MyTestCardOut"][];
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+        };
+        /** GateStateOut */
+        GateStateOut: {
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Title */
+            title: string;
+            rules: components["schemas"]["RulesOut"];
+            state: components["schemas"]["GateStatus"];
+            /** Requires Password */
+            requires_password: boolean;
+            /** Opens At */
+            opens_at: string | null;
+            /** Late Entry Until */
+            late_entry_until: string | null;
+            /** Time Remaining If Started Now S */
+            time_remaining_if_started_now_s: number | null;
+            /** Attempt Id */
+            attempt_id: string | null;
+            /** Next Take Number */
+            next_take_number: number;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+        };
+        /**
+         * GateStatus
+         * @enum {string}
+         */
+        GateStatus: "NOT_OPEN" | "WAITING_FOR_TEACHER" | "READY" | "IN_PROGRESS" | "ENTRY_CLOSED" | "NO_ATTEMPTS_LEFT";
+        /** MarkingOut */
+        MarkingOut: {
+            /** Marks */
+            marks: string;
+            /** Negative Marks */
+            negative_marks: string;
+        };
+        /** RulesOut */
+        RulesOut: {
+            /** Question Count */
+            question_count: number;
+            /** Total Marks */
+            total_marks: string;
+            /** Total Duration S */
+            total_duration_s: number;
+            /** Timing Kind */
+            timing_kind: string;
+            /** Stages */
+            stages: components["schemas"]["StageOut"][];
+            /** Marking */
+            marking: components["schemas"]["MarkingOut"] | "MIXED";
+            /** Allow Return */
+            allow_return: boolean;
+            /** Max Warnings */
+            max_warnings: number;
+            /** Action */
+            action: string;
+        };
+        /** StageOut */
+        StageOut: {
+            /** Title */
+            title: string | null;
+            /** Duration S */
+            duration_s: number;
         };
         /** BadgesOut */
         BadgesOut: {
@@ -3951,7 +4201,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AudienceIn"];
+                "application/json": components["schemas"]["ReplaceAudienceIn"];
             };
         };
         responses: {
@@ -4081,6 +4331,92 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    activate_assignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivationOut"];
+                };
+            };
+        };
+    };
+    get_lobby: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LobbyOut"];
+                };
+            };
+        };
+    };
+    list_my_tests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTestsOut"];
+                };
+            };
+        };
+    };
+    get_gate_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GateStateOut"];
+                };
             };
         };
     };

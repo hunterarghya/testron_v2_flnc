@@ -72,9 +72,10 @@ def lifecycle_state(
         return LifecycleState.CANCELLED
     if timeline.ended_at:
         return LifecycleState.CLOSED
-    if not _window_open(timeline.window, now):
+    opens = opens_at(timeline.window)
+    if opens is not None and now < opens:
         return LifecycleState.SCHEDULED
-    if _awaits_start(timeline):
+    if awaits_start(timeline):
         return LifecycleState.WAITING
     end = assignment_end(timeline, extensions)
     if end is not None and end <= now and not attempts_in_progress:
@@ -82,15 +83,18 @@ def lifecycle_state(
     return LifecycleState.LIVE
 
 
-def _window_open(window: Window, now: datetime) -> bool:
-    opens = window.starts_at if window.kind is WindowKind.SCHEDULED else window.opens_at
-    return opens is None or opens <= now
+def opens_at(window: Window) -> datetime | None:
+    """When students may first enter: a scheduled start or a deadline's opening."""
+    return window.starts_at if window.kind is WindowKind.SCHEDULED else window.opens_at
 
 
-def _awaits_start(timeline: Timeline) -> bool:
-    # A locked (MANUAL) test always waits for Start; others only if activation is required
-    needs_start = timeline.requires_activation or timeline.window.kind is WindowKind.MANUAL
-    return needs_start and timeline.activated_at is None
+def needs_start(timeline: Timeline) -> bool:
+    """A locked (MANUAL) test always waits for Start; others only if activation is required."""
+    return timeline.requires_activation or timeline.window.kind is WindowKind.MANUAL
+
+
+def awaits_start(timeline: Timeline) -> bool:
+    return needs_start(timeline) and timeline.activated_at is None
 
 
 def has_started(state: LifecycleState, timeline: Timeline) -> bool:

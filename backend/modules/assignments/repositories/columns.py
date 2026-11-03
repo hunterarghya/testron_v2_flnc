@@ -54,6 +54,7 @@ def record_of(row: Assignment) -> AssignmentRecord:
         has_password=row.password_ciphertext is not None,
         timing_kind=row.timing_kind,
         published_at=row.published_at,
+        source_group_ids=tuple(row.source_group_ids),
     )
 
 

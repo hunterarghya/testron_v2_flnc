@@ -7,12 +7,14 @@ from datetime import datetime
 from uuid import UUID
 
 from modules.assignments.domain.assignment import AssignmentRecord, Progress
+from modules.assignments.domain.audience import PickedGroup, audience_summary
 from modules.assignments.domain.editing import (
     PublicationState,
     editable_fields,
     publication_state,
     publish_at,
 )
+from modules.assignments.domain.entry import is_locked
 from modules.assignments.domain.lifecycle import (
     ExtensionGrant,
     assignment_end,
@@ -30,6 +32,7 @@ class AssignmentRow:
     state: LifecycleState
     ends_at: datetime | None
     audience_count: int
+    audience_summary: str
     progress: Progress
     publication_state: PublicationState
     # Students wait for Start or need a password
@@ -54,13 +57,23 @@ class AssignmentDetail:
 
 
 def assignment_rows(records: Sequence[AssignmentRecord], *, now: datetime) -> list[AssignmentRow]:
-    """Three queries, however many assignments there are."""
+    """Three queries, however many assignments there are; two more if any used groups."""
     ids = [record.id for record in records]
-    sizes = audience.counts(ids)
+    members = audience.members_by_assignment(ids)
     grants = extensions.grants_by_assignment(ids)
     progress = attempt_facts.progress_by_assignment(ids)
+    groups = _picked_groups(records)
     return [
-        _row(record, grants.get(record.id, []), progress[record.id], sizes.get(record.id, 0), now)
+        _row(
+            record,
+            grants.get(record.id, []),
+            progress[record.id],
+            audience_summary(
+                [groups[g] for g in record.source_group_ids if g in groups], members[record.id]
+            ),
+            len(members[record.id]),
+            now,
+        )
         for record in records
     ]
 
@@ -94,6 +107,7 @@ def _row(
     record: AssignmentRecord,
     grants: list[ExtensionGrant],
     progress: Progress,
+    summary: str,
     size: int,
     now: datetime,
 ) -> AssignmentRow:
@@ -103,10 +117,19 @@ def _row(
         state=_state(record, grants, progress, now),
         ends_at=assignment_end(record.timeline, grants),
         audience_count=size,
+        audience_summary=summary,
         progress=progress,
         publication_state=publication_state(settings.publication, record.published_at),
-        locked=settings.requires_activation or record.has_password,
+        locked=is_locked(record.timeline, has_password=record.has_password),
     )
+
+
+def _picked_groups(records: Sequence[AssignmentRecord]) -> dict[UUID, PickedGroup]:
+    group_ids = list(dict.fromkeys(g for record in records for g in record.source_group_ids))
+    if not group_ids:
+        return {}
+    rosters = students.list_group_rosters(group_ids)
+    return {r.group_id: (r.name, r.active_member_ids) for r in rosters}
 
 
 def _state(

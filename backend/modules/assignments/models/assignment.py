@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Length
@@ -67,6 +68,9 @@ class Assignment(TimestampedModel):
     ended_at = models.DateTimeField(null=True)
     cancelled_at = models.DateTimeField(null=True)
     published_at = models.DateTimeField(null=True)
+    # The groups the wizard picked students from: only for the summary and "Assign again"
+    # (ADR-071). The audience itself is the explicit list ([D-1]).
+    source_group_ids = ArrayField(models.UUIDField(), default=list)
 
     class Meta:
         db_table = "assignments"

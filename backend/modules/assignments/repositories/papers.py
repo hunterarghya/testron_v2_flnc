@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import datetime
 from uuid import UUID
 
@@ -29,3 +30,8 @@ def allow_return(assignment_id: UUID) -> bool:
         "content__timing__allow_return", flat=True
     )
     return bool(found.first())
+
+
+def contents(assignment_ids: Sequence[UUID]) -> dict[UUID, Json]:
+    rows = Paper.objects.filter(pk__in=assignment_ids).values_list("assignment_id", "content")
+    return dict(rows)

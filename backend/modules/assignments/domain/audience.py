@@ -67,3 +67,23 @@ def _addition_skip(
     if status is not StudentStatus.ACTIVE:
         return f"status_{status.value.lower()}"
     return ALREADY_MEMBER if sid in members else None
+
+
+# (group name, its ACTIVE members), in the order the wizard picked them
+PickedGroup = tuple[str, Collection[UUID]]
+NO_GROUPS = "Chosen students"
+MINUS = "\N{MINUS SIGN}"
+
+
+def audience_summary(groups: Sequence[PickedGroup], audience: Collection[UUID]) -> str:
+    """T-06's audience column: "11A, 12B" when the audience is exactly those groups, "12B -2,
+    +1" when 2 of their students were left out and 1 other added, "Chosen students" when the
+    wizard used no group. Compared with the groups as they are now."""
+    if not groups:
+        return NO_GROUPS
+    in_groups = {sid for _, members in groups for sid in members}
+    chosen = set(audience)
+    left_out, added = len(in_groups - chosen), len(chosen - in_groups)
+    changes = [f"{MINUS}{left_out}" if left_out else "", f"+{added}" if added else ""]
+    names = ", ".join(name for name, _ in groups)
+    return " ".join([names, ", ".join(c for c in changes if c)]).strip()

@@ -6,6 +6,8 @@ from core.http.areas import TeacherArea
 from core.http.bulk import BulkResultOut
 from core.http.pagination import Page
 from modules.assignments.controllers import admin_assignments as admin
+from modules.assignments.controllers import admin_lobby as lobby
+from modules.assignments.dto.lobby import ActivationOut, LobbyOut
 from modules.assignments.dto.views import AssignmentDetailOut, AssignmentRowOut, PasswordOut
 
 router = Router(tags=["assignments"], auth=TeacherArea())
@@ -80,4 +82,20 @@ router.add_api_operation(
     admin.cancel_assignment,
     response={204: None},
     summary="Cancel an assignment no one has begun",
+)
+
+# Teacher: Start and the lobby (T-09)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/activate",
+    ["POST"],
+    lobby.activate_assignment,
+    response={200: ActivationOut},
+    summary="Start the test for everyone (idempotent)",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/lobby",
+    ["GET"],
+    lobby.get_lobby,
+    response={200: LobbyOut},
+    summary="Who has the gate open now",
 )
