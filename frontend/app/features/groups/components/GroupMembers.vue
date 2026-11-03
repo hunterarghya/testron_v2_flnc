@@ -4,7 +4,7 @@ import type { TableColumn } from '@nuxt/ui'
 import { computed, h, ref } from 'vue'
 import { ULink } from '#components'
 import type { GroupMember } from '~/api/types'
-import AddStudentsDialog from '~/features/groups/components/AddStudentsDialog.vue'
+import PickStudentsDialog from '~/shared/components/PickStudentsDialog.vue'
 import DataTable from '~/shared/components/DataTable.vue'
 import { formatDateTime } from '~/shared/utils/time'
 
@@ -59,6 +59,12 @@ async function onRemove(): Promise<void> {
         <UButton label="Remove from group" color="error" variant="outline" :loading="pending" @click="onRemove" />
       </template>
     </DataTable>
-    <AddStudentsDialog v-model:open="adding" :member-ids="memberIds" :pending="pending" @add="onAdd" />
+    <PickStudentsDialog
+      v-model:open="adding"
+      :member-ids="memberIds"
+      description="Only active students can join a group."
+      :pending="pending"
+      @add="students => onAdd(students.map(student => student.id))"
+    />
   </div>
 </template>

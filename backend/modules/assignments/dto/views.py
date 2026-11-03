@@ -1,14 +1,19 @@
 """What the teacher sees (api_contract.md §3.3): `AssignmentRow` and `AssignmentDetail`."""
 
 from datetime import datetime
-from typing import Self
+from typing import Literal, Self, cast
 from uuid import UUID
 
 from ninja import Schema
 from pydantic import ConfigDict
 
 from modules.assignments.domain.editing import PublicationState
-from modules.assignments.domain.values import LifecycleState, WindowKind
+from modules.assignments.domain.values import (
+    LifecycleState,
+    PublicationMode,
+    PublishContent,
+    WindowKind,
+)
 from modules.assignments.services.views import AssignmentDetail, AssignmentRow, AudienceStudent
 
 
@@ -81,7 +86,7 @@ class GateOut(_Out):
 
 
 class TimingOut(_Out):
-    kind: str
+    kind: Literal["TOTAL", "PER_QUESTION", "SECTIONED"]
     total_duration_s: int
     allow_return: bool
 
@@ -89,13 +94,13 @@ class TimingOut(_Out):
 class IntegrityOut(_Out):
     grace_s: int
     max_warnings: int
-    action: str
+    action: Literal["AUTO_SUBMIT", "DISQUALIFY"]
 
 
 class PublicationOut(_Out):
-    mode: str
+    mode: PublicationMode
     delay_s: int | None
-    content: str
+    content: PublishContent
     show_paper: bool
     show_solutions: bool
     show_rank_and_stats: bool
@@ -144,19 +149,19 @@ class AssignmentDetailOut(AssignmentRowOut):
                 has_password=record.has_password,
             ),
             timing=TimingOut(
-                kind=record.timing_kind,
+                kind=cast("Literal['TOTAL', 'PER_QUESTION', 'SECTIONED']", record.timing_kind),
                 total_duration_s=timeline.total_duration_s,
                 allow_return=detail.allow_return,
             ),
             integrity=IntegrityOut(
                 grace_s=integrity.grace_s,
                 max_warnings=integrity.max_warnings,
-                action=integrity.action,
+                action=cast("Literal['AUTO_SUBMIT', 'DISQUALIFY']", integrity.action),
             ),
             publication=PublicationOut(
-                mode=publication.mode.value,
+                mode=publication.mode,
                 delay_s=publication.delay_s,
-                content=publication.content.value,
+                content=publication.content,
                 show_paper=publication.show_paper,
                 show_solutions=publication.show_solutions,
                 show_rank_and_stats=publication.show_rank_and_stats,

@@ -46,6 +46,10 @@ const columns = [nameColumn, ...testColumns(), menuColumn]
 function rowMenu(row: TestRow): DropdownMenuItem[] {
   return [
     { label: 'Open', icon: 'i-lucide-pencil', onSelect: () => navigateTo(`/admin/tests/${row.id}`) },
+    // Only a test without problems can be assigned (domain_model.md §3.5 #1)
+    ...(row.archived_at || row.problem_count
+      ? []
+      : [{ label: 'Assign', icon: 'i-lucide-send', onSelect: () => navigateTo(`/admin/assignments/new?test=${row.id}`) }]),
     { label: 'Duplicate', icon: 'i-lucide-copy', onSelect: () => run(async () => `${(await library.duplicate(row.id)).title} created`) },
     row.archived_at
       ? { label: 'Restore', icon: 'i-lucide-archive-restore', onSelect: () => archive([row.id], false) }

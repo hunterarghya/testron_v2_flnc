@@ -2362,17 +2362,23 @@ export interface components {
             grace_s: number;
             /** Max Warnings */
             max_warnings: number;
-            /** Action */
-            action: string;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "AUTO_SUBMIT" | "DISQUALIFY";
         };
+        /**
+         * PublicationMode
+         * @enum {string}
+         */
+        PublicationMode: "MANUAL" | "AUTO_IMMEDIATE" | "AUTO_DELAYED";
         /** PublicationOut */
         PublicationOut: {
-            /** Mode */
-            mode: string;
+            mode: components["schemas"]["PublicationMode"];
             /** Delay S */
             delay_s: number | null;
-            /** Content */
-            content: string;
+            content: components["schemas"]["PublishContent"];
             /** Show Paper */
             show_paper: boolean;
             /** Show Solutions */
@@ -2384,10 +2390,18 @@ export interface components {
             /** Publish At */
             publish_at: string | null;
         };
+        /**
+         * PublishContent
+         * @enum {string}
+         */
+        PublishContent: "SCORE_ONLY" | "ANSWER_REVIEW";
         /** TimingOut */
         TimingOut: {
-            /** Kind */
-            kind: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "TOTAL" | "PER_QUESTION" | "SECTIONED";
             /** Total Duration S */
             total_duration_s: number;
             /** Allow Return */
@@ -2496,16 +2510,6 @@ export interface components {
             /** Show Rank And Stats */
             show_rank_and_stats: boolean;
         };
-        /**
-         * PublicationMode
-         * @enum {string}
-         */
-        PublicationMode: "MANUAL" | "AUTO_IMMEDIATE" | "AUTO_DELAYED";
-        /**
-         * PublishContent
-         * @enum {string}
-         */
-        PublishContent: "SCORE_ONLY" | "ANSWER_REVIEW";
         /** ScheduledWindowIn */
         ScheduledWindowIn: {
             /**

@@ -4,6 +4,7 @@ import { onScopeDispose, ref, watch } from 'vue'
 import { api, unwrap } from '~/api/client'
 import type { BulkResult, ListedStatus, StudentPage } from '~/api/types'
 import type { StudentAction } from '~/features/students/utils/bulk-summary'
+import { useActiveGroups } from '~/shared/composables/useActiveGroups'
 import { useApiData } from '~/shared/composables/useApiData'
 import { useBadges } from '~/shared/composables/useBadges'
 
@@ -25,7 +26,7 @@ export function useStudents() {
     })),
   )
   const counts = useApiData<Record<ListedStatus, number>>(loadCounts)
-  const groups = useApiData(() => unwrap(api.GET('/api/v1/admin/groups', { params: { query: { archived: false } } })))
+  const groups = useActiveGroups()
 
   async function refresh(): Promise<void> {
     // The badge is a nicety: if it fails to load, the table still refreshes

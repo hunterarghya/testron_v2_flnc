@@ -30,6 +30,7 @@ export const PROBLEM_MESSAGES: Record<string, string> = {
   assignment_started: 'This can\'t be changed after the test has started.',
   assignment_cancelled: 'This test assignment was cancelled.',
   assignment_has_attempts: 'Students have already started this test.',
+  activation_not_required: 'This test doesn\'t wait for Start.',
   audience_member_has_attempt: 'Some students have already started this test.',
   not_open_yet: 'This test hasn\'t opened yet.',
   waiting_for_teacher: 'Waiting for your teacher to start the test.',

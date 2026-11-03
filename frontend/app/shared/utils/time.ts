@@ -43,3 +43,29 @@ export function formatDuration(seconds: number): string {
   if (!hours) return `${minutes} min`
   return rest ? `${hours} h ${rest} min` : `${hours} h`
 }
+
+// India has one offset all year (no daylight saving), so a fixed offset is exact
+const INDIA_OFFSET = '+05:30'
+const INDIA_OFFSET_MS = 330 * 60_000
+
+/** A datetime-local input's "2026-11-12T10:00", read as Indian time, as UTC ISO. */
+export function fromIndianLocal(local: string): string {
+  return new Date(`${local}:00${INDIA_OFFSET}`).toISOString()
+}
+
+/** UTC ISO as a datetime-local input's value in Indian time ("2026-11-12T10:00"). */
+export function toIndianLocal(isoUtc: string): string {
+  return new Date(new Date(isoUtc).getTime() + INDIA_OFFSET_MS).toISOString().slice(0, 16)
+}
+
+const timeFormat = new Intl.DateTimeFormat('en-IN', {
+  timeZone: DISPLAY_TIME_ZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+/** "10:58" (Indian time) from "2026-11-12T05:28:00Z" or a Date. */
+export function formatTime(at: string | Date): string {
+  return timeFormat.format(new Date(at))
+}

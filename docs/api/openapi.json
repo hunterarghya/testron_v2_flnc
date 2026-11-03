@@ -6663,6 +6663,10 @@
             "type": "integer"
           },
           "action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
             "title": "Action",
             "type": "string"
           }
@@ -6675,12 +6679,20 @@
         "title": "IntegrityOut",
         "type": "object"
       },
+      "PublicationMode": {
+        "enum": [
+          "MANUAL",
+          "AUTO_IMMEDIATE",
+          "AUTO_DELAYED"
+        ],
+        "title": "PublicationMode",
+        "type": "string"
+      },
       "PublicationOut": {
         "additionalProperties": false,
         "properties": {
           "mode": {
-            "title": "Mode",
-            "type": "string"
+            "$ref": "#/components/schemas/PublicationMode"
           },
           "delay_s": {
             "anyOf": [
@@ -6694,8 +6706,7 @@
             "title": "Delay S"
           },
           "content": {
-            "title": "Content",
-            "type": "string"
+            "$ref": "#/components/schemas/PublishContent"
           },
           "show_paper": {
             "title": "Show Paper",
@@ -6747,10 +6758,23 @@
         "title": "PublicationOut",
         "type": "object"
       },
+      "PublishContent": {
+        "enum": [
+          "SCORE_ONLY",
+          "ANSWER_REVIEW"
+        ],
+        "title": "PublishContent",
+        "type": "string"
+      },
       "TimingOut": {
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "enum": [
+              "TOTAL",
+              "PER_QUESTION",
+              "SECTIONED"
+            ],
             "title": "Kind",
             "type": "string"
           },
@@ -7088,23 +7112,6 @@
         ],
         "title": "PublicationIn",
         "type": "object"
-      },
-      "PublicationMode": {
-        "enum": [
-          "MANUAL",
-          "AUTO_IMMEDIATE",
-          "AUTO_DELAYED"
-        ],
-        "title": "PublicationMode",
-        "type": "string"
-      },
-      "PublishContent": {
-        "enum": [
-          "SCORE_ONLY",
-          "ANSWER_REVIEW"
-        ],
-        "title": "PublishContent",
-        "type": "string"
       },
       "ScheduledWindowIn": {
         "additionalProperties": false,

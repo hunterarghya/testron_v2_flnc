@@ -1,5 +1,5 @@
-<!-- T-17 "Add students": search the active students and tick the ones to add. Students
-     already in the group are left out of the list. -->
+<!-- "Add students" (T-17 groups, T-07 and T-08 audiences): search the active students and
+     tick the ones to add. Students already in are left out of the list. -->
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import { computed, ref, watch } from 'vue'
@@ -12,9 +12,9 @@ const SEARCH_DELAY_MS = 300
 // Enough to find anyone by typing; the teacher searches rather than scrolls
 const SHOWN = 50
 
-const props = defineProps<{ memberIds: string[], pending?: boolean }>()
+const props = defineProps<{ memberIds: string[], description: string, pending?: boolean }>()
 const open = defineModel<boolean>('open', { required: true })
-const emit = defineEmits<{ add: [studentIds: string[]] }>()
+const emit = defineEmits<{ add: [students: StudentRow[]] }>()
 
 const search = ref('')
 const selected = ref<string[]>([])
@@ -42,7 +42,7 @@ watch(search, () => {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Add students" description="Only active students can join a group." :ui="{ content: 'max-w-2xl' }">
+  <UModal v-model:open="open" title="Add students" :description="description" :ui="{ content: 'max-w-2xl' }">
     <template #body>
       <div class="space-y-3">
         <UInput v-model="search" icon="i-lucide-search" placeholder="Search name or email" class="w-full" aria-label="Search students" />
@@ -65,7 +65,7 @@ watch(search, () => {
           :label="selected.length ? `Add ${selected.length}` : 'Add'"
           :disabled="!selected.length"
           :loading="pending"
-          @click="emit('add', selected)"
+          @click="emit('add', rows.filter(row => selected.includes(row.id)))"
         />
       </div>
     </template>
