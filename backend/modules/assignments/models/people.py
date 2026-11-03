@@ -57,8 +57,10 @@ class RetakeGrant(UUIDModel):
     assignment = models.ForeignKey(Assignment, on_delete=models.RESTRICT, related_name="+")
     student = models.ForeignKey(STUDENT, on_delete=models.RESTRICT, related_name="+")
     granted_at = models.DateTimeField(default=now)
-    # The attempt that used it: a plain id until attempts exist (Phase 5 adds the key, ADR-069)
-    consumed_by_attempt_id = models.UUIDField(null=True, unique=True)
+    # The attempt that used it. Named, not imported: delivery sits above assignments (ADR-074)
+    consumed_by_attempt = models.OneToOneField(
+        "delivery.Attempt", on_delete=models.RESTRICT, related_name="+", null=True
+    )
 
     class Meta:
         db_table = "retake_grants"
@@ -66,7 +68,7 @@ class RetakeGrant(UUIDModel):
             # The oldest unused grant (domain_model.md §3.6)
             models.Index(
                 fields=["assignment", "student", "granted_at"],
-                condition=Q(consumed_by_attempt_id__isnull=True),
+                condition=Q(consumed_by_attempt__isnull=True),
                 name="retake_grants_open",
             ),
         ]

@@ -1021,6 +1021,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/my/tests/{assignment_id}/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a sitting (201), or resume the one in progress (200) */
+        post: operations["start_attempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The attempt as the hall shows it, on load and resume */
+        get: operations["get_attempt_state"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/responses/{question_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save one answer (an older client_seq is acknowledged and ignored) */
+        put: operations["save_response"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/questions/{question_id}/visit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a question as seen */
+        post: operations["record_visit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/heartbeat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** The hall's heartbeat: the current clock */
+        post: operations["heartbeat_attempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attempts/{attempt_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit the attempt (safe to repeat) */
+        post: operations["submit_attempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/badges": {
         parameters: {
             query?: never;
@@ -2763,6 +2865,320 @@ export interface components {
             /** Duration S */
             duration_s: number;
         };
+        /** AttemptIntegrityOut */
+        AttemptIntegrityOut: {
+            /** Grace S */
+            grace_s: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /** Action */
+            action: string;
+        };
+        /** AttemptStateOut */
+        AttemptStateOut: {
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"] | null;
+            /** Ended At */
+            ended_at: string | null;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+            /**
+             * Attempt Deadline
+             * Format: date-time
+             */
+            attempt_deadline: string;
+            /** Current Stage Index */
+            current_stage_index: number;
+            /** Stages */
+            stages: components["schemas"]["StageClockOut"][];
+            /** Warning Count */
+            warning_count: number;
+            notice: components["schemas"]["Notice"] | null;
+            /**
+             * Attempt Id
+             * Format: uuid
+             */
+            attempt_id: string;
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Title */
+            title: string;
+            /** Take Number */
+            take_number: number;
+            /** Exam Client Id */
+            exam_client_id: string | null;
+            timing: components["schemas"]["AttemptTimingOut"];
+            integrity: components["schemas"]["AttemptIntegrityOut"];
+            /** Stage Meta */
+            stage_meta: components["schemas"]["StageMetaOut"][];
+            /** Questions */
+            questions: components["schemas"]["HallQuestionOut"][];
+            /** Responses */
+            responses: {
+                [key: string]: components["schemas"]["ResponseOut"];
+            };
+        };
+        /**
+         * AttemptStatus
+         * @enum {string}
+         */
+        AttemptStatus: "IN_PROGRESS" | "ENDED";
+        /** AttemptTimingOut */
+        AttemptTimingOut: {
+            /** Kind */
+            kind: string;
+            /** Allow Return */
+            allow_return: boolean;
+        };
+        /** ChoiceAnswerOut */
+        ChoiceAnswerOut: {
+            /**
+             * V
+             * @default 1
+             * @constant
+             */
+            v: 1;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "CHOICE";
+            /** Option Ids */
+            option_ids: string[];
+        };
+        /**
+         * EndReason
+         * @enum {string}
+         */
+        EndReason: "SUBMITTED" | "TIMED_OUT" | "AUTO_SUBMITTED" | "DISQUALIFIED" | "FORCE_SUBMITTED" | "ENDED_BY_TEACHER";
+        /** HallOptionOut */
+        HallOptionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+        };
+        /** HallQuestionOut */
+        HallQuestionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Type */
+            type: string;
+            /** Stem */
+            stem: {
+                [key: string]: unknown;
+            };
+            /** Marks */
+            marks: string;
+            /** Negative Marks */
+            negative_marks: string;
+            /** Time S */
+            time_s: number | null;
+            /** Options */
+            options: components["schemas"]["HallOptionOut"][];
+        };
+        /**
+         * Notice
+         * @description What the hall tells the student with a toast (api_contract.md §3.4).
+         * @enum {string}
+         */
+        Notice: "TIME_EXTENDED" | "ENDED_BY_TEACHER" | "STAGE_ADVANCED";
+        /** NumericAnswerOut */
+        NumericAnswerOut: {
+            /**
+             * V
+             * @default 1
+             * @constant
+             */
+            v: 1;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "NUMERIC";
+            /** Value */
+            value: string;
+        };
+        /** ResponseOut */
+        ResponseOut: {
+            /** Answer */
+            answer: (components["schemas"]["ChoiceAnswerOut"] | components["schemas"]["NumericAnswerOut"]) | null;
+            /** Marked For Review */
+            marked_for_review: boolean;
+            /** Visited */
+            visited: boolean;
+            /** Client Seq */
+            client_seq: number;
+        };
+        /** StageClockOut */
+        StageClockOut: {
+            /** Index */
+            index: number;
+            state: components["schemas"]["StageState"];
+            /** Deadline At */
+            deadline_at: string | null;
+        };
+        /**
+         * StageKind
+         * @description TOTAL has one WHOLE stage; SECTIONED one per section; PER_QUESTION one per question.
+         * @enum {string}
+         */
+        StageKind: "WHOLE" | "SECTION" | "QUESTION";
+        /** StageMetaOut */
+        StageMetaOut: {
+            /** Index */
+            index: number;
+            kind: components["schemas"]["StageKind"];
+            /** Title */
+            title: string | null;
+            /** Instructions */
+            instructions: {
+                [key: string]: unknown;
+            } | null;
+            /** Duration S */
+            duration_s: number;
+            /** Question Ids */
+            question_ids: string[];
+        };
+        /**
+         * StageState
+         * @enum {string}
+         */
+        StageState: "NOT_ENTERED" | "OPEN" | "LEFT" | "CLOSED" | "MISSED";
+        /** StartAttemptIn */
+        StartAttemptIn: {
+            /** Password */
+            password?: string | null;
+        };
+        /** SaveAckOut */
+        SaveAckOut: {
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"] | null;
+            /** Ended At */
+            ended_at: string | null;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+            /**
+             * Attempt Deadline
+             * Format: date-time
+             */
+            attempt_deadline: string;
+            /** Current Stage Index */
+            current_stage_index: number;
+            /** Stages */
+            stages: components["schemas"]["StageClockOut"][];
+            /** Warning Count */
+            warning_count: number;
+            notice: components["schemas"]["Notice"] | null;
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+            /** Applied */
+            applied: boolean;
+        };
+        /** ChoiceAnswerIn */
+        ChoiceAnswerIn: {
+            /**
+             * V
+             * @default 1
+             * @constant
+             */
+            v: 1;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "CHOICE";
+            /** Option Ids */
+            option_ids: string[];
+        };
+        /** NumericAnswerIn */
+        NumericAnswerIn: {
+            /**
+             * V
+             * @default 1
+             * @constant
+             */
+            v: 1;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "NUMERIC";
+            /** Value */
+            value: string;
+        };
+        /** SaveResponseIn */
+        SaveResponseIn: {
+            /** Answer */
+            answer: (components["schemas"]["ChoiceAnswerIn"] | components["schemas"]["NumericAnswerIn"]) | null;
+            /**
+             * Marked For Review
+             * @default false
+             */
+            marked_for_review: boolean;
+            /** Client Seq */
+            client_seq: number;
+        };
+        /** AttemptClockOut */
+        AttemptClockOut: {
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"] | null;
+            /** Ended At */
+            ended_at: string | null;
+            /**
+             * Server Now
+             * Format: date-time
+             */
+            server_now: string;
+            /**
+             * Attempt Deadline
+             * Format: date-time
+             */
+            attempt_deadline: string;
+            /** Current Stage Index */
+            current_stage_index: number;
+            /** Stages */
+            stages: components["schemas"]["StageClockOut"][];
+            /** Warning Count */
+            warning_count: number;
+            notice: components["schemas"]["Notice"] | null;
+        };
+        /** SubmitResultOut */
+        SubmitResultOut: {
+            status: components["schemas"]["AttemptStatus"];
+            end_reason: components["schemas"]["EndReason"];
+            /**
+             * Ended At
+             * Format: date-time
+             */
+            ended_at: string;
+            /** Result Available */
+            result_available: boolean;
+        };
         /** BadgesOut */
         BadgesOut: {
             /** Pending Students */
@@ -4420,6 +4836,155 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GateStateOut"];
+                };
+            };
+        };
+    };
+    start_attempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartAttemptIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptStateOut"];
+                };
+            };
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptStateOut"];
+                };
+            };
+        };
+    };
+    get_attempt_state: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptStateOut"];
+                };
+            };
+        };
+    };
+    save_response: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveResponseIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaveAckOut"];
+                };
+            };
+        };
+    };
+    record_visit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    heartbeat_attempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttemptClockOut"];
+                };
+            };
+        };
+    };
+    submit_attempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmitResultOut"];
                 };
             };
         };

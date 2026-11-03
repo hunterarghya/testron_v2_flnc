@@ -87,3 +87,8 @@ def test_a_hit_cannot_hide_inside_a_use_case_transaction(frozen_clock: FrozenClo
     # It would be rolled back with a failed login, and the limit would never trigger
     with pytest.raises(RuntimeError), transaction.atomic():
         hit("k", THREE_PER_MINUTE, now=frozen_clock.now())
+
+
+def test_each_allowed_try_says_how_many_are_left(frozen_clock: FrozenClock) -> None:
+    left = [hit("k:left", THREE_PER_MINUTE, now=frozen_clock.now()).remaining for _ in range(3)]
+    assert left == [2, 1, 0]

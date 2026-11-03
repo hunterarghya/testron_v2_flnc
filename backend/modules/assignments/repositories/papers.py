@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from datetime import datetime
+from typing import cast
 from uuid import UUID
 
 from core.rich_content import Json
@@ -35,3 +36,13 @@ def allow_return(assignment_id: UUID) -> bool:
 def contents(assignment_ids: Sequence[UUID]) -> dict[UUID, Json]:
     rows = Paper.objects.filter(pk__in=assignment_ids).values_list("assignment_id", "content")
     return dict(rows)
+
+
+def content(assignment_id: UUID) -> Json:
+    return cast("Json", Paper.objects.values_list("content", flat=True).get(pk=assignment_id))
+
+
+def answer_key(assignment_id: UUID) -> tuple[int, Json]:
+    """The key's version and its entries (database_schema.md §4.3)."""
+    version, entries = AnswerKey.objects.values_list("version", "entries").get(pk=assignment_id)
+    return version, cast("Json", entries)

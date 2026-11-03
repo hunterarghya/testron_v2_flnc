@@ -66,6 +66,18 @@ def make_question(
     return question
 
 
+def make_numerical(section: Section, position: int, *, answer: str) -> Question:
+    return Question.objects.create(
+        test_id=section.test_id,
+        section=section,
+        position=position,
+        type="NUMERICAL",
+        stem=doc_with("How many chromosomes?"),
+        search_text="How many chromosomes?",
+        numeric_answer=Decimal(answer),
+    )
+
+
 def reload_test(test_id: UUID) -> Test:
     return Test.objects.get(pk=test_id)
 

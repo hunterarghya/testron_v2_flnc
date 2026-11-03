@@ -57,7 +57,7 @@ class AssignmentDetail:
 
 
 def assignment_rows(records: Sequence[AssignmentRecord], *, now: datetime) -> list[AssignmentRow]:
-    """Three queries, however many assignments there are; two more if any used groups."""
+    """Four queries, however many assignments there are; two more if any used groups."""
     ids = [record.id for record in records]
     members = audience.members_by_assignment(ids)
     grants = extensions.grants_by_assignment(ids)

@@ -29,9 +29,7 @@ def gate_view(
 ) -> GateView:
     sittings = replace(sittings, has_grant=assignment.has_unused_grant)
     entry = assignment.entry
-    current = gate(
-        EntryTimes(entry.opens_at, entry.awaits_start, entry.closes_at), sittings, now=now
-    )
+    current = gate(entry_times(assignment), sittings, now=now)
     times = SittingTimes(
         duration_s=assignment.paper.total_duration_s,
         common_clock=assignment.window.common_clock,
@@ -45,3 +43,8 @@ def gate_view(
         time_left_if_started_now_s=time_left_if_started_now(current, times, now=now),
         server_now=now,
     )
+
+
+def entry_times(assignment: assignments.StudentAssignment) -> EntryTimes:
+    entry = assignment.entry
+    return EntryTimes(entry.opens_at, entry.awaits_start, entry.closes_at)

@@ -142,8 +142,9 @@ type = "layers"
 layers = [
     "modules.housekeeping",
     "modules.results",
-    "modules.grading",
+    # Delivery ends an attempt and grades it in one transaction, so it calls grading (ADR-074)
     "modules.delivery",
+    "modules.grading",
     "modules.assignments",
     "modules.authoring | modules.students",
     "modules.tagging | modules.media | modules.identity | modules.audit",

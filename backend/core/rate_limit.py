@@ -30,6 +30,8 @@ class RateLimit:
 class RateDecision:
     allowed: bool
     retry_after_s: int = 0
+    # Tries still allowed in this window after this one
+    remaining: int = 0
 
 
 # The counter starts again when its window is over, or when a block has run out.
@@ -97,7 +99,7 @@ def decide(
     if blocked_until is not None and blocked_until > now:
         return RateDecision(allowed=False, retry_after_s=_seconds(blocked_until - now))
     if hits <= rule.limit:
-        return RateDecision(allowed=True)
+        return RateDecision(allowed=True, remaining=rule.limit - hits)
     return RateDecision(allowed=False, retry_after_s=_seconds(window_ends_at - now))
 
 

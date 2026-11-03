@@ -91,8 +91,8 @@ def test_the_list_reads_a_fixed_number_of_queries(
     for title in ("A", "B", "C", "D"):
         assign(teacher_ctx, title, [make_student().id, make_student().id])
 
-    # assignments, audience counts, extensions
-    with django_assert_num_queries(3):
+    # assignments, audience counts, extensions, attempt counts
+    with django_assert_num_queries(4):
         list_assignments(teacher_ctx, filters=AssignmentFilter(), offset=0, limit=50)
 
 
@@ -134,8 +134,8 @@ def test_the_audience_is_summarised_against_the_picked_groups(
     group = make_group("12B", [kept, left_out])
     assignment_id = assign(teacher_ctx, "Respiration", [kept, extra], source_group_ids=[group.id])
 
-    # assignments, audience, extensions, groups, their members
-    with django_assert_num_queries(5):
+    # assignments, audience, extensions, attempt counts, groups, their members
+    with django_assert_num_queries(6):
         page = list_assignments(teacher_ctx, filters=AssignmentFilter(), offset=0, limit=50)
 
     assert page.rows[0].audience_summary == f"12B {MINUS}1, +1"

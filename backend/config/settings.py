@@ -101,6 +101,9 @@ SESSION_ENGINE = "modules.identity.sessions"
 ACTOR_RESOLVER = "modules.students.actors.resolve_actor"
 # The coaching centre's name in every email (core.mail, ADR-060): the teacher's branding
 MAIL_BRAND_NAME = "modules.authoring.public.get_coaching_name"
+# Who has started and how many attempts are running, for the assignment screens: attempts
+# belong to delivery, which sits above assignments in the module order (ADR-074)
+ATTEMPT_FACTS = "modules.delivery.public"
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"

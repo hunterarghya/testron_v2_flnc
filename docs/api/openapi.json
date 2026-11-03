@@ -2760,6 +2760,247 @@
         ]
       }
     },
+    "/api/v1/my/tests/{assignment_id}/attempts": {
+      "post": {
+        "operationId": "start_attempt",
+        "summary": "Start a sitting (201), or resume the one in progress (200)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateOut"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartAttemptIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/attempts/{attempt_id}": {
+      "get": {
+        "operationId": "get_attempt_state",
+        "summary": "The attempt as the hall shows it, on load and resume",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/responses/{question_id}": {
+      "put": {
+        "operationId": "save_response",
+        "summary": "Save one answer (an older client_seq is acknowledged and ignored)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "question_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaveAckOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveResponseIn"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/questions/{question_id}/visit": {
+      "post": {
+        "operationId": "record_visit",
+        "summary": "Mark a question as seen",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "question_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Question Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/heartbeat": {
+      "post": {
+        "operationId": "heartbeat_attempt",
+        "summary": "The hall's heartbeat: the current clock",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptClockOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
+    "/api/v1/attempts/{attempt_id}/submit": {
+      "post": {
+        "operationId": "submit_attempt",
+        "summary": "Submit the attempt (safe to repeat)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "delivery"
+        ]
+      }
+    },
     "/api/v1/admin/badges": {
       "get": {
         "operationId": "get_badges",
@@ -7892,6 +8133,845 @@
           "duration_s"
         ],
         "title": "StageOut",
+        "type": "object"
+      },
+      "AttemptIntegrityOut": {
+        "additionalProperties": false,
+        "properties": {
+          "grace_s": {
+            "title": "Grace S",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grace_s",
+          "max_warnings",
+          "action"
+        ],
+        "title": "AttemptIntegrityOut",
+        "type": "object"
+      },
+      "AttemptStateOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "attempt_deadline": {
+            "format": "date-time",
+            "title": "Attempt Deadline",
+            "type": "string"
+          },
+          "current_stage_index": {
+            "title": "Current Stage Index",
+            "type": "integer"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageClockOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Notice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "take_number": {
+            "title": "Take Number",
+            "type": "integer"
+          },
+          "exam_client_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Client Id"
+          },
+          "timing": {
+            "$ref": "#/components/schemas/AttemptTimingOut"
+          },
+          "integrity": {
+            "$ref": "#/components/schemas/AttemptIntegrityOut"
+          },
+          "stage_meta": {
+            "items": {
+              "$ref": "#/components/schemas/StageMetaOut"
+            },
+            "title": "Stage Meta",
+            "type": "array"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/HallQuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "responses": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ResponseOut"
+            },
+            "title": "Responses",
+            "type": "object"
+          }
+        },
+        "required": [
+          "status",
+          "end_reason",
+          "ended_at",
+          "server_now",
+          "attempt_deadline",
+          "current_stage_index",
+          "stages",
+          "warning_count",
+          "notice",
+          "attempt_id",
+          "assignment_id",
+          "title",
+          "take_number",
+          "exam_client_id",
+          "timing",
+          "integrity",
+          "stage_meta",
+          "questions",
+          "responses"
+        ],
+        "title": "AttemptStateOut",
+        "type": "object"
+      },
+      "AttemptStatus": {
+        "enum": [
+          "IN_PROGRESS",
+          "ENDED"
+        ],
+        "title": "AttemptStatus",
+        "type": "string"
+      },
+      "AttemptTimingOut": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "allow_return": {
+            "title": "Allow Return",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "allow_return"
+        ],
+        "title": "AttemptTimingOut",
+        "type": "object"
+      },
+      "ChoiceAnswerOut": {
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "const": 1,
+            "default": 1,
+            "title": "V",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "CHOICE",
+            "default": "CHOICE",
+            "title": "Kind",
+            "type": "string"
+          },
+          "option_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Option Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "option_ids"
+        ],
+        "title": "ChoiceAnswerOut",
+        "type": "object"
+      },
+      "EndReason": {
+        "enum": [
+          "SUBMITTED",
+          "TIMED_OUT",
+          "AUTO_SUBMITTED",
+          "DISQUALIFIED",
+          "FORCE_SUBMITTED",
+          "ENDED_BY_TEACHER"
+        ],
+        "title": "EndReason",
+        "type": "string"
+      },
+      "HallOptionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "content"
+        ],
+        "title": "HallOptionOut",
+        "type": "object"
+      },
+      "HallQuestionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "stem": {
+            "additionalProperties": true,
+            "title": "Stem",
+            "type": "object"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "negative_marks": {
+            "title": "Negative Marks",
+            "type": "string"
+          },
+          "time_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time S"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/HallOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "type",
+          "stem",
+          "marks",
+          "negative_marks",
+          "time_s",
+          "options"
+        ],
+        "title": "HallQuestionOut",
+        "type": "object"
+      },
+      "Notice": {
+        "description": "What the hall tells the student with a toast (api_contract.md §3.4).",
+        "enum": [
+          "TIME_EXTENDED",
+          "ENDED_BY_TEACHER",
+          "STAGE_ADVANCED"
+        ],
+        "title": "Notice",
+        "type": "string"
+      },
+      "NumericAnswerOut": {
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "const": 1,
+            "default": 1,
+            "title": "V",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "NUMERIC",
+            "default": "NUMERIC",
+            "title": "Kind",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "title": "NumericAnswerOut",
+        "type": "object"
+      },
+      "ResponseOut": {
+        "additionalProperties": false,
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "CHOICE": "#/components/schemas/ChoiceAnswerOut",
+                    "NUMERIC": "#/components/schemas/NumericAnswerOut"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ChoiceAnswerOut"
+                  },
+                  {
+                    "$ref": "#/components/schemas/NumericAnswerOut"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "marked_for_review": {
+            "title": "Marked For Review",
+            "type": "boolean"
+          },
+          "visited": {
+            "title": "Visited",
+            "type": "boolean"
+          },
+          "client_seq": {
+            "title": "Client Seq",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "answer",
+          "marked_for_review",
+          "visited",
+          "client_seq"
+        ],
+        "title": "ResponseOut",
+        "type": "object"
+      },
+      "StageClockOut": {
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/StageState"
+          },
+          "deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deadline At"
+          }
+        },
+        "required": [
+          "index",
+          "state",
+          "deadline_at"
+        ],
+        "title": "StageClockOut",
+        "type": "object"
+      },
+      "StageKind": {
+        "description": "TOTAL has one WHOLE stage; SECTIONED one per section; PER_QUESTION one per question.",
+        "enum": [
+          "WHOLE",
+          "SECTION",
+          "QUESTION"
+        ],
+        "title": "StageKind",
+        "type": "string"
+      },
+      "StageMetaOut": {
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/StageKind"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "duration_s": {
+            "title": "Duration S",
+            "type": "integer"
+          },
+          "question_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Question Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "index",
+          "kind",
+          "title",
+          "instructions",
+          "duration_s",
+          "question_ids"
+        ],
+        "title": "StageMetaOut",
+        "type": "object"
+      },
+      "StageState": {
+        "enum": [
+          "NOT_ENTERED",
+          "OPEN",
+          "LEFT",
+          "CLOSED",
+          "MISSED"
+        ],
+        "title": "StageState",
+        "type": "string"
+      },
+      "StartAttemptIn": {
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          }
+        },
+        "title": "StartAttemptIn",
+        "type": "object"
+      },
+      "SaveAckOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "attempt_deadline": {
+            "format": "date-time",
+            "title": "Attempt Deadline",
+            "type": "string"
+          },
+          "current_stage_index": {
+            "title": "Current Stage Index",
+            "type": "integer"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageClockOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Notice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "saved_at": {
+            "format": "date-time",
+            "title": "Saved At",
+            "type": "string"
+          },
+          "applied": {
+            "title": "Applied",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "end_reason",
+          "ended_at",
+          "server_now",
+          "attempt_deadline",
+          "current_stage_index",
+          "stages",
+          "warning_count",
+          "notice",
+          "saved_at",
+          "applied"
+        ],
+        "title": "SaveAckOut",
+        "type": "object"
+      },
+      "ChoiceAnswerIn": {
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "const": 1,
+            "default": 1,
+            "title": "V",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "CHOICE",
+            "title": "Kind",
+            "type": "string"
+          },
+          "option_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 26,
+            "title": "Option Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "option_ids"
+        ],
+        "title": "ChoiceAnswerIn",
+        "type": "object"
+      },
+      "NumericAnswerIn": {
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "const": 1,
+            "default": 1,
+            "title": "V",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "NUMERIC",
+            "title": "Kind",
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 32,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "value"
+        ],
+        "title": "NumericAnswerIn",
+        "type": "object"
+      },
+      "SaveResponseIn": {
+        "additionalProperties": false,
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "CHOICE": "#/components/schemas/ChoiceAnswerIn",
+                    "NUMERIC": "#/components/schemas/NumericAnswerIn"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ChoiceAnswerIn"
+                  },
+                  {
+                    "$ref": "#/components/schemas/NumericAnswerIn"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "marked_for_review": {
+            "default": false,
+            "title": "Marked For Review",
+            "type": "boolean"
+          },
+          "client_seq": {
+            "maximum": 9007199254740992,
+            "minimum": 1,
+            "title": "Client Seq",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "answer",
+          "client_seq"
+        ],
+        "title": "SaveResponseIn",
+        "type": "object"
+      },
+      "AttemptClockOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EndReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "server_now": {
+            "format": "date-time",
+            "title": "Server Now",
+            "type": "string"
+          },
+          "attempt_deadline": {
+            "format": "date-time",
+            "title": "Attempt Deadline",
+            "type": "string"
+          },
+          "current_stage_index": {
+            "title": "Current Stage Index",
+            "type": "integer"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageClockOut"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "notice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Notice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "end_reason",
+          "ended_at",
+          "server_now",
+          "attempt_deadline",
+          "current_stage_index",
+          "stages",
+          "warning_count",
+          "notice"
+        ],
+        "title": "AttemptClockOut",
+        "type": "object"
+      },
+      "SubmitResultOut": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AttemptStatus"
+          },
+          "end_reason": {
+            "$ref": "#/components/schemas/EndReason"
+          },
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "result_available": {
+            "title": "Result Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "end_reason",
+          "ended_at",
+          "result_available"
+        ],
+        "title": "SubmitResultOut",
         "type": "object"
       },
       "BadgesOut": {

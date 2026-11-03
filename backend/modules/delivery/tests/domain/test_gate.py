@@ -5,6 +5,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.errors import DomainError
+from modules.delivery.domain.errors import EntryClosed, NotOpenYet
 from modules.delivery.domain.gate import (
     CardState,
     EntryTimes,
@@ -13,6 +15,7 @@ from modules.delivery.domain.gate import (
     Sittings,
     SittingTimes,
     card_state,
+    ensure_may_start,
     gate,
     time_left_if_started_now,
 )
@@ -81,3 +84,44 @@ SHARED = SittingTimes(HOUR_S, common_clock=True, anchor_at=NOW - 6 * MIN, ends_a
 )
 def test_time_left_if_started_now(current: Gate, times: SittingTimes, left: int | None) -> None:
     assert time_left_if_started_now(current, times, now=NOW) == left
+
+
+@pytest.mark.parametrize(
+    ("entry", "sittings", "error"),
+    [
+        (LATER, Sittings(), "not_open_yet"),
+        (WAITING, Sittings(), "waiting_for_teacher"),
+        (CLOSED, Sittings(), "entry_closed"),
+        (OPEN, Sittings(used=1), "no_attempts_left"),
+    ],
+)
+def test_start_refuses_with_the_first_failing_check(
+    entry: EntryTimes, sittings: Sittings, error: str
+) -> None:
+    with pytest.raises(DomainError) as raised:
+        ensure_may_start(entry, sittings, now=NOW)
+    assert raised.value.code == error
+
+
+def test_start_tells_when_it_opens_and_closed() -> None:
+    with pytest.raises(NotOpenYet) as early:
+        ensure_may_start(LATER, Sittings(), now=NOW)
+    assert early.value.context == {"opens_at": NOW + MIN, "server_now": NOW}
+    with pytest.raises(EntryClosed) as late:
+        ensure_may_start(CLOSED, Sittings(), now=NOW)
+    assert late.value.context == {"closed_at": NOW}
+
+
+@pytest.mark.parametrize(
+    ("entry", "sittings", "expected"),
+    [
+        (OPEN, Sittings(), Gate(S.READY)),
+        (CLOSED, RUNNING, Gate(S.IN_PROGRESS)),
+        (CLOSED, Sittings(has_grant=True), Gate(S.READY, granted=True)),
+        (OPEN, Sittings(used=2, has_grant=True), Gate(S.READY, granted=True)),
+    ],
+)
+def test_start_lets_in_a_regular_or_granted_sitting_or_resumes(
+    entry: EntryTimes, sittings: Sittings, expected: Gate
+) -> None:
+    assert ensure_may_start(entry, sittings, now=NOW) == expected

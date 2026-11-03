@@ -15,7 +15,7 @@ from modules.assignments.models import LobbyPresence
 from modules.assignments.services.commands.activate_assignment import activate_assignment
 from modules.assignments.services.commands.create_assignment import NewAssignment, create_assignment
 from modules.authoring.models import Test
-from tests.factories.authoring import make_question, make_section, make_test
+from tests.factories.authoring import make_numerical, make_question, make_section, make_test
 from tests.factories.identity import User, make_user
 
 SETTINGS = Settings(
@@ -35,6 +35,17 @@ def assignable_test(**test_fields: object) -> Test:
     return test
 
 
+def exam_test(**test_fields: object) -> Test:
+    """Two MCQs (option 1 correct, +4/-1) and a numerical question (answer 46), in that order,
+    with no shuffling."""
+    test = make_test(shuffle_questions=False, shuffle_options=False, **test_fields)
+    section = make_section(test)
+    make_question(section, 0)
+    make_question(section, 1)
+    make_numerical(section, 2, answer="46")
+    return test
+
+
 def new_assignment(test_id: UUID, student_ids: Sequence[UUID], **changes: Any) -> NewAssignment:
     """`changes` may set Settings fields (title, window, …) or NewAssignment ones (password, …)."""
     settings = replace(SETTINGS, **{k: v for k, v in changes.items() if k in _SETTING_NAMES})
@@ -50,15 +61,17 @@ def scheduled(starts_at: datetime) -> Window:
     return Window(WindowKind.SCHEDULED, starts_at=starts_at)
 
 
-def assign(student_ids: Sequence[UUID], *, now: datetime, **changes: Any) -> UUID:
+def assign(
+    student_ids: Sequence[UUID], *, now: datetime, test: Test | None = None, **changes: Any
+) -> UUID:
     """An assignment made by a new teacher at `now`, through the real use case."""
-    ctx = _teacher_ctx(now)
-    new = new_assignment(assignable_test().id, student_ids, **changes)
+    ctx = teacher_ctx(now)
+    new = new_assignment((test or assignable_test()).id, student_ids, **changes)
     return create_assignment(ctx, new=new).row.record.id
 
 
 def start(assignment_id: UUID, *, now: datetime) -> None:
-    activate_assignment(_teacher_ctx(now), assignment_id=assignment_id)
+    activate_assignment(teacher_ctx(now), assignment_id=assignment_id)
 
 
 def last_seen(assignment_id: UUID, student_id: UUID) -> datetime | None:
@@ -66,7 +79,7 @@ def last_seen(assignment_id: UUID, student_id: UUID) -> datetime | None:
     return None if row is None else row.last_seen_at
 
 
-def _teacher_ctx(now: datetime) -> Ctx:
+def teacher_ctx(now: datetime) -> Ctx:
     # There is one teacher account; a test may have made it already
     teacher = User.objects.filter(role=Role.TEACHER).first() or make_user(teacher=True)
     return Ctx(Actor(user_id=teacher.id, role=Role.TEACHER), now=now, request_id="factory")

@@ -21,6 +21,15 @@ def logged_in(email: str, password: str = DEFAULT_PASSWORD) -> Client:
     return client
 
 
-def send(client: Client, method: str, path: str, body: Mapping[str, object] | None = None) -> Any:
+def send(
+    client: Client,
+    method: str,
+    path: str,
+    body: Mapping[str, object] | None = None,
+    *,
+    headers: Mapping[str, str] | None = None,
+) -> Any:
     """A JSON request; returns Django's test response."""
-    return getattr(client, method)(path, body or {}, content_type="application/json")
+    return getattr(client, method)(
+        path, body or {}, content_type="application/json", headers=dict(headers or {})
+    )

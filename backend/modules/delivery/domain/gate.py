@@ -1,10 +1,18 @@
 """The gate (P-02) and the test list's cards (P-01): may this student begin now, and if not,
-why (domain_model.md §5.4 checks 2-6, in order; §5.7 granted sittings)."""
+why (domain_model.md §5.4 checks 2-6, in order; §5.7 granted sittings). Start uses the same
+decision, so the gate never promises what Start would refuse."""
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import StrEnum
 from uuid import UUID
+
+from modules.delivery.domain.errors import (
+    EntryClosed,
+    NoAttemptsLeft,
+    NotOpenYet,
+    WaitingForTeacher,
+)
 
 
 class GateStatus(StrEnum):
@@ -71,6 +79,23 @@ def gate(entry: EntryTimes, sittings: Sittings, *, now: datetime) -> Gate:
     if regular is GateStatus.ENTRY_CLOSED and sittings.has_grant:
         return Gate(GateStatus.READY, granted=True)
     return Gate(regular)
+
+
+def ensure_may_start(entry: EntryTimes, sittings: Sittings, *, now: datetime) -> Gate:
+    """READY (a new sitting) or IN_PROGRESS (resume it, E-02); otherwise the first failing
+    check's error. The password (check 7) is the service's."""
+    current = gate(entry, sittings, now=now)
+    match current.status:
+        case GateStatus.NOT_OPEN:
+            raise NotOpenYet(opens_at=entry.opens_at, server_now=now)
+        case GateStatus.WAITING_FOR_TEACHER:
+            raise WaitingForTeacher(server_now=now)
+        case GateStatus.ENTRY_CLOSED:
+            raise EntryClosed(closed_at=entry.closes_at)
+        case GateStatus.NO_ATTEMPTS_LEFT:
+            raise NoAttemptsLeft()
+        case _:
+            return current
 
 
 def _regular_entry(entry: EntryTimes, now: datetime) -> GateStatus:

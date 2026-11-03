@@ -5,7 +5,7 @@ from django.db import transaction
 from core.context import Ctx
 from modules.assignments import public as assignments
 from modules.delivery.policies import ensure_active_student
-from modules.delivery.repositories import attempt_facts
+from modules.delivery.services.commands.finalize_expired import finalize_expired
 from modules.delivery.services.gate_views import GateView, gate_view
 
 
@@ -17,5 +17,5 @@ def get_gate_state(ctx: Ctx, *, assignment_id: UUID) -> GateView:
     with transaction.atomic():
         mine = assignments.get_student_assignment(assignment_id, student_id)
         assignments.touch_lobby_presence(assignment_id, student_id, now=ctx.now)
-    sittings = attempt_facts.sittings_by_assignment(student_id, [assignment_id])[assignment_id]
+    sittings = finalize_expired(ctx, student_id, [mine])[assignment_id]
     return gate_view(mine, sittings, now=ctx.now)

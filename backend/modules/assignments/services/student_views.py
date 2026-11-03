@@ -4,10 +4,12 @@ get_student_assignment."""
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
 from uuid import UUID
 
 from modules.assignments.domain.assignment import AssignmentRecord
 from modules.assignments.domain.entry import Entry, entry_window, is_locked
+from modules.assignments.domain.lifecycle import ExtensionGrant
 from modules.assignments.domain.paper_summary import PaperSummary, paper_summary
 from modules.assignments.domain.settings import Integrity
 from modules.assignments.domain.window import Window
@@ -27,6 +29,10 @@ class StudentAssignment:
     integrity: Integrity
     # A retake grant (or a late first sitting) not used yet (domain_model.md §5.7)
     has_unused_grant: bool
+    # Extra time for everyone and for this student (§5.2)
+    extensions: tuple[ExtensionGrant, ...]
+    # The teacher ended it for everyone
+    ended_at: datetime | None
 
 
 def student_assignments(
@@ -35,7 +41,7 @@ def student_assignments(
     """Three queries, however many assignments there are."""
     ids = [record.id for record in records]
     contents = papers.contents(ids)
-    grants = extensions.grants_by_assignment(ids)
+    grants = extensions.grants_for_student(ids, student_id)
     granted = retake_grants.with_unused_grant(student_id, ids)
     return [
         StudentAssignment(
@@ -48,6 +54,8 @@ def student_assignments(
             paper=paper_summary(contents[record.id]),
             integrity=record.settings.integrity,
             has_unused_grant=record.id in granted,
+            extensions=tuple(grants.get(record.id, [])),
+            ended_at=record.timeline.ended_at,
         )
         for record in records
     ]

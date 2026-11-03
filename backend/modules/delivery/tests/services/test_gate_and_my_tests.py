@@ -56,8 +56,8 @@ def test_my_tests_reads_a_fixed_number_of_queries(
     for title in ("A", "B", "C"):
         assign(now=teacher_ctx.now, student_ids=[me], title=title)
 
-    # assignments, papers, extensions, retake grants
-    with django_assert_num_queries(4):
+    # assignments, papers, extensions, retake grants, attempts (nothing running: no lock)
+    with django_assert_num_queries(5):
         list_my_tests(student_ctx(make_ctx, me))
 
 
