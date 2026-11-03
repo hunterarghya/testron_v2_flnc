@@ -20,3 +20,10 @@ class SectionNotEmpty(Conflict):
 
     code = "section_not_empty"
     title = "This section still has questions"
+
+
+class TestHasProblems(Conflict):
+    """Only a test without validation problems can be assigned (domain_model.md §3.5 #1)."""
+
+    code = "test_has_problems"
+    title = "Fix the problems in this test before assigning it"

@@ -43,12 +43,18 @@ class Test(TimestampedModel):
             ),
             # The duration belongs to TOTAL, the per-question default to PER_QUESTION
             models.CheckConstraint(
-                condition=(Q(timing_kind="TOTAL", duration_s__gte=60))
+                condition=(Q(timing_kind="TOTAL", duration_s__isnull=False, duration_s__gte=60))
                 | (~Q(timing_kind="TOTAL") & Q(duration_s__isnull=True)),
                 name="tests_duration_iff_total",
             ),
             models.CheckConstraint(
-                condition=(Q(timing_kind="PER_QUESTION", default_question_s__gte=5))
+                condition=(
+                    Q(
+                        timing_kind="PER_QUESTION",
+                        default_question_s__isnull=False,
+                        default_question_s__gte=5,
+                    )
+                )
                 | (~Q(timing_kind="PER_QUESTION") & Q(default_question_s__isnull=True)),
                 name="tests_question_time_iff_per_question",
             ),
