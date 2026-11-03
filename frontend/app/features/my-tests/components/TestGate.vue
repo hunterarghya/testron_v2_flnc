@@ -64,10 +64,13 @@ onMounted(() => gate.refresh())
 
     <div v-else-if="state === 'READY'" class="space-y-4">
       <UAlert v-if="lateJoin" color="warning" variant="subtle" :title="lateJoin" />
-      <GatePassword :requires-password="data.requires_password" />
+      <GatePassword :assignment-id="assignmentId" :requires-password="data.requires_password" @refresh="gate.refresh" />
     </div>
 
-    <UAlert v-else-if="state === 'IN_PROGRESS'" color="info" variant="subtle" title="You have already started this test." />
+    <div v-else-if="state === 'IN_PROGRESS'" class="space-y-4">
+      <UAlert color="info" variant="subtle" title="You have already started this test." />
+      <UButton size="xl" icon="i-lucide-play" label="Continue test" :to="`/attempts/${data.attempt_id}`" />
+    </div>
     <UAlert v-else-if="state === 'ENTRY_CLOSED'" color="neutral" variant="subtle" title="Entry closed" description="The time to join this test has passed." />
     <UAlert v-else color="neutral" variant="subtle" title="No attempts left" description="You have used every attempt for this test." />
   </UCard>

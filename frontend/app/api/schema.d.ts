@@ -2940,7 +2940,6 @@ export interface components {
         ChoiceAnswerOut: {
             /**
              * V
-             * @default 1
              * @constant
              */
             v: 1;
@@ -3005,7 +3004,6 @@ export interface components {
         NumericAnswerOut: {
             /**
              * V
-             * @default 1
              * @constant
              */
             v: 1;

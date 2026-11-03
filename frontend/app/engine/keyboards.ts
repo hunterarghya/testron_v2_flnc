@@ -54,3 +54,36 @@ function typeChar(state: KeyboardState, char: string): KeyboardState {
   const typed = state.shift ? char.toUpperCase() : char
   return { ...state, value: state.value + typed, shift: false }
 }
+
+// The numeric keypad beside a numerical question (screens.md §4.0). The physical keyboard
+// goes through the same reducer, so both behave the same.
+export type NumericKey = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.' | '-' | 'backspace' | 'clear'
+
+export const NUMERIC_KEYS: NumericKey[] = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', '-']
+export const MAX_NUMERIC_LENGTH = 12
+// What may be on the way to a valid number: a minus only first, one point, the server's
+// digit limits (8 before the point, 6 after)
+const PARTIAL_NUMBER = /^-?\d{0,8}(?:\.\d{0,6})?$/
+// The server's rule for a saved value (domain_model.md §3.6 #4)
+const COMPLETE_NUMBER = /^-?\d{1,8}(?:\.\d{1,6})?$/
+
+export function applyNumericKey(value: string, key: NumericKey): string {
+  if (key === 'clear') return ''
+  if (key === 'backspace') return value.slice(0, -1)
+  const next = value + key
+  return next.length <= MAX_NUMERIC_LENGTH && PARTIAL_NUMBER.test(next) ? next : value
+}
+
+/** Typed text, key by key; the typographic minus counts as "-", anything else is ignored. */
+export function applyNumericText(value: string, typed: string): string {
+  let result = value
+  for (const char of typed.replaceAll('−', '-')) {
+    if (/^[\d.-]$/.test(char)) result = applyNumericKey(result, char as NumericKey)
+  }
+  return result
+}
+
+/** Only a complete number is saved; "-" or "12." waits for more keys. */
+export function isCompleteNumber(value: string): boolean {
+  return COMPLETE_NUMBER.test(value)
+}

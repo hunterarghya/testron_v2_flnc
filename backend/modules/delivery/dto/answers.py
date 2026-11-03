@@ -39,14 +39,14 @@ AnswerIn = Annotated[ChoiceAnswerIn | NumericAnswerIn, Field(discriminator="kind
 
 
 class ChoiceAnswerOut(_Strict):
-    v: Literal[1] = 1
-    kind: Literal["CHOICE"] = "CHOICE"
+    v: Literal[1]
+    kind: Literal["CHOICE"]
     option_ids: list[UUID]
 
 
 class NumericAnswerOut(_Strict):
-    v: Literal[1] = 1
-    kind: Literal["NUMERIC"] = "NUMERIC"
+    v: Literal[1]
+    kind: Literal["NUMERIC"]
     value: str
 
 
@@ -57,5 +57,5 @@ def answer_out(answer: Answer | None) -> ChoiceAnswerOut | NumericAnswerOut | No
     if answer is None:
         return None
     if isinstance(answer, NumericAnswer):
-        return NumericAnswerOut(value=answer.value)
-    return ChoiceAnswerOut(option_ids=sorted(answer.option_ids, key=str))
+        return NumericAnswerOut(v=1, kind="NUMERIC", value=answer.value)
+    return ChoiceAnswerOut(v=1, kind="CHOICE", option_ids=sorted(answer.option_ids, key=str))

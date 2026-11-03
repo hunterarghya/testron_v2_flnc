@@ -8336,13 +8336,11 @@
         "properties": {
           "v": {
             "const": 1,
-            "default": 1,
             "title": "V",
             "type": "integer"
           },
           "kind": {
             "const": "CHOICE",
-            "default": "CHOICE",
             "title": "Kind",
             "type": "string"
           },
@@ -8356,6 +8354,8 @@
           }
         },
         "required": [
+          "v",
+          "kind",
           "option_ids"
         ],
         "title": "ChoiceAnswerOut",
@@ -8475,13 +8475,11 @@
         "properties": {
           "v": {
             "const": 1,
-            "default": 1,
             "title": "V",
             "type": "integer"
           },
           "kind": {
             "const": "NUMERIC",
-            "default": "NUMERIC",
             "title": "Kind",
             "type": "string"
           },
@@ -8491,6 +8489,8 @@
           }
         },
         "required": [
+          "v",
+          "kind",
           "value"
         ],
         "title": "NumericAnswerOut",

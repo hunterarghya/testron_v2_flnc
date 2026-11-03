@@ -1,4 +1,6 @@
 // What the gate says (P-02): the rules before starting and the late-joiner message.
+import { problemMessage } from '~/api/problem-messages'
+import type { ApiProblem } from '~/api/problems'
 import type { GateState } from '~/api/types'
 import { formatDuration, formatTime } from '~/shared/utils/time'
 
@@ -38,4 +40,16 @@ export function lateJoinMessage(gate: GateState): string | null {
   if (gate.state !== 'READY' || left == null || left >= gate.rules.total_duration_s) return null
   const cutOff = gate.late_entry_until ? ` Entry closes at ${formatTime(gate.late_entry_until)}.` : ''
   return `The test has already started. You have ${formatDuration(left)}.${cutOff}`
+}
+
+/** Why Start didn't work, in words: tries left after a wrong password, or how long to wait. */
+export function startProblemText(problem: ApiProblem): string {
+  if (problem.code === 'password_incorrect' && typeof problem.context.tries_left === 'number') {
+    const left = problem.context.tries_left
+    return `That password isn't right. ${left} ${left === 1 ? 'try' : 'tries'} left.`
+  }
+  if (problem.code === 'rate_limited' && typeof problem.context.retry_after_s === 'number') {
+    return `Too many tries. Try again in ${problem.context.retry_after_s} s.`
+  }
+  return problemMessage(problem)
 }

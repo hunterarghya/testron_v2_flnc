@@ -1,12 +1,13 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '~/api/client'
 import type { GateState, MyTestCard } from '~/api/types'
 import MyTests from '~/features/my-tests/components/MyTests.vue'
 import TestGate from '~/features/my-tests/components/TestGate.vue'
-import { lateJoinMessage, markingLine, ruleBullets, stagesLine } from '~/features/my-tests/utils/gate-text'
+import { lateJoinMessage, markingLine, ruleBullets, stagesLine, startProblemText } from '~/features/my-tests/utils/gate-text'
 import { type FakeApi, ok } from '../fake-api'
+import { ApiProblem } from '~/api/problems'
 
 vi.mock('~/api/client', async () => {
   const { fakeApi, fakeClientModule } = await import('../fake-api')
@@ -14,6 +15,8 @@ vi.mock('~/api/client', async () => {
 })
 
 const fake = api as unknown as FakeApi
+const navigate = vi.hoisted(() => vi.fn())
+mockNuxtImport('navigateTo', () => navigate)
 const NOW = '2026-11-12T05:00:00Z'
 
 function card(changes: Partial<MyTestCard>): MyTestCard {
@@ -116,6 +119,48 @@ describe('TestGate (P-02)', () => {
   })
 })
 
+describe('Start (P-02 -> P-03)', () => {
+  beforeEach(() => {
+    fake.GET.mockReset().mockImplementation(() => ok(gate({ state: 'READY' })))
+    fake.POST.mockReset()
+    navigate.mockReset()
+    localStorage.clear()
+  })
+
+  async function startWith(password: string) {
+    const wrapper = await mountSuspended(TestGate, { props: { assignmentId: 'a1' } })
+    await flushPromises()
+    await readRules(wrapper)
+    await wrapper.find('input[type="password"]').setValue(password)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    return wrapper
+  }
+
+  it('starts the sitting, keeps the device id and opens the hall', async () => {
+    fake.POST.mockImplementation(() => ok({ attempt_id: 'att9', exam_client_id: 'dev9', server_now: NOW }))
+
+    const wrapper = await startWith('mitosis')
+
+    expect(fake.POST.mock.calls[0]![1]).toMatchObject({ body: { password: 'mitosis' } })
+    expect(localStorage.getItem('exam:att9:client')).toBe('dev9')
+    expect(navigate).toHaveBeenCalledWith('/attempts/att9')
+    wrapper.unmount()
+  })
+
+  it('says how many tries are left after a wrong password', async () => {
+    fake.POST.mockImplementation(() => Promise.reject(new ApiProblem({
+      status: 403, code: 'password_incorrect', detail: '', context: { tries_left: 4 },
+    })))
+
+    const wrapper = await startWith('meiosis')
+
+    expect(wrapper.text()).toContain("That password isn't right. 4 tries left.")
+    expect(navigate).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+})
+
 describe('gate text', () => {
   it('describes marking, stages and the rules', () => {
     const rules = gate().rules
@@ -124,6 +169,13 @@ describe('gate text', () => {
     expect(stagesLine({ ...rules, timing_kind: 'TOTAL' })).toBeNull()
     expect(ruleBullets({ ...rules, action: 'DISQUALIFY' })[1]).toContain('3 warnings → disqualification')
     expect(ruleBullets({ ...rules, timing_kind: 'PER_QUESTION' })[2]).toContain('own timer')
+  })
+
+  it('words a refused start', () => {
+    const problem = (code: string, context: Record<string, unknown>) => new ApiProblem({ status: 409, code, detail: '', context })
+    expect(startProblemText(problem('password_incorrect', { tries_left: 1 }))).toBe("That password isn't right. 1 try left.")
+    expect(startProblemText(problem('rate_limited', { retry_after_s: 30 }))).toBe('Too many tries. Try again in 30 s.')
+    expect(startProblemText(problem('entry_closed', {}))).toBe('Entry to this test has closed.')
   })
 
   it('says nothing to an on-time student', () => {
