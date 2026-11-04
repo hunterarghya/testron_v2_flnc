@@ -1548,6 +1548,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/students/{student_id}/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One student's chapters and topics, weakest first, and their trend */
+        get: operations["get_student_performance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A group's weak chapters and each test's score over time */
+        get: operations["get_group_performance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/performance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The student's own report, while the teacher shares it */
+        get: operations["get_my_performance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4281,6 +4332,78 @@ export interface components {
             /** Questions */
             questions: components["schemas"]["ResultQuestionOut"][] | null;
         };
+        /** PerformanceOut */
+        PerformanceOut: {
+            /** Based On Attempts */
+            based_on_attempts: number;
+            /** Chapters */
+            chapters: components["schemas"]["TagPerformanceOut"][];
+            /** Topics */
+            topics: components["schemas"]["TagPerformanceOut"][];
+            /** Trend */
+            trend: components["schemas"]["TrendPointOut"][];
+        };
+        /** TagPerformanceOut */
+        TagPerformanceOut: {
+            tag: components["schemas"]["TagRefOut"];
+            /** Score Pct */
+            score_pct: string;
+            /** Accuracy Pct */
+            accuracy_pct: string;
+            /** Attempted Pct */
+            attempted_pct: string;
+            /** Questions */
+            questions: number;
+        };
+        /** TrendPointOut */
+        TrendPointOut: {
+            /**
+             * Attempt Id
+             * Format: uuid
+             */
+            attempt_id: string;
+            /** Label */
+            label: string;
+            /**
+             * Ended At
+             * Format: date-time
+             */
+            ended_at: string;
+            /** Score Pct */
+            score_pct: string;
+        };
+        /** GroupPerformanceOut */
+        GroupPerformanceOut: {
+            /** Group Name */
+            group_name: string;
+            /** Students */
+            students: number;
+            /** Based On Attempts */
+            based_on_attempts: number;
+            /** Chapters */
+            chapters: components["schemas"]["TagPerformanceOut"][];
+            /** Topics */
+            topics: components["schemas"]["TagPerformanceOut"][];
+            /** Trend */
+            trend: components["schemas"]["GroupTrendPointOut"][];
+        };
+        /** GroupTrendPointOut */
+        GroupTrendPointOut: {
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Label */
+            label: string;
+            /**
+             * Ended At
+             * Format: date-time
+             */
+            ended_at: string;
+            /** Score Pct */
+            score_pct: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -6669,6 +6792,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResultOut"];
+                };
+            };
+        };
+    };
+    get_student_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerformanceOut"];
+                };
+            };
+        };
+    };
+    get_group_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupPerformanceOut"];
+                };
+            };
+        };
+    };
+    get_my_performance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerformanceOut"];
                 };
             };
         };

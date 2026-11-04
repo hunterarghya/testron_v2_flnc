@@ -79,6 +79,8 @@ onMounted(() => Promise.all([students.refresh(), groups.refresh()]))
           :selected="selectedRows"
           :act="students.act"
           :anonymize="students.anonymize"
+          :share-performance="students.sharePerformance"
+          :groups="groups.data.value ?? []"
           @done="selected = []"
         />
       </template>

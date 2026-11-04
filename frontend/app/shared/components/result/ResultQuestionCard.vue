@@ -8,7 +8,8 @@ import RichContentView from '~/shared/components/rich-content/RichContentView.vu
 import { formatDecimal } from '~/shared/utils/decimals'
 import { givenValue, OUTCOME, pickedIds, signedMarks } from '~/shared/utils/result-text'
 
-const props = defineProps<{ question: ResultQuestion }>()
+// printable: for an exported file, with the solution shown, not behind a toggle
+const props = defineProps<{ question: ResultQuestion, printable?: boolean }>()
 
 const outcome = computed(() => (props.question.outcome ? OUTCOME[props.question.outcome] : null))
 const picked = computed(() => new Set(pickedIds(props.question)))
@@ -52,7 +53,13 @@ const reviewed = computed(() => props.question.correct_answer != null)
         <span class="font-mono">{{ question.correct_answer?.value }}</span>
         <span v-if="question.correct_answer?.tolerance && Number(question.correct_answer.tolerance) > 0"> ± {{ question.correct_answer.tolerance }}</span>
       </p>
-      <UCollapsible v-if="question.solution">
+      <div v-if="question.solution && printable" class="rounded-md bg-elevated p-3">
+        <p class="text-sm font-medium">
+          Solution
+        </p>
+        <RichContentView :doc="question.solution" />
+      </div>
+      <UCollapsible v-else-if="question.solution">
         <UButton label="Solution" icon="i-lucide-lightbulb" color="neutral" variant="link" size="sm" />
         <template #content>
           <RichContentView :doc="question.solution" class="mt-2 rounded-md bg-elevated p-3" />

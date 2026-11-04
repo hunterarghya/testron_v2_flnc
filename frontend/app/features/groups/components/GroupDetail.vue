@@ -1,16 +1,18 @@
-<!-- T-17 Group detail: name and description, members, and sharing performance with everyone
-     in the group. Assignments and the group's performance arrive in Phases 5 and 7. -->
+<!-- T-17 Group detail: name and description, members, the class's performance, and sharing
+     it with everyone in the group. The Assignments tab is backlog B-12. -->
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Group } from '~/api/types'
 import GroupFormDialog from '~/features/groups/components/GroupFormDialog.vue'
 import GroupMembers from '~/features/groups/components/GroupMembers.vue'
 import { useGroup } from '~/features/groups/composables/useGroup'
 import ErrorState from '~/shared/components/ErrorState.vue'
+import PerformanceReport from '~/shared/components/performance/PerformanceReport.vue'
+import { groupBasisText } from '~/shared/utils/performance'
 
 const props = defineProps<{ groupId: string }>()
 
-const { detail, pending, addMembers, removeMembers, shareWithAll } = useGroup(props.groupId)
+const { detail, performance, pending, addMembers, removeMembers, shareWithAll } = useGroup(props.groupId)
 const editing = ref(false)
 const tab = ref('students')
 const group = computed<Group | undefined>(() => detail.data.value?.group)
@@ -26,6 +28,10 @@ const crumbs = computed(() => [
 ])
 
 onMounted(detail.refresh)
+// Loaded the first time the tab opens
+watch(tab, (open) => {
+  if (open === 'performance' && !performance.data.value) void performance.refresh()
+})
 </script>
 
 <template>
@@ -58,7 +64,16 @@ onMounted(detail.refresh)
       description="Tests assigned to this group will be listed here."
     />
     <div v-else class="space-y-3">
-      <UEmpty icon="i-lucide-chart-column" title="No results yet." description="The group's chapter-by-chapter accuracy appears after its first published test." />
+      <ErrorState v-if="performance.error.value" :problem="performance.error.value" @retry="performance.refresh" />
+      <USkeleton v-else-if="!performance.data.value" class="h-40 w-full" />
+      <UEmpty v-else-if="!performance.data.value.based_on_attempts" icon="i-lucide-chart-column" title="No results yet." description="The group's chapter-by-chapter accuracy appears after its first graded test." />
+      <PerformanceReport
+        v-else
+        :basis="groupBasisText(performance.data.value.based_on_attempts, performance.data.value.students)"
+        :chapters="performance.data.value.chapters"
+        :topics="performance.data.value.topics"
+        :trend="performance.data.value.trend"
+      />
       <UButton
         label="Share performance with everyone in the group"
         icon="i-lucide-share-2"

@@ -1,10 +1,12 @@
-<!-- T-15 Student profile: details, groups, performance sharing, deactivate/reactivate.
-     The Attempts and Performance tabs fill in Phases 6 and 7. -->
+<!-- T-15 Student profile: details, groups, performance sharing, deactivate/reactivate, and
+     the Performance tab (the same widgets as P-10). The Attempts tab is backlog B-12. -->
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useStudent } from '~/features/students/composables/useStudent'
 import ConfirmDialog from '~/shared/components/ConfirmDialog.vue'
 import ErrorState from '~/shared/components/ErrorState.vue'
+import PerformanceReport from '~/shared/components/performance/PerformanceReport.vue'
+import { basisText } from '~/shared/utils/performance'
 import { formatDateTime } from '~/shared/utils/time'
 
 const props = defineProps<{ studentId: string }>()
@@ -13,7 +15,7 @@ const STATUS = { ACTIVE: 'Active', PENDING: 'Pending', DECLINED: 'Declined', DEA
 const TABS = [{ value: 'attempts', label: 'Attempts' }, { value: 'performance', label: 'Performance' }]
 
 const page = useStudent(props.studentId)
-const { detail, joinable, pending } = page
+const { detail, joinable, pending, performance } = page
 const tab = ref('attempts')
 const confirmingDeactivate = ref(false)
 const student = computed(() => detail.data.value?.student)
@@ -27,6 +29,10 @@ async function deactivate(): Promise<void> {
 }
 
 onMounted(page.load)
+// Loaded the first time the tab opens
+watch(tab, (open) => {
+  if (open === 'performance' && !performance.data.value) void performance.refresh()
+})
 </script>
 
 <template>
@@ -58,7 +64,16 @@ onMounted(page.load)
     </div>
     <UTabs v-model="tab" :items="TABS" :content="false" />
     <UEmpty v-if="tab === 'attempts'" icon="i-lucide-file-text" title="No attempts yet." description="Tests this student takes will be listed here." />
-    <UEmpty v-else icon="i-lucide-chart-column" title="No performance yet." description="Chapter-by-chapter accuracy appears after their first published result." />
+    <ErrorState v-else-if="performance.error.value" :problem="performance.error.value" @retry="performance.refresh" />
+    <USkeleton v-else-if="!performance.data.value" class="h-40 w-full" />
+    <UEmpty v-else-if="!performance.data.value.based_on_attempts" icon="i-lucide-chart-column" title="No performance yet." description="Chapter-by-chapter accuracy appears after their first graded test." />
+    <PerformanceReport
+      v-else
+      :basis="basisText(performance.data.value.based_on_attempts, false)"
+      :chapters="performance.data.value.chapters"
+      :topics="performance.data.value.topics"
+      :trend="performance.data.value.trend"
+    />
     <ConfirmDialog
       v-model:open="confirmingDeactivate"
       :title="`Deactivate ${student.name}?`"

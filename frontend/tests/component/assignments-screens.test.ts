@@ -1,4 +1,4 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { api } from '~/api/client'
@@ -15,6 +15,9 @@ vi.mock('~/api/client', async () => {
 })
 
 const fake = api as unknown as FakeApi
+// Start leads on to the monitor; the test stays on the lobby
+const navigate = vi.hoisted(() => vi.fn())
+mockNuxtImport('navigateTo', () => navigate)
 
 
 // Buttons in the component itself, or in a dialog (dialogs render into the page body)

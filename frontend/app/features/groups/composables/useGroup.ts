@@ -5,7 +5,7 @@ import { useToast } from '#imports'
 import { problemMessage } from '~/api/problem-messages'
 import { toProblem } from '~/api/problems'
 import type { BulkResult } from '~/api/types'
-import { changeMembers, getGroup, shareWithGroup } from '~/features/groups/composables/groupsApi'
+import { changeMembers, getGroup, getGroupPerformance, shareWithGroup } from '~/features/groups/composables/groupsApi'
 import { useApiData } from '~/shared/composables/useApiData'
 
 export function outcome(result: BulkResult, verb: string): string {
@@ -17,6 +17,7 @@ export function useGroup(groupId: string) {
   const toast = useToast()
   const pending = ref(false)
   const detail = useApiData(() => getGroup(groupId))
+  const performance = useApiData(() => getGroupPerformance(groupId))
 
   async function run(action: () => Promise<BulkResult>, verb: string): Promise<boolean> {
     pending.value = true
@@ -36,6 +37,7 @@ export function useGroup(groupId: string) {
 
   return {
     detail,
+    performance,
     pending,
     addMembers: (ids: string[]) => run(() => changeMembers(groupId, ids, true), 'added'),
     removeMembers: (ids: string[]) => run(() => changeMembers(groupId, ids, false), 'removed'),

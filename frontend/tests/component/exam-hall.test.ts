@@ -27,6 +27,8 @@ beforeEach(() => {
   for (const method of [fake.GET, fake.PUT, fake.POST]) method.mockReset()
   fake.GET.mockImplementation(() => ok(attempt()))
   fake.POST.mockImplementation(() => ok(undefined))
+  // A save still due (typing waits 500 ms) may land after a test: answer it like the server
+  fake.PUT.mockImplementation(() => ok({ ...clockOf(attempt()), saved_at: NOW, applied: true }))
 })
 
 describe('ExamHall (P-03)', () => {

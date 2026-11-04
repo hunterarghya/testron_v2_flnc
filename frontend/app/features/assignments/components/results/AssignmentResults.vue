@@ -33,6 +33,8 @@ const sectionTitles = computed(() => book.value?.rows.find(r => r.sections.lengt
 const columns = computed(() => gradebookColumns(sectionTitles.value.length > 1 ? sectionTitles.value : [], (row) => {
   overriding.value = row
 }))
+// The page adds the browser exports here (features can't import each other)
+const selectedAttemptIds = computed(() => rows.value.filter(r => selected.value.includes(r.id) && r.attempt_id).map(r => r.attempt_id!))
 const chosen = computed(() => rows.value.filter(r => selected.value.includes(r.id)).map(r => ({ id: r.student_id, name: r.name })))
 const published = computed(() => book.value?.publication_state === 'PUBLISHED')
 const menu = computed(() => [
@@ -60,6 +62,7 @@ onMounted(() => {
       </h2>
       <UBadge :label="published ? 'Published' : book.publication_state === 'SCHEDULED' ? 'Auto-publish' : 'Unpublished'" :color="published ? 'success' : 'neutral'" variant="subtle" />
       <div class="ms-auto flex gap-2">
+        <slot name="export" :title="book.title" :attempt-ids="selectedAttemptIds" />
         <UButton label="Gradebook (CSV)" icon="i-lucide-download" color="neutral" variant="outline" :href="results.csvUrl" external download />
         <UDropdownMenu v-if="published" :items="menu">
           <UButton label="Published ✓" trailing-icon="i-lucide-chevron-down" color="success" variant="soft" />

@@ -118,6 +118,11 @@ def get_record_for_student(assignment_id: UUID, student_id: UUID) -> AssignmentR
     return record_of(_one(rows, assignment_id))
 
 
+def titles(assignment_ids: Collection[UUID]) -> dict[UUID, str]:
+    rows = Assignment.objects.filter(pk__in=assignment_ids).values_list("id", "title")
+    return dict(rows)
+
+
 def mark_ended(assignment_id: UUID, *, now: datetime) -> None:
     """ "End for everyone": the first time only, so ending twice keeps the first instant."""
     Assignment.objects.filter(pk=assignment_id, ended_at__isnull=True).update(

@@ -9,7 +9,8 @@ import ResultQuestionCard from '~/shared/components/result/ResultQuestionCard.vu
 import { formatDecimal } from '~/shared/utils/decimals'
 import { headerFacts, matches, percent, type QuestionFilter, scoreText } from '~/shared/utils/result-text'
 
-const props = defineProps<{ result: Result, disqualified?: boolean }>()
+// printable: for an exported file, every question, no filter buttons, solutions shown
+const props = defineProps<{ result: Result, disqualified?: boolean, printable?: boolean }>()
 
 const filter = ref<QuestionFilter>('all')
 const FILTERS = [
@@ -54,7 +55,7 @@ const topics = computed(() => props.result.tags.filter(t => t.kind === 'TOPIC'))
       </div>
     </UCard>
     <template v-if="result.questions">
-      <div class="flex flex-wrap items-center gap-2">
+      <div v-if="!printable" class="flex flex-wrap items-center gap-2">
         <span class="text-sm text-muted">Filter</span>
         <UButton
           v-for="option in FILTERS"
@@ -66,7 +67,7 @@ const topics = computed(() => props.result.tags.filter(t => t.kind === 'TOPIC'))
           @click="filter = option.value as QuestionFilter"
         />
       </div>
-      <ResultQuestionCard v-for="question in questions" :key="question.id" :question="question">
+      <ResultQuestionCard v-for="question in questions" :key="question.id" :question="question" :printable="printable">
         <template #actions>
           <slot name="question-actions" :question="question" />
         </template>

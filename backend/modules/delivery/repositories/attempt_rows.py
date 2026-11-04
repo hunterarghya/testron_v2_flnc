@@ -85,6 +85,10 @@ def rows_of_assignments(assignment_ids: list[UUID]) -> list[AttemptRow]:
     return _rows(Attempt.objects.filter(assignment_id__in=assignment_ids))
 
 
+def rows_of_students(student_ids: list[UUID]) -> list[AttemptRow]:
+    return _rows(Attempt.objects.filter(student_id__in=student_ids).order_by("started_at"))
+
+
 def rows_of_student(student_id: UUID) -> list[AttemptRow]:
     """Newest first (P-08)."""
     return _rows(Attempt.objects.filter(student_id=student_id).order_by("-started_at"))

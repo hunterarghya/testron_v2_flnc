@@ -3,10 +3,8 @@
 // browser from the answer sheets and key (ADR-019).
 import { api, unwrap } from '~/api/client'
 import type {
-  AnswerSheet,
   Gradebook,
   KeyCorrected,
-  KeyedPaper,
   KeyEntry,
   PublicationOptions,
   PublicationView,
@@ -22,14 +20,6 @@ export function getGradebook(assignmentId: string): Promise<Gradebook> {
 
 export function getQuestionStats(assignmentId: string): Promise<QuestionStat[]> {
   return unwrap(api.GET('/api/v1/admin/assignments/{assignment_id}/question-stats', assignment(assignmentId)))
-}
-
-export function getAnswerKey(assignmentId: string): Promise<KeyedPaper> {
-  return unwrap(api.GET('/api/v1/admin/assignments/{assignment_id}/answer-key', assignment(assignmentId)))
-}
-
-export function getAnswerSheet(attemptId: string): Promise<AnswerSheet> {
-  return unwrap(api.GET('/api/v1/admin/attempts/{attempt_id}/sheet', attempt(attemptId)))
 }
 
 export function publishResults(assignmentId: string, options: PublicationOptions): Promise<PublicationView> {

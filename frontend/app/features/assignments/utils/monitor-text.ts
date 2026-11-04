@@ -1,5 +1,5 @@
 // What the live monitor says (T-10): each status in words, "last seen" and the summary line.
-import type { IntegrityEventView, Monitor, MonitorRow, MonitorStatus } from '~/api/types'
+import type { Monitor, MonitorRow, MonitorStatus } from '~/api/types'
 import { formatTime } from '~/shared/utils/time'
 
 export const STATUS_LABEL: Record<MonitorStatus, string> = {
@@ -34,13 +34,4 @@ export function summaryLine(monitor: Monitor): string {
   return Object.entries(monitor.summary)
     .map(([status, count]) => `${count} ${STATUS_LABEL[status as MonitorStatus].toLowerCase()}`)
     .join(' · ')
-}
-
-/** The ⚑ panel: "Tab hidden · 10:21 · away 12 s · counted" */
-export function eventLine(event: IntegrityEventView): string {
-  const kind = { FULLSCREEN_EXIT: 'Left fullscreen', TAB_HIDDEN: 'Tab hidden', WINDOW_BLUR: 'Switched window', DEVICE_CHANGED: 'Device changed' }[event.kind]
-  const away = event.returned_at
-    ? `away ${Math.round((Date.parse(event.returned_at) - Date.parse(event.left_at)) / 1000)} s`
-    : 'not back yet'
-  return [kind, formatTime(event.left_at), away, event.counted ? 'counted' : 'not counted'].join(' · ')
 }

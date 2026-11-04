@@ -1,8 +1,8 @@
 // What a result says (P-09, T-12): marks, outcomes, percentages and time. Marks stay decimal
 // strings (CLAUDE.md rule 7); a number is made only for a bar's width or a whole percentage.
-import type { Result, ResultQuestion } from '~/api/types'
+import type { IntegrityEventView, Result, ResultQuestion } from '~/api/types'
 import { formatDecimal } from '~/shared/utils/decimals'
-import { formatDuration } from '~/shared/utils/time'
+import { formatDuration, formatTime } from '~/shared/utils/time'
 
 export type QuestionFilter = 'all' | 'wrong' | 'unanswered'
 
@@ -54,4 +54,19 @@ export function givenValue(question: ResultQuestion): string {
 export function pickedIds(question: ResultQuestion): string[] {
   const answer = question.your_answer as { option_ids?: string[] } | null | undefined
   return answer?.option_ids ?? []
+}
+
+const LEFT_BY: Record<IntegrityEventView['kind'], string> = {
+  FULLSCREEN_EXIT: 'Left fullscreen',
+  TAB_HIDDEN: 'Tab hidden',
+  WINDOW_BLUR: 'Switched window',
+  DEVICE_CHANGED: 'Device changed',
+}
+
+/** T-10's ⚑ panel and T-12: "Tab hidden · 10:21 · away 12 s · counted" */
+export function eventText(event: IntegrityEventView): string {
+  const away = event.returned_at
+    ? `away ${Math.round((Date.parse(event.returned_at) - Date.parse(event.left_at)) / 1000)} s`
+    : 'not back yet'
+  return [LEFT_BY[event.kind], formatTime(event.left_at), away, event.counted ? 'counted' : 'not counted'].join(' · ')
 }

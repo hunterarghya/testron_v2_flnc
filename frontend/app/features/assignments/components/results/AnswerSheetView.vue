@@ -3,12 +3,12 @@
      the test. -->
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { getAnswerSheet } from '~/features/assignments/composables/resultsApi'
-import { eventLine } from '~/features/assignments/utils/monitor-text'
 import { STATUS } from '~/features/assignments/utils/gradebook-columns'
 import ErrorState from '~/shared/components/ErrorState.vue'
 import ResultSheet from '~/shared/components/result/ResultSheet.vue'
 import { useApiData } from '~/shared/composables/useApiData'
+import { eventText } from '~/shared/utils/result-text'
+import { getAnswerSheet } from '~/shared/composables/resultDocumentsApi'
 import { formatDecimal } from '~/shared/utils/decimals'
 
 const props = defineProps<{ attemptId: string }>()
@@ -29,6 +29,9 @@ onMounted(() => sheet.refresh())
       </h2>
       <UBadge v-if="status" :label="status.label" :color="status.color" variant="subtle" />
       <span v-if="data.disqualified_score" class="text-sm text-muted">(scored {{ formatDecimal(data.disqualified_score) }})</span>
+      <div class="ms-auto">
+        <slot name="download" :sheet="data" />
+      </div>
     </div>
     <ResultSheet :result="data" />
     <UCard v-if="data.integrity_events.length">
@@ -37,7 +40,7 @@ onMounted(() => sheet.refresh())
       </template>
       <ul class="space-y-1 text-sm">
         <li v-for="event in data.integrity_events" :key="event.left_at">
-          {{ eventLine(event) }}
+          {{ eventText(event) }}
         </li>
       </ul>
     </UCard>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from '#imports'
 import AssignmentResults from '~/features/assignments/components/results/AssignmentResults.vue'
+import ExportMenu from '~/features/exports/components/ExportMenu.vue'
 
 definePageMeta({ layout: 'teacher' })
 
@@ -18,7 +19,11 @@ const assignmentId = String(route.params.id)
       </UDashboardNavbar>
     </template>
     <template #body>
-      <AssignmentResults :assignment-id="assignmentId" />
+      <AssignmentResults :assignment-id="assignmentId">
+        <template #export="{ title, attemptIds }">
+          <ExportMenu :assignment-id="assignmentId" :title="title" :attempt-ids="attemptIds" />
+        </template>
+      </AssignmentResults>
     </template>
   </UDashboardPanel>
 </template>

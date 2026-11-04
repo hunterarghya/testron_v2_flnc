@@ -2,12 +2,12 @@
 // any change (publish, correction, override), and the header's stats line.
 import { computed } from 'vue'
 import {
-  getAnswerKey,
   getGradebook,
   getQuestionStats,
   gradebookCsvUrl,
   unpublishResults,
 } from '~/features/assignments/composables/resultsApi'
+import { getAnswerKey } from '~/shared/composables/resultDocumentsApi'
 import { useApiData } from '~/shared/composables/useApiData'
 import { formatDecimal } from '~/shared/utils/decimals'
 

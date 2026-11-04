@@ -14,6 +14,7 @@ from modules.delivery.repositories.attempt_rows import (
     rows_of,
     rows_of_assignments,
     rows_of_student,
+    rows_of_students,
 )
 from modules.delivery.repositories.integrity_events import EventRow
 from modules.delivery.repositories.integrity_events import of_attempt as integrity_events_of
@@ -38,5 +39,6 @@ __all__ = [
     "rows_of",
     "rows_of_assignments",
     "rows_of_student",
+    "rows_of_students",
     "students_with_attempts",
 ]

@@ -1,6 +1,6 @@
 // Every groups call the screens make (api_contract.md §2.3), in one place.
 import { api, unwrap } from '~/api/client'
-import type { BulkResult, Group, GroupDetail } from '~/api/types'
+import type { BulkResult, Group, GroupDetail, GroupPerformance } from '~/api/types'
 
 export interface GroupFields {
   name: string
@@ -44,4 +44,8 @@ export function changeMembers(groupId: string, studentIds: string[], add: boolea
 
 export function shareWithGroup(groupId: string): Promise<BulkResult> {
   return unwrap(api.POST('/api/v1/admin/performance-shares', { body: { group_id: groupId } }))
+}
+
+export function getGroupPerformance(groupId: string): Promise<GroupPerformance> {
+  return unwrap(api.GET('/api/v1/admin/groups/{group_id}/performance', { params: { path: { group_id: groupId } } }))
 }

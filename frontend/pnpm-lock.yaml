@@ -245,6 +245,9 @@ importers:
       '@tiptap/vue-3':
         specifier: 3.32.0
         version: 3.32.0(@floating-ui/dom@1.8.0)(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)(vue@3.5.44(typescript@6.0.3))
+      jszip:
+        specifier: 3.10.1
+        version: 3.10.1
       katex:
         specifier: 0.19.0
         version: 0.19.0
@@ -3663,6 +3666,9 @@ packages:
   image-meta@0.3.1:
     resolution: {integrity: sha512-rKANCbmsJCZ3/q87GTWZ+8MhOvhPLjsScznVtqvBoTu6Tyq8FzdPoBUMl/ZxQXy+/5I+C1vxXwS1jSwmHgmDLQ==}
 
+  immediate@3.0.6:
+    resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
+
   import-meta-resolve@4.2.0:
     resolution: {integrity: sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg==}
 
@@ -3847,6 +3853,9 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  jszip@3.10.1:
+    resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
+
   katex@0.19.0:
     resolution: {integrity: sha512-v6Tznz3zJ7u3niRCoDTsumM2+HA2XXcCu+WAacCeHD2z3p9A9Ks987o5FzfTGBN0e8A0vjEgIDvLbICrXpdw/Q==}
     hasBin: true
@@ -3880,6 +3889,9 @@ packages:
     resolution: {integrity: sha512-vh+TiejVy8Xm+hCdnRfn9BthGNvNUZdEXltNjVZL3TzRIKP3s1lnQh8pWd/Q0wCgY0FPAGVVjFF4ZiHUV3LFgA==}
     engines: {node: '>=16'}
     hasBin: true
+
+  lie@3.3.0:
+    resolution: {integrity: sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==}
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -4389,6 +4401,9 @@ packages:
   package-manager-detector@1.9.0:
     resolution: {integrity: sha512-zAMfbta9nPA8AKkA4WdmNAT8R8s6Dk0/xwPsqNnRidMFcLo1YkLuPDTgs2f64XdzS8vbLNnoJ+uUIkgbz7oRHA==}
 
+  pako@1.0.11:
+    resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
   parse-imports-exports@0.2.4:
     resolution: {integrity: sha512-4s6vd6dx1AotCx/RCI2m7t7GCh5bDRUtGNvRfHSP2wbBQdMi67pPe7mtzmgwcaQ8VKK/6IB7Glfyu3qdZJPybQ==}
 
@@ -4729,6 +4744,9 @@ packages:
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
+
+  setimmediate@1.0.5:
+    resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
 
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
@@ -9321,6 +9339,8 @@ snapshots:
 
   image-meta@0.3.1: {}
 
+  immediate@3.0.6: {}
+
   import-meta-resolve@4.2.0: {}
 
   impound@1.2.1(esbuild@0.28.2)(rolldown@1.2.16)(rollup@4.67.3)(vite@8.3.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1)):
@@ -9487,6 +9507,13 @@ snapshots:
 
   json5@2.2.3: {}
 
+  jszip@3.10.1:
+    dependencies:
+      lie: 3.3.0
+      pako: 1.0.11
+      readable-stream: 2.3.8
+      setimmediate: 1.0.5
+
   katex@0.19.0:
     dependencies:
       commander: 15.0.0
@@ -9518,6 +9545,10 @@ snapshots:
   lib0@0.2.119:
     dependencies:
       isomorphic.js: 0.2.5
+
+  lie@3.3.0:
+    dependencies:
+      immediate: 3.0.6
 
   lightningcss-android-arm64@1.32.0:
     optional: true
@@ -10197,6 +10228,8 @@ snapshots:
 
   package-manager-detector@1.9.0: {}
 
+  pako@1.0.11: {}
+
   parse-imports-exports@0.2.4:
     dependencies:
       parse-statements: 1.0.11
@@ -10595,6 +10628,8 @@ snapshots:
       send: 1.2.1(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
+
+  setimmediate@1.0.5: {}
 
   setprototypeof@1.2.0: {}
 

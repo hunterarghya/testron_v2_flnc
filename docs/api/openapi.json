@@ -4000,6 +4000,94 @@
           "results"
         ]
       }
+    },
+    "/api/v1/admin/students/{student_id}/performance": {
+      "get": {
+        "operationId": "get_student_performance",
+        "summary": "One student's chapters and topics, weakest first, and their trend",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "student_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Student Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerformanceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/performance": {
+      "get": {
+        "operationId": "get_group_performance",
+        "summary": "A group's weak chapters and each test's score over time",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupPerformanceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/my/performance": {
+      "get": {
+        "operationId": "get_my_performance",
+        "summary": "The student's own report, while the teacher shares it",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerformanceOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
     }
   },
   "components": {
@@ -12129,6 +12217,187 @@
           "questions"
         ],
         "title": "ResultOut",
+        "type": "object"
+      },
+      "PerformanceOut": {
+        "additionalProperties": false,
+        "properties": {
+          "based_on_attempts": {
+            "title": "Based On Attempts",
+            "type": "integer"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/TagPerformanceOut"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TagPerformanceOut"
+            },
+            "title": "Topics",
+            "type": "array"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointOut"
+            },
+            "title": "Trend",
+            "type": "array"
+          }
+        },
+        "required": [
+          "based_on_attempts",
+          "chapters",
+          "topics",
+          "trend"
+        ],
+        "title": "PerformanceOut",
+        "type": "object"
+      },
+      "TagPerformanceOut": {
+        "additionalProperties": false,
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/TagRefOut"
+          },
+          "score_pct": {
+            "title": "Score Pct",
+            "type": "string"
+          },
+          "accuracy_pct": {
+            "title": "Accuracy Pct",
+            "type": "string"
+          },
+          "attempted_pct": {
+            "title": "Attempted Pct",
+            "type": "string"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tag",
+          "score_pct",
+          "accuracy_pct",
+          "attempted_pct",
+          "questions"
+        ],
+        "title": "TagPerformanceOut",
+        "type": "object"
+      },
+      "TrendPointOut": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "score_pct": {
+            "title": "Score Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "label",
+          "ended_at",
+          "score_pct"
+        ],
+        "title": "TrendPointOut",
+        "type": "object"
+      },
+      "GroupPerformanceOut": {
+        "additionalProperties": false,
+        "properties": {
+          "group_name": {
+            "title": "Group Name",
+            "type": "string"
+          },
+          "students": {
+            "title": "Students",
+            "type": "integer"
+          },
+          "based_on_attempts": {
+            "title": "Based On Attempts",
+            "type": "integer"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/TagPerformanceOut"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TagPerformanceOut"
+            },
+            "title": "Topics",
+            "type": "array"
+          },
+          "trend": {
+            "items": {
+              "$ref": "#/components/schemas/GroupTrendPointOut"
+            },
+            "title": "Trend",
+            "type": "array"
+          }
+        },
+        "required": [
+          "group_name",
+          "students",
+          "based_on_attempts",
+          "chapters",
+          "topics",
+          "trend"
+        ],
+        "title": "GroupPerformanceOut",
+        "type": "object"
+      },
+      "GroupTrendPointOut": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "score_pct": {
+            "title": "Score Pct",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "label",
+          "ended_at",
+          "score_pct"
+        ],
+        "title": "GroupTrendPointOut",
         "type": "object"
       }
     }

@@ -31,6 +31,7 @@ from modules.assignments.services.queries.get_results_frame import (
 from modules.assignments.services.queries.get_sitting_terms import SittingTerms, get_sitting_terms
 from modules.assignments.services.queries.get_student_assignment import get_student_assignment
 from modules.assignments.services.queries.is_password_correct import is_password_correct
+from modules.assignments.services.queries.list_assignment_titles import list_assignment_titles
 from modules.assignments.services.queries.list_assignments import (
     AssignmentFilter,
     Tab,
@@ -73,6 +74,7 @@ __all__ = [
     "get_sitting_terms",
     "get_student_assignment",
     "is_password_correct",
+    "list_assignment_titles",
     "list_assignments",
     "list_results_frames_for_student",
     "list_student_assignments",

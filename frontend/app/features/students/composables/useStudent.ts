@@ -14,6 +14,10 @@ export function useStudent(studentId: string) {
     params: { path: { student_id: studentId } },
   })))
   const groups = useApiData(() => unwrap(api.GET('/api/v1/admin/groups', { params: { query: { archived: false } } })))
+  // Every counted attempt, published or not: the teacher always sees it (T-15)
+  const performance = useApiData(() => unwrap(api.GET('/api/v1/admin/students/{student_id}/performance', {
+    params: { path: { student_id: studentId } },
+  })))
   const joinable = computed(() => {
     const joined = new Set(detail.data.value?.groups.map(group => group.id))
     return (groups.data.value ?? []).filter(group => !joined.has(group.id))
@@ -40,6 +44,7 @@ export function useStudent(studentId: string) {
   return {
     detail,
     groups,
+    performance,
     joinable,
     pending,
     load: () => Promise.all([detail.refresh(), groups.refresh()]),

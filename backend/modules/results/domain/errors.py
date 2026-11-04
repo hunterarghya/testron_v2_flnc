@@ -8,3 +8,11 @@ class ResultsNotPublished(DomainError):
     code = "results_not_published"
     status = 404
     title = "This result isn't available"
+
+
+class PerformanceNotShared(DomainError):
+    """P-10 while the teacher isn't sharing it: hidden like a missing page (security.md A-11)."""
+
+    code = "performance_not_shared"
+    status = 404
+    title = "Your performance report isn't shared yet"

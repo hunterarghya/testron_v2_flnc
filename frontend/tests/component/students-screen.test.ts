@@ -80,6 +80,7 @@ describe('StudentsTable (T-14)', () => {
 describe('StudentsBulkActions', () => {
   const act = vi.fn()
   const anonymize = vi.fn()
+  const sharePerformance = vi.fn()
 
   beforeEach(() => {
     act.mockReset().mockResolvedValue({ succeeded: ['a'], skipped: [{ id: 't', reason: 'status_active' }] })
@@ -88,12 +89,12 @@ describe('StudentsBulkActions', () => {
 
   it.each([
     ['PENDING', ['Approve', 'Decline']],
-    ['ACTIVE', ['Deactivate']],
+    ['ACTIVE', ['Share performance', 'Deactivate']],
     ['DEACTIVATED', ['Reactivate', 'Delete permanently']],
     ['DECLINED', []],
   ] as const)('the %s tab offers %o', async (tab, labels) => {
     const wrapper = await mountSuspended(StudentsBulkActions, {
-      props: { tab, selected: [student('a', 'Aditi', tab)], act, anonymize },
+      props: { tab, selected: [student('a', 'Aditi', tab)], act, anonymize, sharePerformance, groups: [] },
     })
 
     expect(wrapper.findAll('button').map(button => button.text())).toEqual(labels)
@@ -101,7 +102,7 @@ describe('StudentsBulkActions', () => {
 
   it('approves the ticked students straight away', async () => {
     const wrapper = await mountSuspended(StudentsBulkActions, {
-      props: { tab: 'PENDING', selected: [student('a', 'Aditi'), student('t', 'Tapas')], act, anonymize },
+      props: { tab: 'PENDING', selected: [student('a', 'Aditi'), student('t', 'Tapas')], act, anonymize, sharePerformance, groups: [] },
     })
 
     await wrapper.findAll('button').find(button => button.text() === 'Approve')!.trigger('click')
@@ -113,7 +114,7 @@ describe('StudentsBulkActions', () => {
 
   it('offers delete only for one student at a time', async () => {
     const wrapper = await mountSuspended(StudentsBulkActions, {
-      props: { tab: 'DEACTIVATED', selected: [student('a', 'A', 'DEACTIVATED'), student('b', 'B', 'DEACTIVATED')], act, anonymize },
+      props: { tab: 'DEACTIVATED', selected: [student('a', 'A', 'DEACTIVATED'), student('b', 'B', 'DEACTIVATED')], act, anonymize, sharePerformance, groups: [] },
     })
 
     expect(wrapper.text()).not.toContain('Delete permanently')
@@ -122,7 +123,7 @@ describe('StudentsBulkActions', () => {
   it('reports a failed action instead of finishing', async () => {
     act.mockImplementation(() => fails(403, 'forbidden'))
     const wrapper = await mountSuspended(StudentsBulkActions, {
-      props: { tab: 'PENDING', selected: [student('a', 'Aditi')], act, anonymize },
+      props: { tab: 'PENDING', selected: [student('a', 'Aditi')], act, anonymize, sharePerformance, groups: [] },
     })
 
     await wrapper.findAll('button').find(button => button.text() === 'Approve')!.trigger('click')

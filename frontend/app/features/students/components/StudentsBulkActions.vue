@@ -1,12 +1,15 @@
 <!-- The bulk bar of one T-14 tab: what can be done to the ticked students there. Decline and
-     deactivate ask first; deleting asks for the student's name to be typed. -->
+     deactivate ask first; deleting asks for the student's name to be typed; Share performance
+     opens D-06. -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useToast } from '#imports'
 import { problemMessage } from '~/api/problem-messages'
 import { toProblem } from '~/api/problems'
-import type { BulkResult, ListedStatus, StudentRow } from '~/api/types'
+import type { BulkResult, Group, ListedStatus, StudentRow } from '~/api/types'
+import ShareDialog from '~/features/students/components/ShareDialog.vue'
 import { bulkSummary, type StudentAction } from '~/features/students/utils/bulk-summary'
+import type { ShareChange } from '~/features/students/utils/share-plan'
 import ConfirmDialog from '~/shared/components/ConfirmDialog.vue'
 
 type Confirmable = 'decline' | 'deactivate' | 'delete'
@@ -16,12 +19,15 @@ const props = defineProps<{
   selected: StudentRow[]
   act: (action: StudentAction, ids: string[]) => Promise<BulkResult>
   anonymize: (id: string, confirmName: string) => Promise<void>
+  sharePerformance: (change: ShareChange) => Promise<string>
+  groups: Group[]
 }>()
 const emit = defineEmits<{ done: [] }>()
 
 const toast = useToast()
 const confirming = ref<Confirmable | null>(null)
 const pending = ref(false)
+const sharing = ref(false)
 const only = computed(() => (props.selected.length === 1 ? props.selected[0] : undefined))
 const people = computed(() => `${props.selected.length} student${props.selected.length === 1 ? '' : 's'}`)
 const dialogOpen = computed({
@@ -52,6 +58,13 @@ async function run(action: StudentAction): Promise<void> {
   await guarded(async () => {
     const result = await props.act(action, props.selected.map(student => student.id))
     toast.add({ title: bulkSummary(result, action), color: 'success' })
+  })
+}
+
+async function share(change: ShareChange): Promise<void> {
+  await guarded(async () => {
+    toast.add({ title: await props.sharePerformance(change), color: 'success' })
+    sharing.value = false
   })
 }
 
@@ -86,12 +99,16 @@ async function guarded(work: () => Promise<void>): Promise<void> {
     <UButton label="Approve" icon="i-lucide-check" :loading="pending" @click="run('approve')" />
     <UButton label="Decline" icon="i-lucide-x" color="error" variant="outline" @click="confirming = 'decline'" />
   </template>
-  <UButton v-else-if="tab === 'ACTIVE'" label="Deactivate" color="error" variant="outline" @click="confirming = 'deactivate'" />
+  <template v-else-if="tab === 'ACTIVE'">
+    <UButton label="Share performance" icon="i-lucide-chart-column" color="neutral" variant="outline" @click="sharing = true" />
+    <UButton label="Deactivate" color="error" variant="outline" @click="confirming = 'deactivate'" />
+  </template>
   <template v-else-if="tab === 'DEACTIVATED'">
     <UButton label="Reactivate" :loading="pending" @click="run('reactivate')" />
     <UButton v-if="only" label="Delete permanently" color="error" variant="outline" @click="confirming = 'delete'" />
   </template>
 
+  <ShareDialog v-model:open="sharing" :students="selected" :groups="groups" :pending="pending" @save="share" />
   <ConfirmDialog
     v-model:open="dialogOpen"
     :title="dialog.title"

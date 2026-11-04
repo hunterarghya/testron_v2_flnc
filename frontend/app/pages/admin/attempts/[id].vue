@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from '#imports'
 import AnswerSheetView from '~/features/assignments/components/results/AnswerSheetView.vue'
+import DownloadSheetButton from '~/features/exports/components/DownloadSheetButton.vue'
 
 definePageMeta({ layout: 'teacher' })
 
@@ -19,7 +20,11 @@ const attemptId = String(route.params.id)
       </UDashboardNavbar>
     </template>
     <template #body>
-      <AnswerSheetView :attempt-id="attemptId" />
+      <AnswerSheetView :attempt-id="attemptId">
+        <template #download="{ sheet }">
+          <DownloadSheetButton :sheet="sheet" />
+        </template>
+      </AnswerSheetView>
     </template>
   </UDashboardPanel>
 </template>

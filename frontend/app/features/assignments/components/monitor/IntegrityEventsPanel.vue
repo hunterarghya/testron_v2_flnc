@@ -3,9 +3,9 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { listIntegrityEvents } from '~/features/assignments/composables/monitorApi'
-import { eventLine } from '~/features/assignments/utils/monitor-text'
 import ErrorState from '~/shared/components/ErrorState.vue'
 import { useApiData } from '~/shared/composables/useApiData'
+import { eventText } from '~/shared/utils/result-text'
 
 const props = defineProps<{ attemptId: string | null, name: string }>()
 const open = defineModel<boolean>('open', { required: true })
@@ -27,7 +27,7 @@ watch(() => [open.value, props.attemptId], () => {
       <ul v-else class="space-y-2 text-sm">
         <li v-for="event in events.data.value ?? []" :key="event.left_at" class="flex items-center gap-2">
           <UIcon :name="event.counted ? 'i-lucide-flag' : 'i-lucide-circle'" class="size-4" :class="event.counted ? 'text-warning' : 'text-muted'" />
-          {{ eventLine(event) }}
+          {{ eventText(event) }}
         </li>
       </ul>
     </template>
