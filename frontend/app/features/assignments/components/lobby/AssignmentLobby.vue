@@ -8,6 +8,7 @@ import PasswordCard from '~/features/assignments/components/overview/PasswordCar
 import { getLobby, startAssignment } from '~/features/assignments/composables/assignmentsApi'
 import { useAssignment } from '~/features/assignments/composables/useAssignment'
 import ConfirmDialog from '~/shared/components/ConfirmDialog.vue'
+import ErrorState from '~/shared/components/ErrorState.vue'
 import { useApiData } from '~/shared/composables/useApiData'
 import { usePolling } from '~/shared/composables/usePolling'
 import { useSubmit } from '~/shared/composables/useSubmit'
@@ -38,13 +39,16 @@ onMounted(() => assignment.detail.refresh())
 </script>
 
 <template>
-  <div v-if="detail" class="space-y-4">
+  <ErrorState v-if="assignment.detail.error.value" :problem="assignment.detail.error.value" @retry="assignment.detail.refresh" />
+  <div v-else-if="detail" class="space-y-4">
     <div class="flex flex-wrap items-center gap-4">
       <h2 class="text-lg font-semibold">
         {{ detail.title }} › Lobby
       </h2>
       <span class="text-sm text-muted">Joined {{ lobby.data.value?.counts.joined ?? 0 }} / {{ lobby.data.value?.counts.audience ?? 0 }}</span>
     </div>
+    <!-- The lobby keeps polling, so a failed refresh fixes itself; say the list may be stale -->
+    <UAlert v-if="lobby.error.value" color="warning" variant="subtle" icon="i-lucide-wifi-off" title="Couldn't refresh who has joined. Trying again…" />
     <PasswordCard
       v-if="detail.gate.has_password"
       has-password
@@ -99,4 +103,5 @@ onMounted(() => assignment.detail.refresh())
       @confirm="start"
     />
   </div>
+  <USkeleton v-else class="h-40 w-full" />
 </template>

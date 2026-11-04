@@ -45,6 +45,7 @@
     "@nuxt/test-utils": "4.3.4",
     "@vitest/coverage-v8": "5.0.5",
     "@vue/test-utils": "2.5.1",
+    "axe-core": "4.10.3",
     "eslint": "10.14.0",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-boundaries": "7.4.0",

@@ -3,6 +3,7 @@
 import { computed, onMounted } from 'vue'
 import { api, unwrap } from '~/api/client'
 import type { TestDocument } from '~/api/types'
+import { problemMessage } from '~/api/problem-messages'
 import { useApiData } from '~/shared/composables/useApiData'
 import { formatDuration } from '~/shared/utils/time'
 
@@ -53,6 +54,21 @@ onMounted(() => tests.refresh())
         </template>
       </USelectMenu>
     </UFormField>
+    <UAlert
+      v-if="tests.error.value"
+      color="error"
+      variant="subtle"
+      :title="problemMessage(tests.error.value)"
+      :actions="[{ label: 'Try again', onClick: () => tests.refresh() }]"
+    />
+    <UAlert
+      v-else-if="tests.data.value && !items.length"
+      color="info"
+      variant="subtle"
+      title="No tests to assign yet."
+      description="Write one in the Test Library first."
+      :actions="[{ label: 'Open the Test Library', to: '/admin/tests' }]"
+    />
     <UFormField label="Name" help="Shown to students">
       <UInput v-model="title" class="w-full" :maxlength="200" />
     </UFormField>

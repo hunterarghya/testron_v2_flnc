@@ -6,8 +6,9 @@ import type { Lobby } from '~/api/types'
 import AssignmentsList from '~/features/assignments/components/AssignmentsList.vue'
 import AssignmentLobby from '~/features/assignments/components/lobby/AssignmentLobby.vue'
 import AssignmentOverview from '~/features/assignments/components/overview/AssignmentOverview.vue'
+import WizardTestStep from '~/features/assignments/components/wizard/WizardTestStep.vue'
 import { detail } from '../assignment-fixtures'
-import { type FakeApi, ok } from '../fake-api'
+import { type FakeApi, fails, ok } from '../fake-api'
 
 vi.mock('~/api/client', async () => {
   const { fakeApi, fakeClientModule } = await import('../fake-api')
@@ -105,5 +106,34 @@ describe('AssignmentLobby (T-09)', () => {
 
     expect(fake.POST.mock.calls[0]![0]).toBe('/api/v1/admin/assignments/{assignment_id}/activate')
     wrapper.unmount()
+  })
+  it('says so when the assignment fails to load, and when the joined list may be stale', async () => {
+    fake.GET.mockImplementation(() => fails(500, 'internal_error'))
+    const broken = await mountSuspended(AssignmentLobby, { props: { assignmentId: 'a1' } })
+    await flushPromises()
+    expect(broken.text()).toContain('Try again')
+    broken.unmount()
+
+    fake.GET.mockImplementation((path: string) => (path.endsWith('/lobby') ? fails(500, 'internal_error') : ok(detail())))
+    const stale = await mountSuspended(AssignmentLobby, { props: { assignmentId: 'a1' } })
+    await flushPromises()
+    expect(stale.text()).toContain('refresh who has joined')
+    stale.unmount()
+  })
+})
+
+describe('WizardTestStep (T-07 ①)', () => {
+  it('points to the Test Library when there is nothing to assign, and offers a retry on failure', async () => {
+    fake.GET.mockReset().mockImplementation(() => ok({ items: [], page: 1, page_size: 200, total: 0 }))
+    const empty = await mountSuspended(WizardTestStep, { props: { test: null, title: '' } })
+    await flushPromises()
+    expect(empty.text()).toContain('No tests to assign yet.')
+    empty.unmount()
+
+    fake.GET.mockReset().mockImplementation(() => fails(500, 'internal_error'))
+    const broken = await mountSuspended(WizardTestStep, { props: { test: null, title: '' } })
+    await flushPromises()
+    expect(broken.text()).toContain('Try again')
+    broken.unmount()
   })
 })
