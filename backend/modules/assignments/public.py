@@ -11,6 +11,9 @@ from modules.assignments.services.commands.consume_retake_grant import consume_r
 from modules.assignments.services.commands.correct_answer_key_entry import (
     correct_answer_key_entry,
 )
+from modules.assignments.services.commands.delete_stale_lobby_presence import (
+    delete_stale_lobby_presence,
+)
 from modules.assignments.services.commands.mark_assignment_ended import mark_assignment_ended
 from modules.assignments.services.commands.touch_lobby_presence import touch_lobby_presence
 from modules.assignments.services.queries.get_answer_key import AnswerKeyView, get_answer_key
@@ -65,6 +68,7 @@ __all__ = [
     "WindowKind",
     "consume_retake_grant",
     "correct_answer_key_entry",
+    "delete_stale_lobby_presence",
     "get_answer_key",
     "get_keyed_paper",
     "get_monitor_frame",

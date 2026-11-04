@@ -12,6 +12,8 @@ from modules.identity.repositories.users import find_user_id_by_email
 from modules.identity.services.commands.authenticate_password import authenticate_password
 from modules.identity.services.commands.consume_otp import consume_otp
 from modules.identity.services.commands.create_student_user import create_student_user
+from modules.identity.services.commands.delete_expired_sessions import delete_expired_sessions
+from modules.identity.services.commands.delete_old_otps import delete_old_otps
 from modules.identity.services.commands.end_sessions import end_sessions
 from modules.identity.services.commands.issue_otp import issue_otp
 from modules.identity.services.commands.mark_email_verified import mark_email_verified
@@ -34,6 +36,8 @@ __all__ = [
     "authenticate_password",
     "consume_otp",
     "create_student_user",
+    "delete_expired_sessions",
+    "delete_old_otps",
     "end_sessions",
     "ensure_can_send_code",
     "ensure_password_strong",

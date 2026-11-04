@@ -106,3 +106,28 @@ def decide(
 def _seconds(delta: timedelta) -> int:
     # Rounded up and at least 1, so a client that waits exactly this long gets through
     return max(1, math.ceil(delta.total_seconds()))
+
+
+def delete_stale(*, before: datetime, limit: int) -> int:
+    """Housekeeping: buckets whose window, and any block, ended before `before`."""
+    with transaction.atomic(), connection.cursor() as cursor:
+        cursor.execute(_DELETE_STALE, {"before": before, "limit": limit})
+        return int(cursor.rowcount)
+
+
+def clear(key_pattern: str) -> int:
+    """Unblock keys by hand (`manage.py clear_rate_limits`); `*` matches anything."""
+    like = key_pattern.replace("\\", r"\\").replace("%", r"\%").replace("_", r"\_")
+    with transaction.atomic(), connection.cursor() as cursor:
+        cursor.execute(_CLEAR, {"like": like.replace("*", "%")})
+        return int(cursor.rowcount)
+
+
+_DELETE_STALE = """
+DELETE FROM rate_limit_buckets WHERE key IN (
+    SELECT key FROM rate_limit_buckets
+    WHERE COALESCE(blocked_until, window_started_at) < %(before)s
+    LIMIT %(limit)s
+)
+"""
+_CLEAR = "DELETE FROM rate_limit_buckets WHERE key LIKE %(like)s"

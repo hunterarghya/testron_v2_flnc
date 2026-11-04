@@ -1,6 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from django.db.models import Q, QuerySet
+
 from modules.assignments.models import LobbyPresence
 
 
@@ -20,3 +22,12 @@ def last_seen(assignment_id: UUID) -> dict[UUID, datetime]:
         "student_id", "last_seen_at"
     )
     return dict(rows)
+
+
+def no_longer_waiting() -> QuerySet[LobbyPresence]:
+    started_or_over = (
+        Q(assignment__activated_at__isnull=False)
+        | Q(assignment__ended_at__isnull=False)
+        | Q(assignment__cancelled_at__isnull=False)
+    )
+    return LobbyPresence.objects.filter(started_or_over)

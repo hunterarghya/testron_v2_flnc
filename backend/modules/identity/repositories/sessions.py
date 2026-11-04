@@ -1,5 +1,8 @@
 from collections.abc import Sequence
+from datetime import datetime
 from uuid import UUID
+
+from django.db.models import QuerySet
 
 from modules.identity.models import UserSession
 
@@ -11,3 +14,7 @@ def delete_sessions_of(user_id: UUID) -> None:
 
 def delete_sessions_of_many(user_ids: Sequence[UUID]) -> None:
     UserSession.objects.filter(user_id__in=user_ids).delete()
+
+
+def expired(now: datetime) -> QuerySet[UserSession]:
+    return UserSession.objects.filter(expire_date__lt=now)

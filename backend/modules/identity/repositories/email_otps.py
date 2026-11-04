@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from django.db.models import F
+from django.db.models import F, QuerySet
 
 from core.db.locking import for_update
 from modules.identity.domain.otp import LiveOtp
@@ -46,3 +46,7 @@ def record_failed_try(otp_id: UUID) -> None:
 
 def consume_otp(otp_id: UUID, *, now: datetime) -> None:
     EmailOtp.objects.filter(pk=otp_id).update(consumed_at=now)
+
+
+def created_before(instant: datetime) -> QuerySet[EmailOtp]:
+    return EmailOtp.objects.filter(created_at__lt=instant)

@@ -73,6 +73,7 @@ MIDDLEWARE = [
     # Ninja's views are CSRF-exempt; this checks every unsafe /api/ request itself
     "core.http.middleware.api_csrf.ApiCsrfMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "core.http.middleware.housekeeping_trigger.HousekeepingTriggerMiddleware",
 ]
 
 AUTH_USER_MODEL = "identity.User"
@@ -104,6 +105,11 @@ MAIL_BRAND_NAME = "modules.authoring.public.get_coaching_name"
 # Who has started and how many attempts are running, for the assignment screens: attempts
 # belong to delivery, which sits above assignments in the module order (ADR-074)
 ATTEMPT_FACTS = "modules.delivery.public"
+# Cleanup triggered by traffic (architecture.md §5.6, ADR-083). Off in tests, so query
+# counts stay exact; housekeeping is tested directly
+HOUSEKEEPING_TRIGGER = (
+    None if env.django_env == "test" else "modules.housekeeping.public.run_housekeeping_if_due"
+)
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"

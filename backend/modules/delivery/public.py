@@ -23,6 +23,7 @@ from modules.delivery.services.commands.finalize_assignment import (
     finalize_assignment,
     finalize_student,
 )
+from modules.delivery.services.commands.finalize_stale import finalize_stale
 from modules.delivery.services.commands.regrade_assignment import regrade_assignment
 
 __all__ = [
@@ -31,6 +32,7 @@ __all__ = [
     "answers_of",
     "attempt_counts",
     "finalize_assignment",
+    "finalize_stale",
     "finalize_student",
     "integrity_events_of",
     "plan_of",
