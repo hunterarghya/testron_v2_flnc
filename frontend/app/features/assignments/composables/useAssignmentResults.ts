@@ -1,10 +1,11 @@
-// T-11's data: the gradebook, the question stats and the answer key, refreshed together after
-// any change (publish, correction, override), and the header's stats line.
+// T-11's data: the gradebook, the question stats, the answer key and its correction history,
+// refreshed together after any change (publish, correction, override), and the stats line.
 import { computed } from 'vue'
 import {
   getGradebook,
   getQuestionStats,
   gradebookCsvUrl,
+  listKeyCorrections,
   unpublishResults,
 } from '~/features/assignments/composables/resultsApi'
 import { getAnswerKey } from '~/shared/composables/resultDocumentsApi'
@@ -15,9 +16,10 @@ export function useAssignmentResults(assignmentId: string) {
   const book = useApiData(() => getGradebook(assignmentId))
   const stats = useApiData(() => getQuestionStats(assignmentId))
   const keyed = useApiData(() => getAnswerKey(assignmentId))
+  const corrections = useApiData(() => listKeyCorrections(assignmentId))
 
   async function refresh(): Promise<void> {
-    await Promise.all([book.refresh(), stats.refresh(), keyed.refresh()])
+    await Promise.all([book.refresh(), stats.refresh(), keyed.refresh(), corrections.refresh()])
   }
 
   /** "Avg 7 · High 12 · Low 2 · 2 attempted · 1 absent · 0 disq." */
@@ -35,6 +37,7 @@ export function useAssignmentResults(assignmentId: string) {
     book,
     stats,
     keyed,
+    corrections,
     refresh,
     statsLine,
     endedCount,

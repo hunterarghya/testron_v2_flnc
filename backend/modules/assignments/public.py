@@ -1,6 +1,6 @@
 """The only names other modules may import from assignments (R-08)."""
 
-from modules.assignments.domain.answer_key import KeyEntry
+from modules.assignments.domain.answer_key import CorrectionRecord, KeyEntry
 from modules.assignments.domain.entry import Entry
 from modules.assignments.domain.lifecycle import ExtensionGrant
 from modules.assignments.domain.paper_summary import PaperSummary, Stage
@@ -34,6 +34,9 @@ from modules.assignments.services.queries.get_results_frame import (
 from modules.assignments.services.queries.get_sitting_terms import SittingTerms, get_sitting_terms
 from modules.assignments.services.queries.get_student_assignment import get_student_assignment
 from modules.assignments.services.queries.is_password_correct import is_password_correct
+from modules.assignments.services.queries.list_answer_key_corrections import (
+    list_answer_key_corrections,
+)
 from modules.assignments.services.queries.list_assignment_titles import list_assignment_titles
 from modules.assignments.services.queries.list_assignments import (
     AssignmentFilter,
@@ -50,6 +53,7 @@ __all__ = [
     "AnswerKeyView",
     "AssignmentFilter",
     "AssignmentRow",
+    "CorrectionRecord",
     "Entry",
     "ExtensionGrant",
     "Integrity",
@@ -78,6 +82,7 @@ __all__ = [
     "get_sitting_terms",
     "get_student_assignment",
     "is_password_correct",
+    "list_answer_key_corrections",
     "list_assignment_titles",
     "list_assignments",
     "list_results_frames_for_student",

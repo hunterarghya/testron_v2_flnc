@@ -12,7 +12,9 @@ from modules.assignments.public import KeyEntry
 from modules.audit.public import entries_for
 from modules.delivery.services.commands.override_disqualification import override_disqualification
 from modules.delivery.services.commands.submit_attempt import submit_attempt
+from modules.results.domain.key_history import EntryText
 from modules.results.services.commands.correct_answer_key import correct_answer_key
+from modules.results.services.queries.list_key_corrections import list_key_corrections
 from tests.factories.assignments import assign, exam_test, teacher_ctx
 from tests.factories.delivery import answer, as_student, begin, choice, numeric, option_id, stored
 from tests.factories.students import make_student
@@ -51,6 +53,17 @@ def test_a_key_correction_regrades_every_ended_attempt_e14(frozen_clock: FrozenC
     assert (attempt.score, attempt.answer_key_version) == (Decimal("8.00"), 3)
     actions = [action for action, _, _ in entries_for("assignment", assignment_id)]
     assert actions.count("answer_key.corrected") == 2
+    history = list_key_corrections(teacher, assignment_id=assignment_id)
+    assert [(h.number, h.before, h.after, h.reason, h.version) for h in history] == [
+        (
+            3,
+            EntryText(answer="46.000000", tolerance="0.000000"),
+            EntryText(answer="46", tolerance="1"),
+            "Accept 45 to 47",
+            3,
+        ),
+        (1, EntryText(labels=("A",)), EntryText(labels=("B",)), "B is right", 2),
+    ]
 
 
 def test_a_correction_must_fit_the_question_and_be_the_teachers(frozen_clock: FrozenClock) -> None:

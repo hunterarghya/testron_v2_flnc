@@ -1,13 +1,12 @@
 <!-- T-12 Student answer sheet (teacher view): the same sheet as the student's P-09, with
-     everything shown, the status, a disqualified score in brackets, and the times they left
-     the test. -->
+     everything shown, the status, a disqualified score in brackets, and the flags panel. -->
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import SheetFlagsPanel from '~/features/assignments/components/results/SheetFlagsPanel.vue'
 import { STATUS } from '~/features/assignments/utils/gradebook-columns'
 import ErrorState from '~/shared/components/ErrorState.vue'
 import ResultSheet from '~/shared/components/result/ResultSheet.vue'
 import { useApiData } from '~/shared/composables/useApiData'
-import { eventText } from '~/shared/utils/result-text'
 import { getAnswerSheet } from '~/shared/composables/resultDocumentsApi'
 import { formatDecimal } from '~/shared/utils/decimals'
 
@@ -33,16 +32,7 @@ onMounted(() => sheet.refresh())
         <slot name="download" :sheet="data" />
       </div>
     </div>
+    <SheetFlagsPanel :sheet="data" />
     <ResultSheet :result="data" />
-    <UCard v-if="data.integrity_events.length">
-      <template #header>
-        Left the test ({{ data.integrity_events.length }})
-      </template>
-      <ul class="space-y-1 text-sm">
-        <li v-for="event in data.integrity_events" :key="event.left_at">
-          {{ eventText(event) }}
-        </li>
-      </ul>
-    </UCard>
   </div>
 </template>

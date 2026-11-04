@@ -7,6 +7,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { GradebookRow, QuestionStat } from '~/api/types'
 import RetakeDialog from '~/features/assignments/components/monitor/RetakeDialog.vue'
 import KeyCorrectionDialog from '~/features/assignments/components/results/KeyCorrectionDialog.vue'
+import KeyCorrectionHistory from '~/features/assignments/components/results/KeyCorrectionHistory.vue'
 import OverrideDialog from '~/features/assignments/components/results/OverrideDialog.vue'
 import PublishDialog from '~/features/assignments/components/results/PublishDialog.vue'
 import QuestionStatsTable from '~/features/assignments/components/results/QuestionStatsTable.vue'
@@ -79,7 +80,10 @@ onMounted(() => {
         <UButton size="sm" label="Unlock retake" variant="soft" @click="retaking = true" />
       </template>
     </DataTable>
-    <QuestionStatsTable v-else :stats="results.stats.data.value ?? []" :keyed="results.keyed.data.value" @correct="stat => correcting = stat" />
+    <template v-else>
+      <QuestionStatsTable :stats="results.stats.data.value ?? []" :keyed="results.keyed.data.value" @correct="stat => correcting = stat" />
+      <KeyCorrectionHistory :corrections="results.corrections.data.value ?? []" />
+    </template>
     <PublishDialog v-model:open="publishing" :assignment-id="assignmentId" :current="detail.data.value?.publication ?? null" @done="results.refresh" />
     <RetakeDialog v-model:open="retaking" :assignment-id="assignmentId" :students="chosen" @done="n => toast.add({ title: `Retake unlocked for ${n}`, color: 'success' })" />
     <KeyCorrectionDialog

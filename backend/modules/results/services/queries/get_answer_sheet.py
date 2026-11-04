@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -13,12 +14,26 @@ from modules.students import public as students
 
 
 @dataclass(frozen=True, slots=True)
+class SheetFlags:
+    """T-12's flags panel: the warnings against the test's limit, and whether the teacher
+    counted a disqualified attempt anyway, and why (D-09)."""
+
+    warning_count: int
+    max_warnings: int
+    # What the last warning did: AUTO_SUBMIT or DISQUALIFY
+    action: str
+    overridden_at: datetime | None
+    override_reason: str | None
+
+
+@dataclass(frozen=True, slots=True)
 class AnswerSheet:
     """T-12: the result with everything, whoever sees what (domain_model.md §6.4)."""
 
     result: ResultView
     student_name: str
     events: list[delivery.EventRow]
+    flags: SheetFlags
 
 
 def get_answer_sheet(ctx: Ctx, *, attempt_id: UUID) -> AnswerSheet:
@@ -51,9 +66,23 @@ def list_answer_sheets(
             ),
             student_name=names.get(a.student_id, ""),
             events=delivery.integrity_events_of(a.id),
+            flags=_flags(a, frame),
         )
         for a in chosen
     ]
+
+
+def _flags(attempt: delivery.AttemptRow, frame: assignments.ResultsFrame) -> SheetFlags:
+    integrity = frame.row.record.settings.integrity
+    overridden = attempt.disqualification_overridden_at
+    return SheetFlags(
+        warning_count=attempt.warning_count,
+        max_warnings=integrity.max_warnings,
+        action=integrity.action,
+        overridden_at=overridden,
+        # Only overridden attempts cost the audit-log read
+        override_reason=delivery.get_override_reason(attempt.id) if overridden else None,
+    )
 
 
 def disqualified_score(sheet: AnswerSheet) -> Decimal | None:

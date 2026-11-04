@@ -4,7 +4,7 @@ from typing import cast
 from uuid import UUID
 
 from core.rich_content import Json
-from modules.assignments.domain.answer_key import Correction
+from modules.assignments.domain.answer_key import Correction, CorrectionRecord
 from modules.assignments.models import AnswerKey, AnswerKeyCorrection, Paper
 
 
@@ -80,3 +80,17 @@ def save_correction(
 def solutions(assignment_id: UUID) -> Json:
     """Each question's solution by question id (only those that have one)."""
     return cast("Json", AnswerKey.objects.values_list("solutions", flat=True).get(pk=assignment_id))
+
+
+def corrections(assignment_id: UUID) -> list[CorrectionRecord]:
+    """Every correction of the key, newest first (the `answer_key_corrections_when` index)."""
+    rows = AnswerKeyCorrection.objects.filter(answer_key_id=assignment_id).order_by(
+        "-corrected_at", "-version_after"
+    )
+    return [
+        CorrectionRecord(
+            Correction(row.question_id, row.before, row.after, row.reason, row.version_after),
+            row.corrected_at,
+        )
+        for row in rows
+    ]

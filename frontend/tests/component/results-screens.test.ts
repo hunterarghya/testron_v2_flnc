@@ -114,6 +114,7 @@ describe('AssignmentResults (T-11)', () => {
       if (path.endsWith('/gradebook')) return ok(BOOK)
       if (path.endsWith('/question-stats')) return ok(STATS)
       if (path.endsWith('/answer-key')) return ok(KEYED)
+      if (path.endsWith('/answer-key-corrections')) return ok([])
       return ok(detail({ state: 'CLOSED' }))
     })
   })

@@ -7,7 +7,7 @@ from core.http.pagination import Page
 from modules.results.controllers import badges, corrections, performance, results
 from modules.results.dto.answer_sheet import AnswerSheetOut
 from modules.results.dto.badges import BadgesOut
-from modules.results.dto.corrections import KeyCorrectedOut
+from modules.results.dto.corrections import KeyCorrectedOut, KeyCorrectionOut
 from modules.results.dto.dashboard import DashboardOut, ResultsInboxRowOut
 from modules.results.dto.gradebook import GradebookOut, KeyedPaperOut, QuestionStatOut
 from modules.results.dto.past_tests import PastTestOut
@@ -32,6 +32,13 @@ router.add_api_operation(
     corrections.correct_answer_key,
     response={200: KeyCorrectedOut},
     summary="Correct one question's answer and regrade everyone",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/answer-key-corrections",
+    ["GET"],
+    corrections.list_key_corrections,
+    response={200: list[KeyCorrectionOut]},
+    summary="Every answer key correction, newest first, with what changed and why",
 )
 
 # Teacher: results (T-01, T-11, T-12, T-13); student: P-08, P-09

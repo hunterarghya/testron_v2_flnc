@@ -1,6 +1,7 @@
 // One question of the keyed paper (database_schema.md §4.2-4.3), as D-05 edits it: the stem,
 // the options labelled A, B, … in the teacher's order, and the current answer.
-import type { KeyedPaper, RichDoc } from '~/api/types'
+import type { EntryText, KeyedPaper, RichDoc } from '~/api/types'
+import { formatDecimal } from '~/shared/utils/decimals'
 
 export interface KeyedQuestion {
   type: 'MCQ' | 'MSQ' | 'NUMERICAL'
@@ -27,4 +28,10 @@ export function keyedQuestion(keyed: KeyedPaper, questionId: string): KeyedQuest
     answer: entry.answer ?? null,
     tolerance: entry.tolerance ?? null,
   }
+}
+
+/** A key entry in the history: "A, C", or "46 ± 0.5" for a numerical question. */
+export function entryText(entry: EntryText): string {
+  if (entry.answer == null) return entry.labels.join(', ') || '—'
+  return `${formatDecimal(entry.answer)} ± ${formatDecimal(entry.tolerance ?? '0')}`
 }

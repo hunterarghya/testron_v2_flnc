@@ -25,6 +25,7 @@ const SHEET: AnswerSheet = {
   student: { id: 's1', name: 'Mou Ghosh' },
   integrity_events: [{ kind: 'TAB_HIDDEN', left_at: '2026-11-12T05:00:00Z', returned_at: '2026-11-12T05:00:12Z', counted: true }],
   disqualified_score: null,
+  flags: { warning_count: 1, max_warnings: 3, action: 'AUTO_SUBMIT', overridden_at: null, override_reason: null },
 }
 
 afterEach(() => {

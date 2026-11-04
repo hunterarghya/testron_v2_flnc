@@ -25,6 +25,7 @@ from modules.delivery.services.commands.finalize_assignment import (
 )
 from modules.delivery.services.commands.finalize_stale import finalize_stale
 from modules.delivery.services.commands.regrade_assignment import regrade_assignment
+from modules.delivery.services.queries.get_override_reason import get_override_reason
 
 __all__ = [
     "AttemptRow",
@@ -34,6 +35,7 @@ __all__ = [
     "finalize_assignment",
     "finalize_stale",
     "finalize_student",
+    "get_override_reason",
     "integrity_events_of",
     "plan_of",
     "regrade_assignment",

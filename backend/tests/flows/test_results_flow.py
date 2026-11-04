@@ -20,6 +20,7 @@ from modules.delivery.services.commands.override_disqualification import overrid
 from modules.delivery.services.commands.submit_attempt import submit_attempt
 from modules.results.domain.errors import ResultsNotPublished
 from modules.results.services.queries.export_gradebook_csv import export_gradebook_csv
+from modules.results.services.queries.get_answer_sheet import get_answer_sheet
 from modules.results.services.queries.get_badges import get_badges
 from modules.results.services.queries.get_dashboard import get_dashboard
 from modules.results.services.queries.get_gradebook import get_gradebook
@@ -177,7 +178,12 @@ def test_a_disqualified_student_sees_no_score_until_overridden_dm5(
     book = get_gradebook(teacher, assignment_id=assignment_id)
     assert [(r.name, r.placing) for r in book.rows if r.name == "Arjun"] == [("Arjun", None)]
 
+    flags = get_answer_sheet(teacher, attempt_id=attempts["Arjun"]).flags
+    assert (flags.max_warnings, flags.action, flags.override_reason) == (3, "AUTO_SUBMIT", None)
     override_disqualification(teacher, attempt_id=attempts["Arjun"], reason="Power cut")
+    override_disqualification(teacher, attempt_id=attempts["Arjun"], reason="Again")
+    flags = get_answer_sheet(teacher, attempt_id=attempts["Arjun"]).flags
+    assert (flags.overridden_at, flags.override_reason) == (frozen_clock.now(), "Power cut")
     shown = get_my_result(arjun, attempt_id=attempts["Arjun"])
     assert shown.score_hidden is False
     assert shown.result.placing is not None

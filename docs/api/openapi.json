@@ -3617,6 +3617,41 @@
           },
           "required": true
         }
+      },
+      "get": {
+        "operationId": "list_key_corrections",
+        "summary": "Every answer key correction, newest first, with what changed and why",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/KeyCorrectionOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
       }
     },
     "/api/v1/admin/assignments/{assignment_id}/gradebook": {
@@ -10881,6 +10916,92 @@
         "title": "KeyEntryIn",
         "type": "object"
       },
+      "EntryTextOut": {
+        "additionalProperties": false,
+        "description": "MCQ/MSQ: the option letters. Numerical: the answer and its tolerance.",
+        "properties": {
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "tolerance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tolerance"
+          }
+        },
+        "required": [
+          "labels",
+          "answer",
+          "tolerance"
+        ],
+        "title": "EntryTextOut",
+        "type": "object"
+      },
+      "KeyCorrectionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EntryTextOut"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EntryTextOut"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "corrected_at": {
+            "format": "date-time",
+            "title": "Corrected At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "number",
+          "before",
+          "after",
+          "reason",
+          "version",
+          "corrected_at"
+        ],
+        "title": "KeyCorrectionOut",
+        "type": "object"
+      },
       "GradebookOut": {
         "additionalProperties": false,
         "properties": {
@@ -11362,6 +11483,9 @@
               }
             ],
             "title": "Disqualified Score"
+          },
+          "flags": {
+            "$ref": "#/components/schemas/SheetFlagsOut"
           }
         },
         "required": [
@@ -11379,7 +11503,8 @@
           "questions",
           "student",
           "integrity_events",
-          "disqualified_score"
+          "disqualified_score",
+          "flags"
         ],
         "title": "AnswerSheetOut",
         "type": "object"
@@ -11630,6 +11755,59 @@
           "counted"
         ],
         "title": "SheetEventOut",
+        "type": "object"
+      },
+      "SheetFlagsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "max_warnings": {
+            "title": "Max Warnings",
+            "type": "integer"
+          },
+          "action": {
+            "enum": [
+              "AUTO_SUBMIT",
+              "DISQUALIFY"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "overridden_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overridden At"
+          },
+          "override_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Reason"
+          }
+        },
+        "required": [
+          "warning_count",
+          "max_warnings",
+          "action",
+          "overridden_at",
+          "override_reason"
+        ],
+        "title": "SheetFlagsOut",
         "type": "object"
       },
       "StudentRefOut": {

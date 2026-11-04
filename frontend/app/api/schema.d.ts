@@ -1368,7 +1368,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Every answer key correction, newest first, with what changed and why */
+        get: operations["list_key_corrections"];
         put?: never;
         /** Correct one question's answer and regrade everyone */
         post: operations["correct_answer_key"];
@@ -3903,6 +3904,39 @@ export interface components {
              */
             tolerance: number | string;
         };
+        /**
+         * EntryTextOut
+         * @description MCQ/MSQ: the option letters. Numerical: the answer and its tolerance.
+         */
+        EntryTextOut: {
+            /** Labels */
+            labels: string[];
+            /** Answer */
+            answer: string | null;
+            /** Tolerance */
+            tolerance: string | null;
+        };
+        /** KeyCorrectionOut */
+        KeyCorrectionOut: {
+            /**
+             * Question Id
+             * Format: uuid
+             */
+            question_id: string;
+            /** Number */
+            number: number;
+            before: components["schemas"]["EntryTextOut"];
+            after: components["schemas"]["EntryTextOut"];
+            /** Reason */
+            reason: string;
+            /** Version */
+            version: number;
+            /**
+             * Corrected At
+             * Format: date-time
+             */
+            corrected_at: string;
+        };
         /** GradebookOut */
         GradebookOut: {
             /** Title */
@@ -4061,6 +4095,7 @@ export interface components {
             integrity_events: components["schemas"]["SheetEventOut"][];
             /** Disqualified Score */
             disqualified_score: string | null;
+            flags: components["schemas"]["SheetFlagsOut"];
         };
         /** CorrectAnswerOut */
         CorrectAnswerOut: {
@@ -4147,6 +4182,22 @@ export interface components {
             returned_at: string | null;
             /** Counted */
             counted: boolean;
+        };
+        /** SheetFlagsOut */
+        SheetFlagsOut: {
+            /** Warning Count */
+            warning_count: number;
+            /** Max Warnings */
+            max_warnings: number;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "AUTO_SUBMIT" | "DISQUALIFY";
+            /** Overridden At */
+            overridden_at: string | null;
+            /** Override Reason */
+            override_reason: string | null;
         };
         /** StudentRefOut */
         StudentRefOut: {
@@ -6545,6 +6596,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BadgesOut"];
+                };
+            };
+        };
+    };
+    list_key_corrections: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeyCorrectionOut"][];
                 };
             };
         };

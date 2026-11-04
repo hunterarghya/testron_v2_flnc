@@ -5,6 +5,7 @@ import { api, unwrap } from '~/api/client'
 import type {
   Gradebook,
   KeyCorrected,
+  KeyCorrection,
   KeyEntry,
   PublicationOptions,
   PublicationView,
@@ -35,6 +36,11 @@ export function correctAnswerKey(assignmentId: string, questionId: string, entry
     ...assignment(assignmentId),
     body: { question_id: questionId, entry, reason },
   }))
+}
+
+/** The key's correction history, newest first (T-11). */
+export function listKeyCorrections(assignmentId: string): Promise<KeyCorrection[]> {
+  return unwrap(api.GET('/api/v1/admin/assignments/{assignment_id}/answer-key-corrections', assignment(assignmentId)))
 }
 
 export async function overrideDisqualification(attemptId: string, reason: string): Promise<void> {

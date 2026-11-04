@@ -10,7 +10,11 @@ from ninja import Schema
 from pydantic import ConfigDict
 
 from modules.results.dto.result import ResultOut
-from modules.results.services.queries.get_answer_sheet import AnswerSheet, disqualified_score
+from modules.results.services.queries.get_answer_sheet import (
+    AnswerSheet,
+    SheetFlags,
+    disqualified_score,
+)
 
 EventKind = Literal["FULLSCREEN_EXIT", "TAB_HIDDEN", "WINDOW_BLUR", "DEVICE_CHANGED"]
 
@@ -31,11 +35,30 @@ class SheetEventOut(_Out):
     counted: bool
 
 
+class SheetFlagsOut(_Out):
+    warning_count: int
+    max_warnings: int
+    action: Literal["AUTO_SUBMIT", "DISQUALIFY"]
+    overridden_at: datetime | None
+    override_reason: str | None
+
+    @classmethod
+    def from_flags(cls, flags: SheetFlags) -> Self:
+        return cls(
+            warning_count=flags.warning_count,
+            max_warnings=flags.max_warnings,
+            action="DISQUALIFY" if flags.action == "DISQUALIFY" else "AUTO_SUBMIT",
+            overridden_at=flags.overridden_at,
+            override_reason=flags.override_reason,
+        )
+
+
 class AnswerSheetOut(ResultOut):
     student: StudentRefOut
     integrity_events: list[SheetEventOut]
     # The computed score shown in brackets beside "Disqualified" (G-2)
     disqualified_score: Decimal | None
+    flags: SheetFlagsOut
 
     @classmethod
     def from_sheet(cls, sheet: AnswerSheet) -> Self:
@@ -53,4 +76,5 @@ class AnswerSheetOut(ResultOut):
                 for e in sheet.events
             ],
             disqualified_score=disqualified_score(sheet),
+            flags=SheetFlagsOut.from_flags(sheet.flags),
         )

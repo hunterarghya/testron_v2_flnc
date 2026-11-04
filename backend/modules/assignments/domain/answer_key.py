@@ -3,6 +3,7 @@ question (database_schema.md §4.3). The paper itself, what students saw, never 
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from typing import cast
 from uuid import UUID
@@ -32,6 +33,14 @@ class Correction:
     after: Json
     reason: str
     version_after: int
+
+
+@dataclass(frozen=True, slots=True)
+class CorrectionRecord:
+    """A correction as kept, with when it was made (T-11 history)."""
+
+    correction: Correction
+    corrected_at: datetime
 
 
 def key_entry_json(question: Json, entry: KeyEntry) -> dict[str, object]:
