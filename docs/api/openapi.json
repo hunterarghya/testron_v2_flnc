@@ -3618,6 +3618,388 @@
           "required": true
         }
       }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/gradebook": {
+      "get": {
+        "operationId": "get_gradebook",
+        "summary": "Every student's result, ranked, absent ones included",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradebookOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/question-stats": {
+      "get": {
+        "operationId": "get_question_stats",
+        "summary": "How each question went",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QuestionStatOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/answer-key": {
+      "get": {
+        "operationId": "get_answer_key",
+        "summary": "The paper with its answers and solutions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyedPaperOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/attempts/{attempt_id}/sheet": {
+      "get": {
+        "operationId": "get_answer_sheet",
+        "summary": "One attempt with everything (T-12)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerSheetOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/answer-sheets": {
+      "get": {
+        "operationId": "list_answer_sheets",
+        "summary": "Answer sheets for the browser to export",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "attempt_ids",
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 40000,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Attempt Ids"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AnswerSheetOut"
+                  },
+                  "title": "Response",
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/assignments/{assignment_id}/exports/gradebook.csv": {
+      "get": {
+        "operationId": "export_gradebook_csv",
+        "summary": "The gradebook as a CSV download",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "assignment_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Assignment Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/results": {
+      "get": {
+        "operationId": "list_results_inbox",
+        "summary": "Closed tests and their publication (T-13)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tab",
+            "schema": {
+              "allOf": [
+                {
+                  "enum": [
+                    "to_publish",
+                    "published",
+                    "all"
+                  ],
+                  "title": "InboxTab",
+                  "type": "string"
+                }
+              ],
+              "default": "to_publish"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ResultsInboxRowOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard": {
+      "get": {
+        "operationId": "get_dashboard",
+        "summary": "Live, upcoming and recent tests, and what needs attention",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/my/past-tests": {
+      "get": {
+        "operationId": "list_my_past_tests",
+        "summary": "The student's ended takes and missed tests",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PastTestOut_"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
+    },
+    "/api/v1/my/results/{attempt_id}": {
+      "get": {
+        "operationId": "get_my_result",
+        "summary": "One result, as far as it is published",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "schema": {
+              "format": "uuid",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultOut"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "results"
+        ]
+      }
     }
   },
   "components": {
@@ -10409,6 +10791,1338 @@
           }
         },
         "title": "KeyEntryIn",
+        "type": "object"
+      },
+      "GradebookOut": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "publication_state": {
+            "title": "Publication State",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/GradebookRowOut"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/GradebookStatsOut"
+          }
+        },
+        "required": [
+          "title",
+          "state",
+          "publication_state",
+          "rows",
+          "stats"
+        ],
+        "title": "GradebookOut",
+        "type": "object"
+      },
+      "GradebookRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "student_id": {
+            "format": "uuid",
+            "title": "Student Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "take_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Take Number"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/PartOut"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "time_taken_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Taken S"
+          },
+          "warning_count": {
+            "title": "Warning Count",
+            "type": "integer"
+          },
+          "overridden": {
+            "title": "Overridden",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "student_id",
+          "name",
+          "attempt_id",
+          "take_number",
+          "status",
+          "rank",
+          "score",
+          "max_score",
+          "sections",
+          "time_taken_s",
+          "warning_count",
+          "overridden"
+        ],
+        "title": "GradebookRowOut",
+        "type": "object"
+      },
+      "GradebookStatsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "highest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highest"
+          },
+          "lowest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lowest"
+          },
+          "attempted": {
+            "title": "Attempted",
+            "type": "integer"
+          },
+          "absent": {
+            "title": "Absent",
+            "type": "integer"
+          },
+          "disqualified": {
+            "title": "Disqualified",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count",
+          "mean",
+          "highest",
+          "lowest",
+          "attempted",
+          "absent",
+          "disqualified"
+        ],
+        "title": "GradebookStatsOut",
+        "type": "object"
+      },
+      "PartOut": {
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "string"
+          },
+          "max": {
+            "title": "Max",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "score",
+          "max"
+        ],
+        "title": "PartOut",
+        "type": "object"
+      },
+      "QuestionStatOut": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "format": "uuid",
+            "title": "Question Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "partial": {
+            "title": "Partial",
+            "type": "integer"
+          },
+          "top_wrong_option_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Wrong Option Id"
+          },
+          "top_wrong_count": {
+            "title": "Top Wrong Count",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRefOut"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "question_id",
+          "number",
+          "type",
+          "answered",
+          "correct",
+          "partial",
+          "top_wrong_option_id",
+          "top_wrong_count",
+          "tags"
+        ],
+        "title": "QuestionStatOut",
+        "type": "object"
+      },
+      "TagRefOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind"
+        ],
+        "title": "TagRefOut",
+        "type": "object"
+      },
+      "KeyedPaperOut": {
+        "additionalProperties": false,
+        "description": "The paper with its key and solutions (teacher only): the shapes of\ndatabase_schema.md §4.2-4.3.",
+        "properties": {
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "paper": {
+            "additionalProperties": true,
+            "title": "Paper",
+            "type": "object"
+          },
+          "entries": {
+            "additionalProperties": true,
+            "title": "Entries",
+            "type": "object"
+          },
+          "solutions": {
+            "additionalProperties": true,
+            "title": "Solutions",
+            "type": "object"
+          }
+        },
+        "required": [
+          "version",
+          "paper",
+          "entries",
+          "solutions"
+        ],
+        "title": "KeyedPaperOut",
+        "type": "object"
+      },
+      "AnswerSheetOut": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "take_number": {
+            "title": "Take Number",
+            "type": "integer"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "time_taken_s": {
+            "title": "Time Taken S",
+            "type": "integer"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Reason"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/PartOut"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagScoreOut"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "rank_and_stats": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankAndStatsOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "questions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ResultQuestionOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Questions"
+          },
+          "student": {
+            "$ref": "#/components/schemas/StudentRefOut"
+          },
+          "integrity_events": {
+            "items": {
+              "$ref": "#/components/schemas/SheetEventOut"
+            },
+            "title": "Integrity Events",
+            "type": "array"
+          },
+          "disqualified_score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disqualified Score"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "label",
+          "take_number",
+          "ended_at",
+          "time_taken_s",
+          "end_reason",
+          "score",
+          "max_score",
+          "sections",
+          "tags",
+          "rank_and_stats",
+          "questions",
+          "student",
+          "integrity_events",
+          "disqualified_score"
+        ],
+        "title": "AnswerSheetOut",
+        "type": "object"
+      },
+      "CorrectAnswerOut": {
+        "additionalProperties": false,
+        "properties": {
+          "option_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Option Ids"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "tolerance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tolerance"
+          }
+        },
+        "title": "CorrectAnswerOut",
+        "type": "object"
+      },
+      "RankAndStatsOut": {
+        "additionalProperties": false,
+        "properties": {
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "pool": {
+            "title": "Pool",
+            "type": "integer"
+          },
+          "mean": {
+            "title": "Mean",
+            "type": "string"
+          },
+          "highest": {
+            "title": "Highest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "pool",
+          "mean",
+          "highest"
+        ],
+        "title": "RankAndStatsOut",
+        "type": "object"
+      },
+      "ResultOptionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "content": {
+            "additionalProperties": true,
+            "title": "Content",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "content"
+        ],
+        "title": "ResultOptionOut",
+        "type": "object"
+      },
+      "ResultQuestionOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "stem": {
+            "additionalProperties": true,
+            "title": "Stem",
+            "type": "object"
+          },
+          "marks": {
+            "title": "Marks",
+            "type": "string"
+          },
+          "negative_marks": {
+            "title": "Negative Marks",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/ResultOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "your_answer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Your Answer"
+          },
+          "correct_answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CorrectAnswerOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "marks_awarded": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marks Awarded"
+          },
+          "solution": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solution"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "type",
+          "stem",
+          "marks",
+          "negative_marks",
+          "options"
+        ],
+        "title": "ResultQuestionOut",
+        "type": "object"
+      },
+      "SheetEventOut": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "left_at": {
+            "format": "date-time",
+            "title": "Left At",
+            "type": "string"
+          },
+          "returned_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Returned At"
+          },
+          "counted": {
+            "title": "Counted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "left_at",
+          "returned_at",
+          "counted"
+        ],
+        "title": "SheetEventOut",
+        "type": "object"
+      },
+      "StudentRefOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "StudentRefOut",
+        "type": "object"
+      },
+      "TagScoreOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "string"
+          },
+          "max": {
+            "title": "Max",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "score",
+          "max"
+        ],
+        "title": "TagScoreOut",
+        "type": "object"
+      },
+      "SheetsIn": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_ids": {
+            "anyOf": [
+              {
+                "maxLength": 40000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Ids"
+          }
+        },
+        "title": "SheetsIn",
+        "type": "object"
+      },
+      "InboxIn": {
+        "additionalProperties": false,
+        "properties": {
+          "tab": {
+            "allOf": [
+              {
+                "enum": [
+                  "to_publish",
+                  "published",
+                  "all"
+                ],
+                "title": "InboxTab",
+                "type": "string"
+              }
+            ],
+            "default": "to_publish"
+          }
+        },
+        "title": "InboxIn",
+        "type": "object"
+      },
+      "InboxTab": {
+        "enum": [
+          "to_publish",
+          "published",
+          "all"
+        ],
+        "title": "InboxTab",
+        "type": "string"
+      },
+      "Page_ResultsInboxRowOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResultsInboxRowOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[ResultsInboxRowOut]",
+        "type": "object"
+      },
+      "ResultsInboxRowOut": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "publication_state": {
+            "title": "Publication State",
+            "type": "string"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "audience": {
+            "title": "Audience",
+            "type": "integer"
+          },
+          "ended": {
+            "title": "Ended",
+            "type": "integer"
+          },
+          "in_progress": {
+            "title": "In Progress",
+            "type": "integer"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "average_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Pct"
+          },
+          "flagged": {
+            "title": "Flagged",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "title",
+          "state",
+          "publication_state",
+          "ends_at",
+          "audience",
+          "ended",
+          "in_progress",
+          "starts_at",
+          "average_pct",
+          "flagged"
+        ],
+        "title": "ResultsInboxRowOut",
+        "type": "object"
+      },
+      "AssignmentBriefOut": {
+        "additionalProperties": false,
+        "properties": {
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "publication_state": {
+            "title": "Publication State",
+            "type": "string"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "audience": {
+            "title": "Audience",
+            "type": "integer"
+          },
+          "ended": {
+            "title": "Ended",
+            "type": "integer"
+          },
+          "in_progress": {
+            "title": "In Progress",
+            "type": "integer"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          }
+        },
+        "required": [
+          "assignment_id",
+          "title",
+          "state",
+          "publication_state",
+          "ends_at",
+          "audience",
+          "ended",
+          "in_progress",
+          "starts_at"
+        ],
+        "title": "AssignmentBriefOut",
+        "type": "object"
+      },
+      "DashboardOut": {
+        "additionalProperties": false,
+        "properties": {
+          "live": {
+            "items": {
+              "$ref": "#/components/schemas/AssignmentBriefOut"
+            },
+            "title": "Live",
+            "type": "array"
+          },
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/AssignmentBriefOut"
+            },
+            "title": "Upcoming",
+            "type": "array"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/ResultsInboxRowOut"
+            },
+            "title": "Recent",
+            "type": "array"
+          },
+          "pending_students": {
+            "title": "Pending Students",
+            "type": "integer"
+          },
+          "results_to_publish": {
+            "title": "Results To Publish",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "live",
+          "upcoming",
+          "recent",
+          "pending_students",
+          "results_to_publish"
+        ],
+        "title": "DashboardOut",
+        "type": "object"
+      },
+      "Page_PastTestOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PastTestOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "Page[PastTestOut]",
+        "type": "object"
+      },
+      "PastTestOut": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "assignment_id": {
+            "format": "uuid",
+            "title": "Assignment Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "AWAITING_RESULTS",
+              "PUBLISHED",
+              "MISSED",
+              "DISQUALIFIED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Score"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "rank_pool": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank Pool"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "assignment_id",
+          "label",
+          "state",
+          "at",
+          "score",
+          "max_score",
+          "rank",
+          "rank_pool"
+        ],
+        "title": "PastTestOut",
+        "type": "object"
+      },
+      "ResultOut": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "format": "uuid",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "take_number": {
+            "title": "Take Number",
+            "type": "integer"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "time_taken_s": {
+            "title": "Time Taken S",
+            "type": "integer"
+          },
+          "end_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Reason"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/PartOut"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagScoreOut"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "rank_and_stats": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankAndStatsOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "questions": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ResultQuestionOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Questions"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "label",
+          "take_number",
+          "ended_at",
+          "time_taken_s",
+          "end_reason",
+          "score",
+          "max_score",
+          "sections",
+          "tags",
+          "rank_and_stats",
+          "questions"
+        ],
+        "title": "ResultOut",
         "type": "object"
       }
     }

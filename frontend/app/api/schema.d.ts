@@ -1378,6 +1378,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assignments/{assignment_id}/gradebook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every student's result, ranked, absent ones included */
+        get: operations["get_gradebook"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/question-stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** How each question went */
+        get: operations["get_question_stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/answer-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The paper with its answers and solutions */
+        get: operations["get_answer_key"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/attempts/{attempt_id}/sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One attempt with everything (T-12) */
+        get: operations["get_answer_sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/answer-sheets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Answer sheets for the browser to export */
+        get: operations["list_answer_sheets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assignments/{assignment_id}/exports/gradebook.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The gradebook as a CSV download */
+        get: operations["export_gradebook_csv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Closed tests and their publication (T-13) */
+        get: operations["list_results_inbox"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live, upcoming and recent tests, and what needs attention */
+        get: operations["get_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/past-tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The student's ended takes and missed tests */
+        get: operations["list_my_past_tests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/results/{attempt_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One result, as far as it is published */
+        get: operations["get_my_result"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3682,6 +3852,432 @@ export interface components {
              */
             tolerance: number | string;
         };
+        /** GradebookOut */
+        GradebookOut: {
+            /** Title */
+            title: string;
+            /** State */
+            state: string;
+            /** Publication State */
+            publication_state: string;
+            /** Rows */
+            rows: components["schemas"]["GradebookRowOut"][];
+            stats: components["schemas"]["GradebookStatsOut"];
+        };
+        /** GradebookRowOut */
+        GradebookRowOut: {
+            /**
+             * Student Id
+             * Format: uuid
+             */
+            student_id: string;
+            /** Name */
+            name: string;
+            /** Attempt Id */
+            attempt_id: string | null;
+            /** Take Number */
+            take_number: number | null;
+            /** Status */
+            status: string;
+            /** Rank */
+            rank: number | null;
+            /** Score */
+            score: string | null;
+            /** Max Score */
+            max_score: string | null;
+            /** Sections */
+            sections: components["schemas"]["PartOut"][];
+            /** Time Taken S */
+            time_taken_s: number | null;
+            /** Warning Count */
+            warning_count: number;
+            /** Overridden */
+            overridden: boolean;
+        };
+        /** GradebookStatsOut */
+        GradebookStatsOut: {
+            /** Count */
+            count: number;
+            /** Mean */
+            mean: string | null;
+            /** Highest */
+            highest: string | null;
+            /** Lowest */
+            lowest: string | null;
+            /** Attempted */
+            attempted: number;
+            /** Absent */
+            absent: number;
+            /** Disqualified */
+            disqualified: number;
+        };
+        /** PartOut */
+        PartOut: {
+            /** Title */
+            title: string;
+            /** Score */
+            score: string;
+            /** Max */
+            max: string;
+        };
+        /** QuestionStatOut */
+        QuestionStatOut: {
+            /**
+             * Question Id
+             * Format: uuid
+             */
+            question_id: string;
+            /** Number */
+            number: number;
+            /** Type */
+            type: string;
+            /** Answered */
+            answered: number;
+            /** Correct */
+            correct: number;
+            /** Partial */
+            partial: number;
+            /** Top Wrong Option Id */
+            top_wrong_option_id: string | null;
+            /** Top Wrong Count */
+            top_wrong_count: number;
+            /** Tags */
+            tags: components["schemas"]["TagRefOut"][];
+        };
+        /** TagRefOut */
+        TagRefOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+        };
+        /**
+         * KeyedPaperOut
+         * @description The paper with its key and solutions (teacher only): the shapes of
+         *     database_schema.md §4.2-4.3.
+         */
+        KeyedPaperOut: {
+            /** Version */
+            version: number;
+            /** Paper */
+            paper: {
+                [key: string]: unknown;
+            };
+            /** Entries */
+            entries: {
+                [key: string]: unknown;
+            };
+            /** Solutions */
+            solutions: {
+                [key: string]: unknown;
+            };
+        };
+        /** AnswerSheetOut */
+        AnswerSheetOut: {
+            /**
+             * Attempt Id
+             * Format: uuid
+             */
+            attempt_id: string;
+            /** Label */
+            label: string;
+            /** Take Number */
+            take_number: number;
+            /** Ended At */
+            ended_at: string | null;
+            /** Time Taken S */
+            time_taken_s: number;
+            /** End Reason */
+            end_reason: string | null;
+            /** Score */
+            score: string | null;
+            /** Max Score */
+            max_score: string;
+            /** Sections */
+            sections: components["schemas"]["PartOut"][];
+            /** Tags */
+            tags: components["schemas"]["TagScoreOut"][];
+            rank_and_stats: components["schemas"]["RankAndStatsOut"] | null;
+            /** Questions */
+            questions: components["schemas"]["ResultQuestionOut"][] | null;
+            student: components["schemas"]["StudentRefOut"];
+            /** Integrity Events */
+            integrity_events: components["schemas"]["SheetEventOut"][];
+            /** Disqualified Score */
+            disqualified_score: string | null;
+        };
+        /** CorrectAnswerOut */
+        CorrectAnswerOut: {
+            /** Option Ids */
+            option_ids?: string[] | null;
+            /** Value */
+            value?: string | null;
+            /** Tolerance */
+            tolerance?: string | null;
+        };
+        /** RankAndStatsOut */
+        RankAndStatsOut: {
+            /** Rank */
+            rank: number;
+            /** Pool */
+            pool: number;
+            /** Mean */
+            mean: string;
+            /** Highest */
+            highest: string;
+        };
+        /** ResultOptionOut */
+        ResultOptionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Content */
+            content: {
+                [key: string]: unknown;
+            };
+        };
+        /** ResultQuestionOut */
+        ResultQuestionOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Type */
+            type: string;
+            /** Stem */
+            stem: {
+                [key: string]: unknown;
+            };
+            /** Marks */
+            marks: string;
+            /** Negative Marks */
+            negative_marks: string;
+            /** Options */
+            options: components["schemas"]["ResultOptionOut"][];
+            /** Your Answer */
+            your_answer?: {
+                [key: string]: unknown;
+            } | null;
+            correct_answer?: components["schemas"]["CorrectAnswerOut"] | null;
+            /** Outcome */
+            outcome?: string | null;
+            /** Marks Awarded */
+            marks_awarded?: string | null;
+            /** Solution */
+            solution?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** SheetEventOut */
+        SheetEventOut: {
+            /** Kind */
+            kind: string;
+            /**
+             * Left At
+             * Format: date-time
+             */
+            left_at: string;
+            /** Returned At */
+            returned_at: string | null;
+            /** Counted */
+            counted: boolean;
+        };
+        /** StudentRefOut */
+        StudentRefOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** TagScoreOut */
+        TagScoreOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Score */
+            score: string;
+            /** Max */
+            max: string;
+        };
+        /** SheetsIn */
+        SheetsIn: {
+            /** Attempt Ids */
+            attempt_ids?: string | null;
+        };
+        /** InboxIn */
+        InboxIn: {
+            /** @default to_publish */
+            tab: "to_publish" | "published" | "all";
+        };
+        /**
+         * InboxTab
+         * @enum {string}
+         */
+        InboxTab: "to_publish" | "published" | "all";
+        /** Page[ResultsInboxRowOut] */
+        Page_ResultsInboxRowOut_: {
+            /** Items */
+            items: components["schemas"]["ResultsInboxRowOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** ResultsInboxRowOut */
+        ResultsInboxRowOut: {
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Title */
+            title: string;
+            /** State */
+            state: string;
+            /** Publication State */
+            publication_state: string;
+            /** Ends At */
+            ends_at: string | null;
+            /** Audience */
+            audience: number;
+            /** Ended */
+            ended: number;
+            /** In Progress */
+            in_progress: number;
+            /** Starts At */
+            starts_at: string | null;
+            /** Average Pct */
+            average_pct: string | null;
+            /** Flagged */
+            flagged: number;
+        };
+        /** AssignmentBriefOut */
+        AssignmentBriefOut: {
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Title */
+            title: string;
+            /** State */
+            state: string;
+            /** Publication State */
+            publication_state: string;
+            /** Ends At */
+            ends_at: string | null;
+            /** Audience */
+            audience: number;
+            /** Ended */
+            ended: number;
+            /** In Progress */
+            in_progress: number;
+            /** Starts At */
+            starts_at: string | null;
+        };
+        /** DashboardOut */
+        DashboardOut: {
+            /** Live */
+            live: components["schemas"]["AssignmentBriefOut"][];
+            /** Upcoming */
+            upcoming: components["schemas"]["AssignmentBriefOut"][];
+            /** Recent */
+            recent: components["schemas"]["ResultsInboxRowOut"][];
+            /** Pending Students */
+            pending_students: number;
+            /** Results To Publish */
+            results_to_publish: number;
+        };
+        /** Page[PastTestOut] */
+        Page_PastTestOut_: {
+            /** Items */
+            items: components["schemas"]["PastTestOut"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
+        /** PastTestOut */
+        PastTestOut: {
+            /** Attempt Id */
+            attempt_id: string | null;
+            /**
+             * Assignment Id
+             * Format: uuid
+             */
+            assignment_id: string;
+            /** Label */
+            label: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "AWAITING_RESULTS" | "PUBLISHED" | "MISSED" | "DISQUALIFIED";
+            /** At */
+            at: string | null;
+            /** Score */
+            score: string | null;
+            /** Max Score */
+            max_score: string | null;
+            /** Rank */
+            rank: number | null;
+            /** Rank Pool */
+            rank_pool: number | null;
+        };
+        /** ResultOut */
+        ResultOut: {
+            /**
+             * Attempt Id
+             * Format: uuid
+             */
+            attempt_id: string;
+            /** Label */
+            label: string;
+            /** Take Number */
+            take_number: number;
+            /** Ended At */
+            ended_at: string | null;
+            /** Time Taken S */
+            time_taken_s: number;
+            /** End Reason */
+            end_reason: string | null;
+            /** Score */
+            score: string | null;
+            /** Max Score */
+            max_score: string;
+            /** Sections */
+            sections: components["schemas"]["PartOut"][];
+            /** Tags */
+            tags: components["schemas"]["TagScoreOut"][];
+            rank_and_stats: components["schemas"]["RankAndStatsOut"] | null;
+            /** Questions */
+            questions: components["schemas"]["ResultQuestionOut"][] | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -5849,6 +6445,227 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KeyCorrectedOut"];
+                };
+            };
+        };
+    };
+    get_gradebook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradebookOut"];
+                };
+            };
+        };
+    };
+    get_question_stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionStatOut"][];
+                };
+            };
+        };
+    };
+    get_answer_key: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KeyedPaperOut"];
+                };
+            };
+        };
+    };
+    get_answer_sheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerSheetOut"];
+                };
+            };
+        };
+    };
+    list_answer_sheets: {
+        parameters: {
+            query?: {
+                attempt_ids?: string | null;
+            };
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerSheetOut"][];
+                };
+            };
+        };
+    };
+    export_gradebook_csv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    list_results_inbox: {
+        parameters: {
+            query?: {
+                tab?: "to_publish" | "published" | "all";
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_ResultsInboxRowOut_"];
+                };
+            };
+        };
+    };
+    get_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+        };
+    };
+    list_my_past_tests: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PastTestOut_"];
+                };
+            };
+        };
+    };
+    get_my_result: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResultOut"];
                 };
             };
         };

@@ -2,6 +2,7 @@ from collections.abc import Mapping, Sequence
 from uuid import UUID
 
 from modules.grading.domain.grade import QuestionGrade
+from modules.grading.domain.marking import Outcome
 from modules.grading.models import Grade
 
 
@@ -30,3 +31,22 @@ def insert_many(by_attempt: Mapping[UUID, Sequence[QuestionGrade]]) -> None:
 
 def delete_grades(attempt_ids: Sequence[UUID]) -> None:
     Grade.objects.filter(attempt_id__in=attempt_ids).delete()
+
+
+def grades_of(attempt_ids: Sequence[UUID]) -> dict[UUID, list[QuestionGrade]]:
+    """Every grade of these attempts, per attempt, in one query."""
+    found: dict[UUID, list[QuestionGrade]] = {attempt_id: [] for attempt_id in attempt_ids}
+    rows = Grade.objects.filter(attempt_id__in=attempt_ids).values_list(
+        "attempt_id",
+        "question_id",
+        "section_index",
+        "outcome",
+        "marks_awarded",
+        "max_marks",
+        "tag_ids",
+    )
+    for attempt_id, question_id, section, outcome, marks, max_marks, tags in rows:
+        found[attempt_id].append(
+            QuestionGrade(question_id, section, Outcome(outcome), marks, max_marks, tuple(tags))
+        )
+    return found

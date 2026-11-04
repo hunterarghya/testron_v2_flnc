@@ -75,3 +75,8 @@ def save_correction(
         version_after=correction.version_after,
         corrected_at=now,
     )
+
+
+def solutions(assignment_id: UUID) -> Json:
+    """Each question's solution by question id (only those that have one)."""
+    return cast("Json", AnswerKey.objects.values_list("solutions", flat=True).get(pk=assignment_id))

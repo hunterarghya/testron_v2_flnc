@@ -3,16 +3,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from django.db import transaction
-
 from core.context import Ctx
 from modules.assignments import public as assignments
 from modules.delivery.domain.monitor import MonitorFilter, MonitorStatus, is_shown, monitor_status
 from modules.delivery.domain.timeline import attempt_deadline
 from modules.delivery.policies import ensure_teacher
-from modules.delivery.repositories import attempt_rows, attempts, responses, stage_progress
+from modules.delivery.repositories import attempt_rows, responses
 from modules.delivery.repositories.attempt_rows import AttemptRow
-from modules.delivery.services.live import LiveAttempt, bring_up_to_date
+from modules.delivery.services.commands.finalize_assignment import finalize_running
+from modules.delivery.services.live import LiveAttempt
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +41,9 @@ def get_monitor(ctx: Ctx, *, assignment_id: UUID, chosen: MonitorFilter) -> Moni
     finalization, database_schema.md §5.2). A fixed number of queries for any class size."""
     ensure_teacher(ctx.actor)
     frame = assignments.get_monitor_frame(ctx, assignment_id=assignment_id)
-    deadlines = {a.attempt.id: _deadline(a) for a in _finalize(ctx, frame) if a.attempt.in_progress}
+    deadlines = {
+        a.attempt.id: _deadline(a) for a in finalize_running(ctx, frame) if a.attempt.in_progress
+    }
     latest = {row.student_id: row for row in attempt_rows.rows_of(assignment_id)}
     answered = responses.answered_counts([row.id for row in latest.values()])
     rows = [
@@ -56,17 +57,6 @@ def get_monitor(ctx: Ctx, *, assignment_id: UUID, chosen: MonitorFilter) -> Moni
         ends_at=frame.ends_at,
         server_now=ctx.now,
     )
-
-
-def _finalize(ctx: Ctx, frame: assignments.MonitorFrame) -> list[LiveAttempt]:
-    """Every sitting still running, brought up to date; one being written elsewhere is
-    skipped (its deadline then shows on the next poll)."""
-    with transaction.atomic():
-        running = attempts.lock_running_of(frame.assignment_id, skip_locked=True)
-        stages = stage_progress.stages_by_attempt([a.id for a in running])
-        return [
-            bring_up_to_date(ctx, a, frame.terms_for(a.student_id), stages[a.id]) for a in running
-        ]
 
 
 def _deadline(live: LiveAttempt) -> datetime:

@@ -2,10 +2,15 @@
 
 from ninja import Router
 
-from core.http.areas import TeacherArea
-from modules.results.controllers import badges, corrections
+from core.http.areas import StudentArea, TeacherArea
+from core.http.pagination import Page
+from modules.results.controllers import badges, corrections, results
 from modules.results.dto.badges import BadgesOut
 from modules.results.dto.corrections import KeyCorrectedOut
+from modules.results.dto.dashboard import DashboardOut, ResultsInboxRowOut
+from modules.results.dto.gradebook import GradebookOut, KeyedPaperOut, QuestionStatOut
+from modules.results.dto.past_tests import PastTestOut
+from modules.results.dto.result import AnswerSheetOut, ResultOut
 
 # Teacher area by default; the student /my/* routes set auth=StudentArea()
 router = Router(tags=["results"], auth=TeacherArea())
@@ -25,4 +30,77 @@ router.add_api_operation(
     corrections.correct_answer_key,
     response={200: KeyCorrectedOut},
     summary="Correct one question's answer and regrade everyone",
+)
+
+# Teacher: results (T-01, T-11, T-12, T-13); student: P-08, P-09
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/gradebook",
+    ["GET"],
+    results.get_gradebook,
+    response={200: GradebookOut},
+    summary="Every student's result, ranked, absent ones included",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/question-stats",
+    ["GET"],
+    results.get_question_stats,
+    response={200: list[QuestionStatOut]},
+    summary="How each question went",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/answer-key",
+    ["GET"],
+    results.get_answer_key,
+    response={200: KeyedPaperOut},
+    summary="The paper with its answers and solutions",
+)
+router.add_api_operation(
+    "/admin/attempts/{attempt_id}/sheet",
+    ["GET"],
+    results.get_answer_sheet,
+    response={200: AnswerSheetOut},
+    summary="One attempt with everything (T-12)",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/answer-sheets",
+    ["GET"],
+    results.list_answer_sheets,
+    response={200: list[AnswerSheetOut]},
+    summary="Answer sheets for the browser to export",
+)
+router.add_api_operation(
+    "/admin/assignments/{assignment_id}/exports/gradebook.csv",
+    ["GET"],
+    results.export_gradebook_csv,
+    summary="The gradebook as a CSV download",
+)
+router.add_api_operation(
+    "/admin/results",
+    ["GET"],
+    results.list_results_inbox,
+    response={200: Page[ResultsInboxRowOut]},
+    summary="Closed tests and their publication (T-13)",
+)
+router.add_api_operation(
+    "/admin/dashboard",
+    ["GET"],
+    results.get_dashboard,
+    response={200: DashboardOut},
+    summary="Live, upcoming and recent tests, and what needs attention",
+)
+router.add_api_operation(
+    "/my/past-tests",
+    ["GET"],
+    results.list_my_past_tests,
+    response={200: Page[PastTestOut]},
+    auth=StudentArea(),
+    summary="The student's ended takes and missed tests",
+)
+router.add_api_operation(
+    "/my/results/{attempt_id}",
+    ["GET"],
+    results.get_my_result,
+    response={200: ResultOut},
+    auth=StudentArea(),
+    summary="One result, as far as it is published",
 )

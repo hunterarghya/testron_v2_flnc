@@ -1,6 +1,6 @@
 """No student response can carry correctness (CLAUDE.md rule 1, security.md §4.2; V1 F-03,
 F-08): every schema reachable from a `/my/*` or `/attempts/*` response is walked, and a
-forbidden field name fails the test."""
+forbidden field name fails the test. Published results are the one exception (below)."""
 
 import re
 from collections.abc import Iterator, Mapping
@@ -11,6 +11,10 @@ from config.api import api
 Json = Mapping[str, object]
 FORBIDDEN = re.compile(r"^(is_correct|correct.*|solutions?|answer_key.*|marks_awarded|score)$")
 STUDENT_PATHS = ("/api/v1/my/", "/api/v1/attempts/")
+# Published results: they exist to carry the score and the answers, and their use cases show
+# them only once result_visible() allows (CLAUDE.md rule 1, domain_model.md §6.4); tested in
+# tests/flows/test_results_flow.py
+PUBLISHED_RESULTS = ("/api/v1/my/results/", "/api/v1/my/past-tests")
 
 
 def _refs(node: object) -> Iterator[str]:
@@ -31,7 +35,7 @@ def _student_response_schemas(document: Json) -> set[str]:
     todo = [
         ref
         for path, item in paths.items()
-        if path.startswith(STUDENT_PATHS)
+        if path.startswith(STUDENT_PATHS) and not path.startswith(PUBLISHED_RESULTS)
         for operation in cast("Json", item).values()
         for ref in _refs(cast("Json", operation).get("responses", {}))
     ]
