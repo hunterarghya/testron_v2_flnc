@@ -51,6 +51,7 @@ onMounted(() => detail.refresh())
       <div class="ms-auto flex gap-2">
         <UButton v-if="hasLobby" label="Open lobby" icon="i-lucide-door-open" @click="navigateTo(`/admin/assignments/${assignmentId}/lobby`)" />
         <UButton v-if="live" label="Open monitor" icon="i-lucide-activity" @click="navigateTo(`/admin/assignments/${assignmentId}/monitor`)" />
+        <UButton v-if="data.progress.ended > 0" label="Results" icon="i-lucide-chart-column" variant="soft" @click="navigateTo(`/admin/assignments/${assignmentId}/results`)" />
         <UDropdownMenu :items="menu">
           <UButton icon="i-lucide-ellipsis" aria-label="More actions" color="neutral" variant="outline" />
         </UDropdownMenu>

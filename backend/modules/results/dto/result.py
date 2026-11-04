@@ -10,7 +10,6 @@ from uuid import UUID
 from ninja import Schema
 from pydantic import ConfigDict
 
-from modules.results.services.queries.get_answer_sheet import AnswerSheet, disqualified_score
 from modules.results.services.result_view import ResultQuestion, ResultView
 
 RichJson = dict[str, object]
@@ -159,40 +158,3 @@ def _rank(view: ResultView) -> RankAndStatsOut | None:
         mean=view.stats.mean,
         highest=view.stats.highest,
     )
-
-
-class StudentRefOut(_Out):
-    id: UUID
-    name: str
-
-
-class SheetEventOut(_Out):
-    kind: str
-    left_at: datetime
-    returned_at: datetime | None
-    counted: bool
-
-
-class AnswerSheetOut(ResultOut):
-    student: StudentRefOut
-    integrity_events: list[SheetEventOut]
-    # The computed score shown in brackets beside "Disqualified" (G-2)
-    disqualified_score: Decimal | None
-
-    @classmethod
-    def from_sheet(cls, sheet: AnswerSheet) -> Self:
-        base = ResultOut.from_view(sheet.result).model_dump()
-        return cls(
-            **base,
-            student=StudentRefOut(id=sheet.result.attempt.student_id, name=sheet.student_name),
-            integrity_events=[
-                SheetEventOut(
-                    kind=e.kind.value,
-                    left_at=e.left_at,
-                    returned_at=e.returned_at,
-                    counted=e.counted,
-                )
-                for e in sheet.events
-            ],
-            disqualified_score=disqualified_score(sheet),
-        )

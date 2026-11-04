@@ -4082,8 +4082,11 @@ export interface components {
         };
         /** SheetEventOut */
         SheetEventOut: {
-            /** Kind */
-            kind: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "FULLSCREEN_EXIT" | "TAB_HIDDEN" | "WINDOW_BLUR" | "DEVICE_CHANGED";
             /**
              * Left At
              * Format: date-time

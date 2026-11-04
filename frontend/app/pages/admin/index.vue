@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import TeacherDashboard from '~/features/results/components/TeacherDashboard.vue'
+
 definePageMeta({ layout: 'teacher' })
 </script>
 
@@ -8,7 +10,7 @@ definePageMeta({ layout: 'teacher' })
       <UDashboardNavbar title="Dashboard" />
     </template>
     <template #body>
-      <p class="text-muted">Placeholder: the teacher dashboard is built in Phase 6.</p>
+      <TeacherDashboard />
     </template>
   </UDashboardPanel>
 </template>

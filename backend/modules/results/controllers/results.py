@@ -6,11 +6,12 @@ from ninja import Query
 
 from core.http.context import ctx_from
 from core.http.pagination import Page, PageIn
+from modules.results.dto.answer_sheet import AnswerSheetOut
 from modules.results.dto.dashboard import DashboardOut, ResultsInboxRowOut
 from modules.results.dto.gradebook import GradebookOut, KeyedPaperOut, QuestionStatOut
 from modules.results.dto.past_tests import PastTestOut
 from modules.results.dto.queries import InboxIn, SheetsIn
-from modules.results.dto.result import AnswerSheetOut, ResultOut
+from modules.results.dto.result import ResultOut
 from modules.results.services.queries import export_gradebook_csv as exporting
 from modules.results.services.queries import get_answer_key_view as keys
 from modules.results.services.queries import get_answer_sheet as sheets

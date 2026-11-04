@@ -5,12 +5,13 @@ from ninja import Router
 from core.http.areas import StudentArea, TeacherArea
 from core.http.pagination import Page
 from modules.results.controllers import badges, corrections, results
+from modules.results.dto.answer_sheet import AnswerSheetOut
 from modules.results.dto.badges import BadgesOut
 from modules.results.dto.corrections import KeyCorrectedOut
 from modules.results.dto.dashboard import DashboardOut, ResultsInboxRowOut
 from modules.results.dto.gradebook import GradebookOut, KeyedPaperOut, QuestionStatOut
 from modules.results.dto.past_tests import PastTestOut
-from modules.results.dto.result import AnswerSheetOut, ResultOut
+from modules.results.dto.result import ResultOut
 
 # Teacher area by default; the student /my/* routes set auth=StudentArea()
 router = Router(tags=["results"], auth=TeacherArea())

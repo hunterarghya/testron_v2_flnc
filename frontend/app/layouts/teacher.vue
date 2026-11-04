@@ -18,6 +18,7 @@ const menu = computed<NavigationMenuItem[]>(() => [
   { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/admin', exact: true },
   { label: 'Tests', icon: 'i-lucide-file-text', to: '/admin/tests' },
   { label: 'Assignments', icon: 'i-lucide-clipboard-list', to: '/admin/assignments' },
+  { label: 'Results', icon: 'i-lucide-chart-column', to: '/admin/results', badge: badges.value?.results_to_publish || undefined },
   { label: 'Students', icon: 'i-lucide-users', to: '/admin/students', badge: badges.value?.pending_students || undefined },
   { label: 'Groups', icon: 'i-lucide-users-round', to: '/admin/groups' },
   { label: 'Tags', icon: 'i-lucide-tags', to: '/admin/tags' },

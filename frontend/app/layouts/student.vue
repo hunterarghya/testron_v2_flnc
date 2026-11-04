@@ -1,10 +1,11 @@
 <!-- The student area: a top bar and comfortable content (frontend_spec.md §1, screens.md
-     Student shell). Past Tests and Performance join the menu in later phases. -->
+     Student shell). Performance joins the menu in Phase 7. -->
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const menu: NavigationMenuItem[] = [
   { label: 'My Tests', icon: 'i-lucide-clipboard-list', to: '/', exact: true },
+  { label: 'Past Tests', icon: 'i-lucide-history', to: '/past' },
   { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
 ]
 </script>

@@ -11504,6 +11504,12 @@
         "additionalProperties": false,
         "properties": {
           "kind": {
+            "enum": [
+              "FULLSCREEN_EXIT",
+              "TAB_HIDDEN",
+              "WINDOW_BLUR",
+              "DEVICE_CHANGED"
+            ],
             "title": "Kind",
             "type": "string"
           },
