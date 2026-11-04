@@ -102,3 +102,19 @@ full:
 # Stop the production image and its services
 full-down:
     docker compose --profile full down
+
+# Try the production setup on this PC at https://localhost: the real image in prod mode, behind
+# Caddy, with local Postgres and Mailpit (docs/hosting_guide.md). Makes its env file the first time.
+prod-local:
+    test -f deploy/oracle/.env.localprod || uv run --project backend python scripts/make_env.py local-prod
+    docker compose -f deploy/oracle/compose.prod.yml -f deploy/oracle/compose.local.yml --env-file deploy/oracle/.env.localprod up --build -d
+    @echo "Open https://localhost (accept the local certificate). Emails: http://localhost:8026"
+
+# Stop it (add -v to also delete its database: just prod-local-down -v)
+prod-local-down *flags:
+    docker compose -f deploy/oracle/compose.prod.yml -f deploy/oracle/compose.local.yml --env-file deploy/oracle/.env.localprod down {{flags}}
+
+# Write deploy/oracle/.env for production with fresh secrets:
+#   just env-production tests.example.com teacher@example.com "Mrs Sen"
+env-production domain email name:
+    uv run --project backend python scripts/make_env.py production --domain {{domain}} --teacher-email {{email}} --teacher-name "{{name}}"

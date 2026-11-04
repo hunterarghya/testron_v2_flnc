@@ -4,6 +4,7 @@ from pathlib import Path
 
 from config.database import database_settings
 from config.email import parse_email_url
+from config.static_headers import revalidate_html
 from core.config import get_settings
 from core.logging import logging_config
 
@@ -56,6 +57,7 @@ STORAGES = {
 SPA_BUILD_DIR = BASE_DIR / "spa_build"
 WHITENOISE_ROOT = SPA_BUILD_DIR if SPA_BUILD_DIR.is_dir() else None
 WHITENOISE_INDEX_FILE = True
+WHITENOISE_ADD_HEADERS_FUNCTION = revalidate_html
 # Nuxt puts a content hash in every file name under /_nuxt/, so browsers may keep them forever
 WHITENOISE_IMMUTABLE_FILE_TEST = r"/_nuxt/"
 

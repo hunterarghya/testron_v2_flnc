@@ -1,0 +1,25 @@
+# Try the production setup on this PC (`just prod-local`): the same image, settings and Caddy
+# as the VM, with local Postgres and Mailpit standing in for Neon and real email.
+# Open https://localhost (accept the certificate warning: it's Caddy's own local one).
+services:
+  web:
+    environment:
+      DATABASE_URL: postgres://app:app@postgres:5432/app
+      DATABASE_URL_DIRECT: postgres://app:app@postgres:5432/app
+      EMAIL_URL: smtp://mailpit:1025
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  postgres:
+    image: postgres:17
+    environment: { POSTGRES_DB: app, POSTGRES_USER: app, POSTGRES_PASSWORD: app }
+    volumes: [prodlocal_pg:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "app"], interval: 2s, retries: 30 }
+
+  mailpit:
+    image: axllent/mailpit:v1.33
+    # 8026, so it can run next to `just infra` (whose Mailpit has 8025)
+    ports: ["8026:8025"]
+
+volumes:
+  prodlocal_pg: {}

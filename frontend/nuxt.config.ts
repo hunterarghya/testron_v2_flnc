@@ -36,6 +36,9 @@ export default defineNuxtConfig({
   },
 
   nitro: {
+    // Only the app shell is generated: every route is served by that one page (config/spa.py),
+    // so /login is answered directly instead of being redirected to a /login/ folder
+    prerender: { crawlLinks: false, routes: ['/'] },
     // `just dev`: the browser talks only to :3000 and /api goes to Django on :8000,
     // so cookies and CSRF behave as in production (dev_environment_and_deployment.md §1.3)
     devProxy: {

@@ -1,0 +1,9 @@
+# HTTPS in front of the app (dev_environment_and_deployment.md §3.3). For a real domain Caddy
+# gets a Let's Encrypt certificate; for "localhost" it uses its own (just prod-local).
+{$APP_DOMAIN} {
+	encode zstd gzip
+	request_body {
+		max_size 2MB
+	}
+	reverse_proxy web:8000
+}

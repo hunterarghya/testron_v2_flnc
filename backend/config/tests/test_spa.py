@@ -4,6 +4,8 @@ import pytest
 from django.test import Client
 from pytest_django.fixtures import Settings as DjangoSettings
 
+from config.static_headers import revalidate_html
+
 SHELL = "<!doctype html><div id='__nuxt'></div>"
 
 
@@ -42,3 +44,14 @@ def test_unknown_api_path_is_a_problem_not_a_page(client: Client) -> None:
     assert response.status_code == 404
     assert response["Content-Type"] == "application/problem+json"
     assert response.json()["code"] == "not_found"
+
+
+def test_pages_are_revalidated_and_hashed_files_are_not_touched() -> None:
+    page: dict[str, str] = {"Cache-Control": "max-age=60, public"}
+    script: dict[str, str] = {"Cache-Control": "max-age=315360000, public, immutable"}
+
+    revalidate_html(page, "/app/spa_build/index.html", "/")
+    revalidate_html(script, "/app/spa_build/_nuxt/entry.abc123.js", "/_nuxt/entry.abc123.js")
+
+    assert page["Cache-Control"] == "no-cache"
+    assert script["Cache-Control"] == "max-age=315360000, public, immutable"

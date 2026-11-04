@@ -1,0 +1,40 @@
+# Production on one VM (dev_environment_and_deployment.md §3.3 and §5; docs/hosting_guide.md).
+# The image is built on the VM from this repository; Caddy serves HTTPS with a free
+# certificate it renews by itself. Secrets live in deploy/oracle/.env (never committed).
+#
+#   docker compose -f deploy/oracle/compose.prod.yml up -d --build
+name: testron
+
+services:
+  web:
+    build:
+      context: ../..
+      args:
+        APP_VERSION: "${APP_VERSION:-dev}"
+        APP_COMMIT: "${APP_COMMIT:-unknown}"
+    image: testron-web:${APP_VERSION:-dev}
+    env_file: ${APP_ENV_FILE:-.env}
+    restart: unless-stopped
+    expose: ["8000"]
+    logging:
+      driver: json-file
+      options: { max-size: 20m, max-file: "5" }
+
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      APP_DOMAIN: "${APP_DOMAIN:?Set APP_DOMAIN in deploy/oracle/.env}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web]
+    logging:
+      driver: json-file
+      options: { max-size: 20m, max-file: "5" }
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

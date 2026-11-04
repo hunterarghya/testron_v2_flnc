@@ -40,6 +40,7 @@ COPY --from=spa /fe/.output/public ./spa_build/
 RUN DJANGO_ENV=build python manage.py collectstatic --noinput
 USER app
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/healthz', timeout=4)"
-CMD ["sh", "-c", "exec gunicorn config.wsgi -k gthread --workers ${WEB_CONCURRENCY:-2} --threads 4 --timeout 30 --bind 0.0.0.0:8000 --access-logfile -"]
+# A start with MIGRATE_ON_START=1 migrates first, so it gets a minute before checks count
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s \
+    CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/api/v1/healthz', timeout=4)"
+CMD ["sh", "/app/start.sh"]
