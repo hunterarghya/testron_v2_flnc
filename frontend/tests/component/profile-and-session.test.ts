@@ -5,6 +5,8 @@ import { api } from '~/api/client'
 import { ApiProblem } from '~/api/problems'
 import type { SessionUser } from '~/api/types'
 import ProfileForm from '~/features/auth/components/ProfileForm.vue'
+import TeacherLayout from '~/layouts/teacher.vue'
+import LogoutButton from '~/shared/components/LogoutButton.vue'
 import authMiddleware from '~/middleware/auth.global'
 import { useSession } from '~/shared/composables/useSession'
 import { type FakeApi, ok } from '../fake-api'
@@ -50,6 +52,57 @@ describe('useSession', () => {
 
     expect(fake.POST).toHaveBeenCalledWith('/api/v1/auth/logout')
     expect(useSession().user.value).toBeNull()
+  })
+})
+
+function dialogButton(label: string): HTMLButtonElement {
+  return [...document.querySelectorAll('button')].filter(b => b.textContent?.trim() === label).at(-1)!
+}
+
+describe('Log out', () => {
+  beforeEach(() => {
+    useSession().set(RINA)
+    fake.POST.mockReset().mockImplementation(() => ok(undefined))
+    mocks.navigateTo.mockClear()
+  })
+
+  it('asks first: Cancel keeps the session', async () => {
+    const wrapper = await mountSuspended(LogoutButton)
+
+    await wrapper.find('button').trigger('click')
+    await flushPromises()
+    expect(document.body.textContent).toContain('Log out?')
+    dialogButton('Cancel').click()
+    await flushPromises()
+
+    expect(fake.POST).not.toHaveBeenCalled()
+    expect(useSession().user.value).toEqual(RINA)
+    wrapper.unmount()
+  })
+
+  it('confirming ends the session and goes to the login page', async () => {
+    const wrapper = await mountSuspended(LogoutButton)
+
+    await wrapper.find('button').trigger('click')
+    await flushPromises()
+    dialogButton('Log out').click()
+    await flushPromises()
+
+    expect(fake.POST).toHaveBeenCalledWith('/api/v1/auth/logout')
+    expect(useSession().user.value).toBeNull()
+    expect(mocks.navigateTo).toHaveBeenCalledWith('/login')
+    wrapper.unmount()
+  })
+
+  it('the teacher menu says Log out, not the teacher name', async () => {
+    useSession().set({ ...RINA, name: 'Mrs Sen', role: 'TEACHER', status: null })
+    fake.GET.mockImplementation(() => ok({ pending_students: 0, results_to_publish: 0 }))
+    const wrapper = await mountSuspended(TeacherLayout)
+
+    const labels = wrapper.findAll('button').map(b => b.text())
+    expect(labels).toContain('Log out')
+    expect(labels).not.toContain('Mrs Sen')
+    wrapper.unmount()
   })
 })
 

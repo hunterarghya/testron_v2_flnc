@@ -2,9 +2,10 @@
      log out. The email is shown but can't be changed here. -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { navigateTo, useToast } from '#imports'
+import { useToast } from '#imports'
 import { problemMessage } from '~/api/problem-messages'
 import { changePassword, updateName } from '~/features/auth/composables/authApi'
+import LogoutButton from '~/shared/components/LogoutButton.vue'
 import { useSession } from '~/shared/composables/useSession'
 import { useSubmit } from '~/shared/composables/useSubmit'
 
@@ -36,11 +37,6 @@ async function onChangePassword(): Promise<void> {
     toast.add({ title: 'Password changed', description: 'Other devices were logged out.', color: 'success' })
   }
 }
-
-async function logOut(): Promise<void> {
-  await session.logOut()
-  await navigateTo('/login')
-}
 </script>
 
 <template>
@@ -71,6 +67,6 @@ async function logOut(): Promise<void> {
         <UButton type="submit" :label="hasPassword ? 'Change password' : 'Set password'" :loading="changing.pending.value" />
       </form>
     </UCard>
-    <UButton label="Log out" color="neutral" variant="outline" icon="i-lucide-log-out" @click="logOut" />
+    <LogoutButton />
   </div>
 </template>

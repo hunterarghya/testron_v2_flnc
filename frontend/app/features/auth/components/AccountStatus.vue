@@ -3,6 +3,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { navigateTo } from '#imports'
+import LogoutButton from '~/shared/components/LogoutButton.vue'
 import { usePolling } from '~/shared/composables/usePolling'
 import { useSession } from '~/shared/composables/useSession'
 import { homeFor } from '~/shared/utils/routing'
@@ -33,11 +34,6 @@ usePolling(async () => {
     await checkAgain()
   }
 }, STATUS_CHECK_MS)
-
-async function logOut(): Promise<void> {
-  await session.logOut()
-  await navigateTo('/login')
-}
 </script>
 
 <template>
@@ -48,7 +44,7 @@ async function logOut(): Promise<void> {
       <p class="text-muted">{{ variant.text }}</p>
       <div class="flex flex-col items-center gap-2">
         <UButton v-if="waiting" label="Check again" @click="checkAgain" />
-        <UButton label="Log out" color="neutral" variant="link" @click="logOut" />
+        <LogoutButton variant="link" />
       </div>
     </div>
   </UCard>

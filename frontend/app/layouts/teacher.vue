@@ -3,13 +3,11 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { computed, onMounted } from 'vue'
-import { navigateTo } from '#imports'
 import { useAppInfo } from '~/shared/composables/useAppInfo'
 import { BADGES_INTERVAL_MS, useBadges } from '~/shared/composables/useBadges'
 import { usePolling } from '~/shared/composables/usePolling'
-import { useSession } from '~/shared/composables/useSession'
+import LogoutButton from '~/shared/components/LogoutButton.vue'
 
-const session = useSession()
 const app = useAppInfo()
 const { badges, refresh } = useBadges()
 
@@ -26,11 +24,6 @@ const menu = computed<NavigationMenuItem[]>(() => [
 const footerMenu: NavigationMenuItem[] = [
   { label: 'Settings', icon: 'i-lucide-settings', to: '/admin/settings' },
 ]
-
-async function logOut(): Promise<void> {
-  await session.logOut()
-  await navigateTo('/login')
-}
 
 // A failed badge or name load only leaves the menu without them
 usePolling(() => refresh().catch(() => undefined), BADGES_INTERVAL_MS)
@@ -50,7 +43,7 @@ onMounted(() => app.load().catch(() => undefined))
       <template #footer>
         <div class="w-full space-y-1">
           <UNavigationMenu :items="footerMenu" orientation="vertical" />
-          <UButton :label="session.user.value?.name ?? 'Log out'" icon="i-lucide-log-out" color="neutral" variant="ghost" block @click="logOut" />
+          <LogoutButton variant="ghost" block />
         </div>
       </template>
     </UDashboardSidebar>
