@@ -6,6 +6,7 @@ import { computed, onMounted } from 'vue'
 import { useAppInfo } from '~/shared/composables/useAppInfo'
 import { BADGES_INTERVAL_MS, useBadges } from '~/shared/composables/useBadges'
 import { usePolling } from '~/shared/composables/usePolling'
+import BrandMark from '~/shared/components/BrandMark.vue'
 import LogoutButton from '~/shared/components/LogoutButton.vue'
 
 const app = useAppInfo()
@@ -34,10 +35,7 @@ onMounted(() => app.load().catch(() => undefined))
   <UDashboardGroup>
     <UDashboardSidebar collapsible>
       <template #header>
-        <div class="flex min-w-0 items-center gap-2">
-          <img v-if="app.info.value?.logo_url" :src="app.info.value.logo_url" alt="" class="size-7 rounded object-contain">
-          <span class="truncate font-semibold">{{ app.info.value?.coaching_name ?? 'Teacher' }}</span>
-        </div>
+        <BrandMark />
       </template>
       <UNavigationMenu :items="menu" orientation="vertical" />
       <template #footer>

@@ -5,11 +5,13 @@ import { api } from '~/api/client'
 import { ApiProblem } from '~/api/problems'
 import type { SessionUser } from '~/api/types'
 import ProfileForm from '~/features/auth/components/ProfileForm.vue'
+import PublicLayout from '~/layouts/public.vue'
 import TeacherLayout from '~/layouts/teacher.vue'
 import LogoutButton from '~/shared/components/LogoutButton.vue'
 import authMiddleware from '~/middleware/auth.global'
+import { useAppInfo } from '~/shared/composables/useAppInfo'
 import { useSession } from '~/shared/composables/useSession'
-import { type FakeApi, ok } from '../fake-api'
+import { type FakeApi, fails, ok } from '../fake-api'
 
 const mocks = vi.hoisted(() => ({
   auth: { updateName: vi.fn(), changePassword: vi.fn() },
@@ -106,6 +108,40 @@ describe('Log out', () => {
     const logout = wrapper.findAll('button').find(b => b.text() === 'Log out')!
     expect(logout.classes()).toEqual(expect.arrayContaining(['text-error', 'justify-start']))
     expect(logout.classes()).not.toContain('justify-center')
+    wrapper.unmount()
+  })
+})
+
+describe('branding on the login screen', () => {
+  const SEN = { coaching_name: 'Sen Coaching Centre', logo_url: 'https://ik.imagekit.io/sen/tests/logo.png' }
+
+  it('shows the centre’s logo and name above the card, fresh on every visit', async () => {
+    useAppInfo().info.value = { coaching_name: 'Old name', logo_url: null }
+    fake.GET.mockImplementation(() => ok(SEN))
+    const wrapper = await mountSuspended(PublicLayout, { slots: { default: () => 'the login card' } })
+    await flushPromises()
+
+    expect(fake.GET).toHaveBeenCalledWith('/api/v1/app')
+    expect(wrapper.text()).toContain('Sen Coaching Centre')
+    expect(wrapper.text()).not.toContain('Old name')
+    expect(wrapper.find('img').attributes('src')).toBe(SEN.logo_url)
+    expect(wrapper.text()).toContain('the login card')
+
+    // Settings › Branding saves into the same shared state
+    useAppInfo().set({ coaching_name: 'Sen Academy', logo_url: null })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Sen Academy')
+    expect(wrapper.find('img').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('still shows the card when the branding can’t be loaded', async () => {
+    useAppInfo().info.value = null
+    fake.GET.mockImplementation(() => fails(503, 'service_unavailable'))
+    const wrapper = await mountSuspended(PublicLayout, { slots: { default: () => 'the login card' } })
+    await flushPromises()
+
+    expect(wrapper.text()).toBe('the login card')
     wrapper.unmount()
   })
 })
