@@ -29,13 +29,24 @@ async function logOut(): Promise<void> {
 }
 </script>
 
+<!-- Red, like the dialog's confirm button. Full width (the teacher's menu), it is left-aligned like
+     the menu items above it. -->
 <template>
-  <UButton label="Log out" icon="i-lucide-log-out" color="neutral" :variant="variant ?? 'outline'" :block="block" @click="confirming = true" />
+  <UButton
+    label="Log out"
+    icon="i-lucide-log-out"
+    color="error"
+    :variant="variant ?? 'outline'"
+    :block="block"
+    :class="{ 'justify-start': block }"
+    @click="confirming = true"
+  />
   <ConfirmDialog
     v-model:open="confirming"
     title="Log out?"
     description="You'll need your email and password to log in again."
     confirm-label="Log out"
+    danger
     :pending="pending"
     @confirm="logOut"
   />

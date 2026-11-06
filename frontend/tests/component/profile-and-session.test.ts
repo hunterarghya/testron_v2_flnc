@@ -102,6 +102,10 @@ describe('Log out', () => {
     const labels = wrapper.findAll('button').map(b => b.text())
     expect(labels).toContain('Log out')
     expect(labels).not.toContain('Mrs Sen')
+    // Red, and left-aligned like the menu items above it
+    const logout = wrapper.findAll('button').find(b => b.text() === 'Log out')!
+    expect(logout.classes()).toEqual(expect.arrayContaining(['text-error', 'justify-start']))
+    expect(logout.classes()).not.toContain('justify-center')
     wrapper.unmount()
   })
 })
