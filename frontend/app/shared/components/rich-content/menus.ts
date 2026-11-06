@@ -3,6 +3,7 @@
 // passed up as commands; images open the file picker; maths and tables go in here.
 import type { EditorSuggestionMenuItem, EditorToolbarItem } from '@nuxt/ui'
 import type { Editor } from '@tiptap/core'
+import { type EditorState, TextSelection } from '@tiptap/pm/state'
 import type { Profile } from '~/shared/components/rich-content/extensions'
 
 export type EditorCommand
@@ -35,6 +36,15 @@ export function toolbarItems(profile: Profile): ToolbarItem[][] {
     { 'kind': 'orderedList', 'icon': 'i-lucide-list-ordered', 'aria-label': 'Numbered list' },
     { 'kind': 'textAlign', 'align': 'center', 'icon': 'i-lucide-align-center', 'aria-label': 'Centre' },
   ]]
+}
+
+/** The format bar is for selected text. A selected image or upload placeholder would show it
+ *  with every button greyed out, as an empty bar above the picture. */
+export function showFormatBar({ editor, state, element }: { editor: Editor, state: EditorState, element: HTMLElement }): boolean {
+  const { selection } = state
+  // As TipTap's own rule: only while the field (or the bar itself, being clicked) has focus
+  const focused = editor.view.hasFocus() || element.contains(document.activeElement)
+  return editor.isEditable && focused && selection instanceof TextSelection && !selection.empty
 }
 
 export function slashItems(profile: Profile, page: PageInsert[] = []): SlashItem[][] {

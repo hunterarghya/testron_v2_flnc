@@ -12,7 +12,7 @@ import type { RichDoc } from '~/api/types'
 import { fromEditor, type PmNode, toEditor } from '~/shared/components/rich-content/convert'
 import { type Profile, richExtensions, starterKitOptions } from '~/shared/components/rich-content/extensions'
 import { usePaste } from '~/shared/components/rich-content/usePaste'
-import { type EditorCommand, type PageInsert, slashItems, toolbarItems, useInsertHandlers } from '~/shared/components/rich-content/menus'
+import { type EditorCommand, type PageInsert, showFormatBar, slashItems, toolbarItems, useInsertHandlers } from '~/shared/components/rich-content/menus'
 
 const props = defineProps<{
   profile: Profile
@@ -98,7 +98,7 @@ function onPicked(event: Event): void {
       @update:model-value="onUpdate"
       @blur="emit('blur')"
     >
-      <UEditorToolbar :editor="editor" :items="toolbar" layout="bubble" />
+      <UEditorToolbar :editor="editor" :items="toolbar" layout="bubble" :should-show="showFormatBar" />
       <UEditorSuggestionMenu :editor="editor" :items="slash" />
     </UEditor>
     <!-- The same upload as pasting or "/" → Image, for teachers who don't know those -->

@@ -19,8 +19,10 @@ const Content = defineComponent({ setup: () => () => renderNodes(blocks.value, p
 defineExpose({ isEmpty: computed(() => blocks.value.length === 0) })
 </script>
 
+<!-- min-w-0: in a flex row (an option card) the content may shrink below an image's own pixel
+     width, so an image or a long caption never pushes past the card -->
 <template>
-  <div v-if="blocks.length" class="rich-content space-y-2 break-words">
+  <div v-if="blocks.length" class="rich-content min-w-0 max-w-full space-y-2 break-words">
     <Content />
   </div>
 </template>

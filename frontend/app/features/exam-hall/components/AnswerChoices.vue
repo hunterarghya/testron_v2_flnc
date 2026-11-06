@@ -15,6 +15,9 @@ const picked = computed(() => (props.answer?.kind === 'CHOICE' ? props.answer.op
 function choose(optionIds: string[]): void {
   emit('change', optionIds.length ? { v: 1, kind: 'CHOICE', option_ids: optionIds } : null)
 }
+// Each level must be allowed to shrink (a fieldset won't by default) and a card is as wide as the
+// list (a wrapping column would size it to its content), or a wide image overflows the card
+const CARD_UI = { fieldset: 'min-w-0', item: 'w-full min-w-0', wrapper: 'min-w-0' }
 </script>
 
 <template>
@@ -23,11 +26,12 @@ function choose(optionIds: string[]): void {
     :model-value="picked"
     :items="items"
     variant="card"
+    :ui="CARD_UI"
     legend="Choose one or more"
     @update:model-value="value => choose(value as string[])"
   >
     <template #label="{ item }">
-      <span class="flex items-start gap-2">
+      <span class="flex min-w-0 items-start gap-2">
         <span class="font-medium">{{ item.label }}</span>
         <RichContentView :doc="contents.get(String(item.value))" eager-images class="flex-1" />
       </span>
@@ -38,10 +42,11 @@ function choose(optionIds: string[]): void {
     :model-value="picked[0] ?? ''"
     :items="items"
     variant="card"
+    :ui="CARD_UI"
     @update:model-value="value => choose(value ? [String(value)] : [])"
   >
     <template #label="{ item }">
-      <span class="flex items-start gap-2">
+      <span class="flex min-w-0 items-start gap-2">
         <span class="font-medium">{{ item.label }}</span>
         <RichContentView :doc="contents.get(String(item.value))" eager-images class="flex-1" />
       </span>

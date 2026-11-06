@@ -79,7 +79,7 @@ async function leaveSection(): Promise<void> {
     <HallHeader :remaining-ms="timer.remainingMs.value" :palette="stages.kind.value !== 'PER_QUESTION'" @submit="submitting.open" @palette="paletteOpen = true" />
     <SectionBar v-if="stages.kind.value === 'SECTIONED'" :now-ms="timer.nowMs.value" :returnable="stages.returnable.value" @return="stages.returnTo" />
     <div class="flex flex-1">
-      <QuestionPanel class="flex-1" :kind="stages.kind.value" :last-stage="stages.lastStage.value" :moving="stages.moving.value" @next-stage="nextStage" @submit="submitting.open" />
+      <QuestionPanel class="min-w-0 flex-1" :kind="stages.kind.value" :last-stage="stages.lastStage.value" :moving="stages.moving.value" @next-stage="nextStage" @submit="submitting.open" />
       <QuestionPalette v-if="stages.kind.value !== 'PER_QUESTION'" class="hidden w-72 border-s border-default lg:block" />
     </div>
     <USlideover v-model:open="paletteOpen" side="bottom" title="Questions">

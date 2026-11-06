@@ -49,7 +49,7 @@ function image(node: PmNode): VNode {
   const attrs = node.attrs ?? {}
   const size = (attrs.size ?? 'M') as ImageSize
   const caption = String(attrs.caption ?? '')
-  return h('figure', { class: ['my-2', SIZE_CLASS[size]] }, [
+  return h('figure', { class: ['my-2 max-w-full', SIZE_CLASS[size]] }, [
     h('img', {
       src: displayUrl(String(attrs.src ?? ''), size),
       alt: String(attrs.alt ?? ''),
@@ -59,6 +59,6 @@ function image(node: PmNode): VNode {
       loading: attrs.eager ? 'eager' : 'lazy',
       class: 'h-auto max-w-full rounded',
     }),
-    caption ? h('figcaption', { class: 'text-center text-sm text-muted' }, caption) : null,
+    caption ? h('figcaption', { class: 'text-center text-sm text-muted break-words' }, caption) : null,
   ])
 }

@@ -1,5 +1,6 @@
 // RichContentView and RichContentEditor (editor_content_spec.md §4, §6, §7).
 import { Editor } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
@@ -8,7 +9,7 @@ import type { RichDoc } from '~/api/types'
 import { fromEditor, type PmNode, toEditor } from '~/shared/components/rich-content/convert'
 import { richExtensions, starterKitOptions } from '~/shared/components/rich-content/extensions'
 import { withinCompactLimits } from '~/shared/components/rich-content/extensions/limits'
-import { slashItems, toolbarItems, useInsertHandlers } from '~/shared/components/rich-content/menus'
+import { showFormatBar, slashItems, toolbarItems, useInsertHandlers } from '~/shared/components/rich-content/menus'
 import RichContentEditor from '~/shared/components/rich-content/RichContentEditor.vue'
 import RichContentView from '~/shared/components/rich-content/RichContentView.vue'
 import { startUpload } from '~/shared/components/rich-content/uploads'
@@ -60,6 +61,16 @@ describe('RichContentView', () => {
     expect(wrapper.find('th').text()).toBe('Organelle')
     expect(wrapper.find('td u').text()).toBe('Job')
     expect(wrapper.findAll('.katex')).toHaveLength(2)
+  })
+
+  it('content can shrink inside an option card, so a wide image or long caption stays in it', async () => {
+    const golgi = EVERYTHING.content.find(node => node.type === 'image')!
+    const wrapper = await mountSuspended(RichContentView, { props: { doc: { v: 1, type: 'doc', content: [golgi] } } })
+
+    expect(wrapper.classes()).toEqual(expect.arrayContaining(['min-w-0', 'max-w-full', 'break-words']))
+    expect(wrapper.find('figure').classes()).toContain('max-w-full')
+    expect(wrapper.find('img').classes()).toContain('max-w-full')
+    expect(wrapper.find('figcaption').classes()).toContain('break-words')
   })
 
   it('images are resized by the CDN, lazy by default, eager when asked', async () => {
@@ -151,6 +162,26 @@ describe('the editor schema', () => {
 })
 
 describe('menus', () => {
+  it('the format bar shows for selected text only, never above a selected image', () => {
+    const golgi = EVERYTHING.content.find(node => node.type === 'image')!
+    const editor = editorFor({ v: 1, type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Golgi body' }] }, golgi] })
+    const element = document.createElement('div')
+    vi.spyOn(editor.view, 'hasFocus').mockReturnValue(true)
+    const shown = () => showFormatBar({ editor, state: editor.state, element })
+
+    editor.commands.setTextSelection({ from: 1, to: 6 })
+    expect(shown()).toBe(true)
+    editor.commands.setTextSelection(3)
+    expect(shown()).toBe(false)
+    editor.view.dispatch(editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, editor.state.doc.child(0).nodeSize)))
+    expect(shown()).toBe(false)
+
+    editor.commands.setTextSelection({ from: 1, to: 6 })
+    vi.mocked(editor.view.hasFocus).mockReturnValue(false)
+    expect(shown()).toBe(false)
+    editor.destroy()
+  })
+
   it('the "/" menu offers question inserts only where asked, and fewer things in options', () => {
     const labels = (groups: ReturnType<typeof slashItems>) => groups.flat().map(item => item.label)
 

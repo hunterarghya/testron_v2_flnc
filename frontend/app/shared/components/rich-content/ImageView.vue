@@ -16,7 +16,7 @@ const caption = computed({
 </script>
 
 <template>
-  <NodeViewWrapper as="figure" class="my-2 space-y-1" :class="SIZE_CLASS[size]">
+  <NodeViewWrapper as="figure" class="my-2 max-w-full space-y-1" :class="SIZE_CLASS[size]">
     <img
       :src="displayUrl(node.attrs.src, size)"
       :alt="node.attrs.alt"
@@ -27,7 +27,7 @@ const caption = computed({
       draggable="false"
       data-drag-handle
     >
-    <figcaption v-if="caption && !selected" class="text-center text-sm text-muted">{{ caption }}</figcaption>
+    <figcaption v-if="caption && !selected" class="text-center text-sm text-muted break-words">{{ caption }}</figcaption>
     <div v-if="selected && editor.isEditable" class="flex flex-wrap items-center gap-1" contenteditable="false">
       <UButton
         v-for="option in SIZES"
