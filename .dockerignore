@@ -26,7 +26,10 @@ backend/.media
 backend/staticfiles
 
 # Tests and their output are not shipped
-**/tests
+# Named exactly: a bare **/tests would also drop app folders such as pages/tests (the
+# student's test gate) and pages/admin/tests (tests/tooling/test_dockerignore.py, ADR-086)
+backend/**/tests
+frontend/tests
 backend/conftest.py
 **/coverage.json
 **/.coverage
