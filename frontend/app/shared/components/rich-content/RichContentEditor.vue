@@ -1,5 +1,6 @@
 <!-- One rich field, editable (editor_content_spec.md §4): Nuxt UI's editor with our schema, a
-     format bar on selection, "/" for inserts, pasting cleaned on the way in, images uploaded.
+     format bar on selection, "/" for inserts, pasting cleaned on the way in, images uploaded
+     (pasted, dropped, or picked with the Add image button beside the field).
      The stored format comes in and goes out; the editor's own format stays inside. -->
 <script setup lang="ts">
 import type { Editor, JSONContent } from '@tiptap/core'
@@ -77,27 +78,40 @@ function onPicked(event: Event): void {
 </script>
 
 <template>
-  <UEditor
-    ref="root"
-    v-slot="{ editor }"
-    :model-value="content"
-    content-type="json"
-    :starter-kit="starterKitOptions(profile)"
-    :extensions="extensions"
-    :image="false"
-    :mention="false"
-    :placeholder="placeholder"
-    :editable="!disabled"
-    :handlers="handlers"
-    :editor-props="editorProps"
-    :aria-label="label ?? placeholder"
-    class="w-full"
-    :ui="{ base: profile === 'compact' ? 'min-h-6' : 'min-h-12' }"
-    @update:model-value="onUpdate"
-    @blur="emit('blur')"
-  >
-    <UEditorToolbar :editor="editor" :items="toolbar" layout="bubble" />
-    <UEditorSuggestionMenu :editor="editor" :items="slash" />
+  <div class="flex w-full items-start gap-1">
+    <UEditor
+      ref="root"
+      v-slot="{ editor }"
+      :model-value="content"
+      content-type="json"
+      :starter-kit="starterKitOptions(profile)"
+      :extensions="extensions"
+      :image="false"
+      :mention="false"
+      :placeholder="placeholder"
+      :editable="!disabled"
+      :handlers="handlers"
+      :editor-props="editorProps"
+      :aria-label="label ?? placeholder"
+      class="min-w-0 flex-1"
+      :ui="{ base: profile === 'compact' ? 'min-h-6' : 'min-h-12' }"
+      @update:model-value="onUpdate"
+      @blur="emit('blur')"
+    >
+      <UEditorToolbar :editor="editor" :items="toolbar" layout="bubble" />
+      <UEditorSuggestionMenu :editor="editor" :items="slash" />
+    </UEditor>
+    <!-- The same upload as pasting or "/" → Image, for teachers who don't know those -->
+    <UButton
+      v-if="!disabled"
+      icon="i-lucide-image-plus"
+      size="xs"
+      color="neutral"
+      variant="ghost"
+      title="Add image"
+      :aria-label="`Add image${label ? ` to ${label}` : ''}`"
+      @click="picker?.click()"
+    />
     <input ref="picker" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple class="hidden" @change="onPicked">
-  </UEditor>
+  </div>
 </template>

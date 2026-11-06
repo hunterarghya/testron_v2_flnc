@@ -3,7 +3,7 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { RichDoc } from '~/api/types'
 import { fromEditor, type PmNode, toEditor } from '~/shared/components/rich-content/convert'
 import { richExtensions, starterKitOptions } from '~/shared/components/rich-content/extensions'
@@ -11,6 +11,10 @@ import { withinCompactLimits } from '~/shared/components/rich-content/extensions
 import { slashItems, toolbarItems, useInsertHandlers } from '~/shared/components/rich-content/menus'
 import RichContentEditor from '~/shared/components/rich-content/RichContentEditor.vue'
 import RichContentView from '~/shared/components/rich-content/RichContentView.vue'
+import { startUpload } from '~/shared/components/rich-content/uploads'
+
+// No real uploads: these tests are about what reaches the editor
+vi.mock('~/api/uploads', async original => ({ ...(await original<typeof import('~/api/uploads')>()), uploadImage: vi.fn(() => new Promise(() => {})) }))
 
 const EVERYTHING: RichDoc = {
   v: 1,
@@ -117,6 +121,25 @@ describe('the editor schema', () => {
     editor.destroy()
   })
 
+  it('a second image in an option is refused with a reason, and never uploaded', () => {
+    const notify = vi.fn()
+    // The test DOM's File isn't the Blob Node's URL expects; the preview link itself doesn't matter
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview')
+    const revoked = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
+    const golgi = EVERYTHING.content.find(node => node.type === 'image')!
+    const option = editorFor({ v: 1, type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Golgi' }] }, golgi] }, 'compact')
+    // The cursor in the option's text, as after typing it
+    option.commands.setTextSelection(3)
+
+    startUpload(option, new File(['x'], 'cell.png', { type: 'image/png' }), notify)
+
+    expect(JSON.stringify(option.getJSON())).not.toContain('imageUpload')
+    expect(notify.mock.calls.map(([problem]) => problem.code)).toEqual(['image_limit'])
+    expect(revoked).toHaveBeenCalledWith('blob:preview')
+    option.destroy()
+    vi.restoreAllMocks()
+  })
+
   it('an option has no lists, tables or displayed equations', () => {
     const editor = editorFor({ v: 1, type: 'doc', content: [] }, 'compact')
 
@@ -176,5 +199,19 @@ describe('RichContentEditor', () => {
     expect(saved.v).toBe(1)
     expect(saved.content).toHaveLength(2)
     expect(JSON.stringify(saved)).toContain('"subscript"')
+  })
+
+  it('offers an Add image button beside the field that opens the file picker, unless read-only', async () => {
+    const empty: RichDoc = { v: 1, type: 'doc', content: [] }
+    const picked = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    const option = await mountSuspended(RichContentEditor, { props: { modelValue: empty, profile: 'compact', label: 'Option A' } })
+
+    await option.find('button[aria-label="Add image to Option A"]').trigger('click')
+    expect(picked).toHaveBeenCalledTimes(1)
+    expect(option.find('input[type="file"]').attributes('accept')).toContain('image/png')
+
+    const locked = await mountSuspended(RichContentEditor, { props: { modelValue: empty, profile: 'full', label: 'Question text', disabled: true } })
+    expect(locked.find('button[aria-label="Add image to Question text"]').exists()).toBe(false)
+    picked.mockRestore()
   })
 })

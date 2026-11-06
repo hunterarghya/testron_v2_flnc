@@ -26,6 +26,7 @@ export const PROBLEM_MESSAGES: Record<string, string> = {
   image_type: 'Use a PNG, JPEG, WebP or GIF image.',
   image_too_large: 'Use an image of 5 MB or less.',
   image_not_copied: 'Some pasted images couldn\'t be copied. Upload them instead.',
+  image_limit: 'An option holds one image. Remove it first to add another.',
   confirmation_mismatch: 'The confirmation text doesn\'t match.',
   assignment_started: 'This can\'t be changed after the test has started.',
   assignment_cancelled: 'This test was cancelled.',

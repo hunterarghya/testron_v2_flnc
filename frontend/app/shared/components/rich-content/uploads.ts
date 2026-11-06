@@ -2,7 +2,7 @@
 // (phone photos), shown at once as a placeholder with a local preview, uploaded straight to
 // storage, then swapped for the real image. A failed upload offers Retry or Remove.
 import type { Editor } from '@tiptap/core'
-import { type ApiProblem, toProblem } from '~/api/problems'
+import { ApiProblem, toProblem } from '~/api/problems'
 import { imageProblem, uploadImage } from '~/api/uploads'
 import { IMAGE_UPLOAD } from '~/shared/components/rich-content/convert'
 
@@ -24,8 +24,16 @@ export function startUpload(editor: Editor, file: File, notify: Notify): void {
   }
   nextId += 1
   const uploadId = `upload-${nextId}`
+  const previewUrl = URL.createObjectURL(file)
+  editor.chain().focus().insertContent({ type: IMAGE_UPLOAD, attrs: { uploadId, previewUrl } }).run()
+  // An option refuses a second image (extensions/limits.ts filters the change out, which the
+  // command can't see): say so, and upload nothing
+  if (!findPlaceholder(editor, uploadId)) {
+    URL.revokeObjectURL(previewUrl)
+    notify(new ApiProblem({ status: 0, code: 'image_limit', detail: 'The field has no room for another image' }))
+    return
+  }
   waiting.set(uploadId, file)
-  editor.chain().focus().insertContent({ type: IMAGE_UPLOAD, attrs: { uploadId, previewUrl: URL.createObjectURL(file) } }).run()
   void upload(editor, uploadId, notify)
 }
 
